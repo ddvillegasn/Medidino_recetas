@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Gestión de Receta Médica</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/nueva-receta.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">MÓDULO EMISIÓN Y SEGUIMIENTO - GESTIÓN DE RECETA MÉDICA</h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-item nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Menú Principal</span>
+            </a>
+            <hr style="border: 1px solid #E0E6ED; margin: 0.5rem 0;">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="nueva-receta.html" class="nav-item active">
+                <i class="fas fa-prescription"></i>
+                <span>Gestión de Receta Médica</span>
+            </a>
+            <a href="#historial" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
+            <a href="#pacientes" class="nav-item">
+                <i class="fas fa-user-injured"></i>
+                <span>Pacientes</span>
+            </a>
+            <a href="#medicos" class="nav-item">
+                <i class="fas fa-user-md"></i>
+                <span>Médicos</span>
+            </a>
+            <a href="#pqrs" class="nav-item">
+                <i class="fas fa-comment-medical"></i>
+                <span>PQRS</span>
+            </a>
+            <a href="#configuracion" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner">
+            <div class="banner-content">
+                <div class="banner-logo">
+                    <i class="fas fa-prescription"></i>
+                    <h2>Gestión de Receta Médica</h2>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn-secondary" onclick="window.location.href='index.html'">
+                        <i class="fas fa-arrow-left"></i> Volver al Inicio
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Información del Médico Logueado (Automática) -->
+            <div class="medico-info-card">
+                <div class="medico-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="medico-datos">
+                    <h3 id="medicoNombre">Dr. Roberto Sánchez</h3>
+                    <p id="medicoEspecialidad"><i class="fas fa-stethoscope"></i> Medicina General</p>
+                    <p id="medicoRegistro"><i class="fas fa-id-card"></i> Registro Médico: RM-12345</p>
+                </div>
+                <div class="medico-badge">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Médico Activo</span>
+                </div>
+            </div>
+
+            <!-- Búsqueda de Paciente - Diseño Mejorado -->
+            <div class="search-hero-section">
+                <div class="search-hero-content">
+                    <div class="search-hero-header">
+                        <div class="search-icon-wrapper">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="search-hero-text">
+                            <h2>Gestión de Recetas Médicas</h2>
+                            <p>Busque un paciente para ver su historial y gestionar sus recetas</p>
+                        </div>
+                    </div>
+                    
+                    <div class="search-box-modern">
+                        <div class="search-input-modern">
+                            <i class="fas fa-id-card search-input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="buscarPacienteId" 
+                                placeholder="Ingrese el número de cédula del paciente..."
+                                autocomplete="off"
+                            >
+                            <button type="button" class="btn-search-modern" onclick="buscarPacienteYRecetas()">
+                                <i class="fas fa-search"></i>
+                                <span>Buscar Paciente</span>
+                            </button>
+                        </div>
+                        
+                        <div class="search-suggestions">
+                            <span class="suggestion-label">
+                                <i class="fas fa-lightbulb"></i> Cédulas de prueba:
+                            </span>
+                            <button type="button" class="suggestion-chip" onclick="document.getElementById('buscarPacienteId').value='1234567'; buscarPacienteYRecetas();">
+                                1234567
+                            </button>
+                            <button type="button" class="suggestion-chip" onclick="document.getElementById('buscarPacienteId').value='2345678'; buscarPacienteYRecetas();">
+                                2345678
+                            </button>
+                            <button type="button" class="suggestion-chip" onclick="document.getElementById('buscarPacienteId').value='3456789'; buscarPacienteYRecetas();">
+                                3456789
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Paciente y Sus Recetas (Se muestra después de buscar) -->
+            <div id="pacienteRecetasContainer" style="display: none;">
+                
+                <!-- Tarjeta de Información del Paciente -->
+                <div class="card paciente-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-injured"></i> Información del Paciente
+                        </h3>
+                        <button class="btn-nueva-receta" onclick="mostrarFormularioNuevaReceta()">
+                            <i class="fas fa-plus"></i> Nueva Receta para este Paciente
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="paciente-info-grid">
+                            <div class="info-item">
+                                <label><i class="fas fa-user"></i> Nombre Completo:</label>
+                                <span id="pacienteNombreInfo">---</span>
+                            </div>
+                            <div class="info-item">
+                                <label><i class="fas fa-id-card"></i> Identificación:</label>
+                                <span id="pacienteIdInfo">---</span>
+                            </div>
+                            <div class="info-item">
+                                <label><i class="fas fa-birthday-cake"></i> Edad:</label>
+                                <span id="pacienteEdadInfo">---</span>
+                            </div>
+                            <div class="info-item">
+                                <label><i class="fas fa-venus-mars"></i> Género:</label>
+                                <span id="pacienteGeneroInfo">---</span>
+                            </div>
+                            <div class="info-item">
+                                <label><i class="fas fa-phone"></i> Teléfono:</label>
+                                <span id="pacienteTelefonoInfo">---</span>
+                            </div>
+                            <div class="info-item">
+                                <label><i class="fas fa-envelope"></i> Email:</label>
+                                <span id="pacienteEmailInfo">---</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="pacienteIdHidden">
+                    </div>
+                </div>
+
+                <!-- Historial de Recetas del Paciente -->
+                <div class="card historial-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-history"></i> Historial de Recetas
+                            <span class="badge-count" id="totalRecetasPaciente">0</span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="recetas-timeline" id="recetasTimeline">
+                            <!-- Se llena dinámicamente con las recetas del paciente -->
+                            <div class="timeline-placeholder">
+                                <i class="fas fa-prescription"></i>
+                                <p>No se encontraron recetas para este paciente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Formulario de Nueva Receta / Editar Receta (Modal/Card oculto inicialmente) -->
+            <div class="card form-card" id="formularioRecetaCard" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title" id="tituloFormularioReceta">
+                        <i class="fas fa-file-medical"></i> Nueva Receta Médica
+                    </h3>
+                    <button class="btn-close-form" onclick="cerrarFormularioReceta()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+
+                    <form id="formNuevaReceta" class="form-receta">
+                        <!-- Sección: Información del Paciente -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-user-injured"></i> Información del Paciente
+                            </h4>
+                            
+                            <div class="form-row">
+                                <div class="form-group form-group-lg">
+                                    <label for="buscarPacienteId" class="required">Buscar Paciente por ID</label>
+                                    <div class="input-with-icon" style="position: relative;">
+                                        <i class="fas fa-id-card"></i>
+                                        <input 
+                                            type="text" 
+                                            id="buscarPacienteId" 
+                                            name="buscarPacienteId" 
+                                            placeholder="Ingrese número de identificación del paciente..."
+                                            required
+                                            autocomplete="off"
+                                        >
+                                        <button type="button" id="btnBuscarPaciente" class="btn-search-inline">
+                                            <i class="fas fa-search"></i> Buscar
+                                        </button>
+                                    </div>
+                                    <small class="form-hint">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Ingrese el número de cédula o identificación del paciente y presione Buscar
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Datos Completos del Paciente (se muestran al seleccionar) -->
+                            <div id="datosPacienteContainer" style="display: none;">
+                                <input type="hidden" id="pacienteIdHidden">
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="pacienteNombre">Nombre Completo</label>
+                                        <input type="text" id="pacienteNombre" placeholder="Nombre del paciente">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pacienteIdentificacion">Identificación</label>
+                                        <input type="text" id="pacienteIdentificacion" placeholder="Cédula o documento">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="pacienteEdad">Edad</label>
+                                        <input type="number" id="pacienteEdad" placeholder="Edad">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pacienteGenero">Género</label>
+                                        <select id="pacienteGenero">
+                                            <option value="">Seleccione...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="pacienteTelefono">Teléfono</label>
+                                        <input type="tel" id="pacienteTelefono" placeholder="Número de contacto">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pacienteCorreo">Correo Electrónico</label>
+                                        <input type="email" id="pacienteCorreo" placeholder="correo@ejemplo.com">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pacienteDireccion">Dirección</label>
+                                    <input type="text" id="pacienteDireccion" placeholder="Dirección completa del paciente">
+                                </div>
+
+                                <!-- Botón para guardar cambios del paciente -->
+                                <div style="text-align: right; margin-top: 1rem;">
+                                    <button type="button" class="btn-primary" onclick="guardarCambiosPaciente()">
+                                        <i class="fas fa-save"></i> Guardar Cambios del Paciente
+                                    </button>
+                                </div>
+
+                                <div class="alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Nota:</strong> Los datos del paciente se pueden modificar aquí. Los cambios se actualizarán en el sistema.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Medicamentos -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-pills"></i> Prescripción de Medicamentos
+                            </h4>
+                            
+                            <div id="medicamentosContainer">
+                                <!-- Medicamento 1 (por defecto) -->
+                                <div class="medicamento-item" data-index="0">
+                                    <div class="medicamento-header">
+                                        <h5><i class="fas fa-capsules"></i> Medicamento #1</h5>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group form-group-lg">
+                                            <label for="medicamento_0" class="required">Medicamento</label>
+                                            <div class="input-with-icon">
+                                                <i class="fas fa-prescription-bottle"></i>
+                                                <select id="medicamento_0" name="medicamento[]" required>
+                                                    <option value="">Cargando medicamentos disponibles...</option>
+                                                </select>
+                                            </div>
+                                            <small class="form-hint">
+                                                <i class="fas fa-info-circle"></i> 
+                                                Los medicamentos se cargan desde el inventario (Módulo Grupo 1)
+                                            </small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="dosis_0" class="required">Dosis</label>
+                                            <input type="text" id="dosis_0" name="dosis[]" placeholder="Ej: 500mg" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="frecuencia_0" class="required">Frecuencia</label>
+                                            <input type="text" id="frecuencia_0" name="frecuencia[]" placeholder="Ej: Cada 8 horas" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="duracion_0" class="required">Duración</label>
+                                            <input type="text" id="duracion_0" name="duracion[]" placeholder="Ej: 7 días" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-add-medicamento" id="btnAgregarMedicamento">
+                                <i class="fas fa-plus-circle"></i> Agregar Otro Medicamento
+                            </button>
+                        </div>
+
+                        <!-- Sección: Observaciones -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-notes-medical"></i> Observaciones Adicionales
+                            </h4>
+                            <div class="form-group">
+                                <label for="observaciones">Observaciones (Opcional)</label>
+                                <textarea id="observaciones" name="observaciones" rows="4" 
+                                          placeholder="Ingrese observaciones adicionales, recomendaciones especiales o indicaciones para el paciente..."></textarea>
+                                <small class="form-hint">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Máximo 500 caracteres
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Estado de la Receta (Solo visible en modo edición) -->
+                        <div class="form-section" id="seccionEstadoReceta" style="display: none;">
+                            <h4 class="section-title">
+                                <i class="fas fa-toggle-on"></i> Estado de la Receta
+                            </h4>
+                            <div class="form-row">
+                                <div class="form-group form-group-lg">
+                                    <label for="estadoReceta" class="required">Estado Actual</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-info-circle"></i>
+                                        <select id="estadoReceta" name="estadoReceta">
+                                            <option value="Pendiente">⏳ Pendiente</option>
+                                            <option value="Completado">✅ Completado</option>
+                                            <option value="Enviado">📤 Enviado</option>
+                                            <option value="Cancelado">❌ Cancelado</option>
+                                        </select>
+                                    </div>
+                                    <small class="form-hint">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Seleccione el estado actual de la receta
+                                    </small>
+                                </div>
+                                <div class="form-group form-group-lg">
+                                    <label for="motivoCambioEstado">Motivo del cambio de estado</label>
+                                    <input type="text" id="motivoCambioEstado" name="motivoCambioEstado" 
+                                           placeholder="Ej: Paciente completó el tratamiento">
+                                    <small class="form-hint">
+                                        <i class="fas fa-comment-dots"></i> 
+                                        Explique brevemente por qué cambió el estado
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Importante:</strong> El cambio de estado quedará registrado en el historial de cambios de la receta.
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" id="btnCancelar">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                            <button type="button" class="btn-clear" id="btnLimpiar">
+                                <i class="fas fa-eraser"></i> Limpiar Formulario
+                            </button>
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-check-circle"></i> Generar Receta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Panel de Vista Previa (opcional) -->
+                <div class="card preview-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-eye"></i> Vista Previa de la Receta
+                        </h3>
+                    </div>
+                    <div class="preview-content" id="vistaPrevia">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-file-prescription"></i>
+                            <p>Complete el formulario para ver la vista previa de la receta</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal" id="modalConfirmacion">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> Receta Generada Exitosamente</h3>
+            </div>
+            <div class="modal-body">
+                <p>La receta médica ha sido generada y guardada correctamente.</p>
+                <p><strong>Número de Receta:</strong> <span id="numeroReceta">RX-2025-0001</span></p>
+                <p><strong>Fecha:</strong> <span id="fechaReceta"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModal()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button class="btn-primary" onclick="imprimirReceta()">
+                    <i class="fas fa-print"></i> Imprimir Receta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/nueva-receta.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Script de verificación -->
+    <script>
+        console.log('═══════════════════════════════════════');
+        console.log('🔍 VERIFICACIÓN DE FUNCIONES');
+        console.log('═══════════════════════════════════════');
+        console.log('✓ buscarPacienteYRecetas existe:', typeof buscarPacienteYRecetas);
+        console.log('✓ mostrarNotificacion existe:', typeof mostrarNotificacion);
+        console.log('✓ mostrarInfoPaciente existe:', typeof mostrarInfoPaciente);
+        console.log('✓ mostrarHistorialRecetas existe:', typeof mostrarHistorialRecetas);
+        console.log('✓ Campo buscarPacienteId:', document.getElementById('buscarPacienteId'));
+        console.log('✓ Container pacienteRecetasContainer:', document.getElementById('pacienteRecetasContainer'));
+        console.log('✓ Timeline recetasTimeline:', document.getElementById('recetasTimeline'));
+        console.log('═══════════════════════════════════════');
+        console.log('🔍 VERIFICACIÓN DEL SIDEBAR');
+        console.log('═══════════════════════════════════════');
+        console.log('✓ menuToggle:', document.getElementById('menuToggle'));
+        console.log('✓ sidebar:', document.getElementById('sidebar'));
+        console.log('✓ closeSidebar:', document.getElementById('closeSidebar'));
+        console.log('✓ overlay:', document.getElementById('overlay'));
+        console.log('═══════════════════════════════════════');
+    </script>
+</body>
+</html>

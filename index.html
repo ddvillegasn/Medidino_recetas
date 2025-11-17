@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Emisión y Seguimiento de Recetas</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">MODULO EMISION Y SEGUIMIENTO HOME</h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-item nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Menú Principal</span>
+            </a>
+            <hr style="border: 1px solid #E0E6ED; margin: 0.5rem 0;">
+            <a href="#inicio" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="nueva-receta.html" class="nav-item">
+                <i class="fas fa-prescription"></i>
+                <span>Gestión de Receta Médica</span>
+            </a>
+            <a href="historial.html" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner">
+            <div class="banner-content">
+                <div class="banner-logo">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    <h2>Medidino <span>- Emisión y Seguimiento de Recetas</span></h2>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-address-book"></i> Contáctenos
+                    </button>
+                    <button class="btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Agenda tu cita
+                    </button>
+                </div>
+            </div>
+            <div class="banner-hero">
+                <h1>Emisión y Seguimiento de Recetas</h1>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-item active" data-tab="Nueva Receta">
+                <i class="fas fa-home"></i> Nueva Receta
+            </button>
+            <button class="tab-item" data-tab="nueva-receta" onclick="window.location.href='nueva-receta.html'">
+                <i class="fas fa-prescription"></i> Gestión de Receta Médica
+            </button>
+            <button class="tab-item" data-tab="historial" onclick="window.location.href='historial.html'">
+                <i class="fas fa-history"></i> Historial
+            </button>
+        </nav>
+
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Información del Médico Activo -->
+            <div class="medico-info-banner">
+                <div class="medico-avatar-small">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="medico-info-text">
+                    <h4 id="medicoActivoNombre">Dr. Roberto Sánchez</h4>
+                    <p id="medicoActivoEspecialidad">Medicina General • RM-12345</p>
+                </div>
+                <div class="medico-status">
+                    <span class="status-badge">
+                        <i class="fas fa-circle"></i> En línea
+                    </span>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard">
+                <!-- Gestión de Receta Médica Card -->
+                <div class="card card-form">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-prescription"></i> Nueva Receta Médica
+                    </h3>
+                    <form class="receta-form" id="nuevaRecetaForm">
+                        <!-- Información del Paciente -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-user-injured"></i> Información del Paciente
+                            </h4>
+                            
+                            <!-- Búsqueda de Paciente Existente -->
+                            <div class="busqueda-paciente-box">
+                                <label>
+                                    <i class="fas fa-search"></i> Buscar Paciente por Cédula
+                                </label>
+                                <div class="input-search-group">
+                                    <input type="text" id="buscarPacienteCedula" placeholder="Ingrese número de cédula">
+                                    <button type="button" class="btn-search" onclick="buscarYCargarPaciente()">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <small class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Si el paciente está registrado, se cargarán sus datos automáticamente. Si no existe, puede registrarlo llenando los campos.
+                                </small>
+                            </div>
+
+                            <!-- Indicador de Paciente Encontrado -->
+                            <div id="pacienteEncontradoBox" style="display: none;">
+                                <div class="paciente-encontrado-card">
+                                    <div class="card-header">
+                                        <i class="fas fa-user-check"></i>
+                                        <strong>Paciente Encontrado</strong>
+                                        <button type="button" class="btn-cambiar" onclick="limpiarPaciente()">
+                                            <i class="fas fa-times"></i> Cambiar
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Nombre:</strong> <span id="pacienteNombreMostrar">---</span></p>
+                                        <p><strong>Cédula:</strong> <span id="pacienteCedulaMostrar">---</span></p>
+                                        <p><strong>Teléfono:</strong> <span id="pacienteTelefonoMostrar">---</span></p>
+                                        <input type="hidden" id="pacienteIdHidden">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TODO EL CONTENIDO DEL FORMULARIO (Oculto hasta buscar paciente) -->
+                            <div id="contenidoFormularioReceta" style="display: none;">
+
+                            <hr style="margin: 1.5rem 0; border: 1px solid var(--border-color);">
+
+                            <!-- Formulario de Registro de Nuevo Paciente -->
+                            <div id="formRegistroPaciente">
+                                <p class="texto-registro">
+                                    <i class="fas fa-user-plus"></i> Si el paciente no está registrado, complete los siguientes datos:
+                                </p>
+                                
+                                <!-- Campos del Paciente -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nombrePaciente">
+                                            <i class="fas fa-user"></i> Nombre Completo del Paciente
+                                        </label>
+                                        <input type="text" id="nombrePaciente" placeholder="Ej: Juan Pérez González">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="identificacionPaciente">
+                                            <i class="fas fa-id-card"></i> Identificación
+                                        </label>
+                                        <input type="text" id="identificacionPaciente" placeholder="Ej: 1234567890">
+                                    </div>
+                                </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fechaNacimiento">
+                                        <i class="fas fa-birthday-cake"></i> Fecha de Nacimiento
+                                    </label>
+                                    <input type="date" id="fechaNacimiento" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefonoPaciente">
+                                        <i class="fas fa-phone"></i> Teléfono
+                                    </label>
+                                    <input type="tel" id="telefonoPaciente" placeholder="Ej: 3001234567">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de la Receta -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-prescription"></i> Detalles de la Receta
+                            </h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fechaEmision">
+                                        <i class="fas fa-calendar"></i> Fecha de Emisión
+                                    </label>
+                                    <input type="date" id="fechaEmision" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="diagnostico">
+                                        <i class="fas fa-notes-medical"></i> Diagnóstico
+                                    </label>
+                                    <input type="text" id="diagnostico" placeholder="Ej: Infección respiratoria" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medicamento y Dosis -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-pills"></i> Medicamento
+                                <small class="text-muted">(Se cargarán medicamentos disponibles del inventario)</small>
+                            </h4>
+                            <div class="form-group">
+                                <label for="medicamentoNombre">
+                                    <i class="fas fa-capsules"></i> Nombre del Medicamento
+                                </label>
+                                <input type="text" id="medicamentoNombre" placeholder="Ej: Amoxicilina 500mg" required>
+                                <small class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Por ahora ingrese manualmente. Los medicamentos disponibles se cargarán automáticamente cuando el módulo de inventario esté listo.
+                                </small>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dosis">
+                                        <i class="fas fa-prescription-bottle"></i> Dosis
+                                    </label>
+                                    <input type="text" id="dosis" placeholder="Ej: 500 mg cada 8 horas" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="duracion">
+                                        <i class="fas fa-calendar-alt"></i> Duración del Tratamiento
+                                    </label>
+                                    <input type="text" id="duracion" placeholder="Ej: 7 días" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="observaciones">
+                                    <i class="fas fa-comment-medical"></i> Observaciones
+                                </label>
+                                <textarea id="observaciones" rows="3" placeholder="Indicaciones adicionales para el paciente..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn-submit" style="flex: 1; background: #28a745;">
+                                <i class="fas fa-save"></i> Guardar Receta
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="window.location.href='nueva-receta.html'" style="flex: 1; background: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fas fa-arrow-right"></i> Ir a Gestión Completa
+                            </button>
+                        </div>
+
+                            </div>
+                            <!-- FIN contenidoFormularioReceta -->
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <script src="js/main.js"></script>
+    
+    <!-- Script para búsqueda de paciente -->
+    <script>
+        console.log('🔍 Verificando elementos del sidebar...');
+        console.log('menuToggle:', document.getElementById('menuToggle'));
+        console.log('sidebar:', document.getElementById('sidebar'));
+        console.log('closeSidebar:', document.getElementById('closeSidebar'));
+        console.log('overlay:', document.getElementById('overlay'));
+
+        // Base de datos simulada de pacientes
+        const pacientesIndexDB = {
+            "1234567": {
+                id: 1,
+                nombre: "Ana María Pérez González",
+                identificacion: "1234567",
+                telefono: "301-234-5678",
+                fechaNacimiento: "1990-01-15"
+            },
+            "2345678": {
+                id: 2,
+                nombre: "Juan Carlos García López",
+                identificacion: "2345678",
+                telefono: "302-345-6789",
+                fechaNacimiento: "1983-05-20"
+            },
+            "3456789": {
+                id: 3,
+                nombre: "María Sofía Rodríguez Martínez",
+                identificacion: "3456789",
+                telefono: "303-456-7890",
+                fechaNacimiento: "1997-08-12"
+            }
+        };
+
+        // Función para buscar y cargar paciente
+        function buscarYCargarPaciente() {
+            const cedula = document.getElementById('buscarPacienteCedula').value.trim();
+            
+            if (!cedula) {
+                alert('⚠️ Por favor ingrese un número de cédula');
+                return;
+            }
+
+            console.log('🔍 Buscando paciente con cédula:', cedula);
+
+            // Buscar en la base de datos
+            const paciente = pacientesIndexDB[cedula];
+            
+            if (paciente) {
+                console.log('✅ Paciente encontrado:', paciente);
+                
+                // Mostrar card de paciente encontrado
+                const pacienteBox = document.getElementById('pacienteEncontradoBox');
+                if (pacienteBox) {
+                    pacienteBox.style.display = 'block';
+                    document.getElementById('pacienteNombreMostrar').textContent = paciente.nombre;
+                    document.getElementById('pacienteCedulaMostrar').textContent = paciente.identificacion;
+                    document.getElementById('pacienteTelefonoMostrar').textContent = paciente.telefono;
+                    document.getElementById('pacienteIdHidden').value = paciente.id;
+                }
+                
+                // Pre-llenar los campos del formulario
+                document.getElementById('nombrePaciente').value = paciente.nombre;
+                document.getElementById('identificacionPaciente').value = paciente.identificacion;
+                document.getElementById('fechaNacimiento').value = paciente.fechaNacimiento || '';
+                document.getElementById('telefonoPaciente').value = paciente.telefono;
+                
+                // Mostrar todo el contenido del formulario
+                const contenedor = document.getElementById('contenidoFormularioReceta');
+                if (contenedor) {
+                    contenedor.style.display = 'block';
+                    
+                    // Auto-completar fecha de emisión
+                    const fechaInput = document.getElementById('fechaEmision');
+                    if (fechaInput) {
+                        const hoy = new Date().toISOString().split('T')[0];
+                        fechaInput.value = hoy;
+                    }
+                    
+                    // Scroll suave
+                    setTimeout(() => {
+                        contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+                
+                alert('✅ Paciente encontrado: ' + paciente.nombre + '\n\nDatos cargados. Complete la receta.');
+                
+            } else {
+                console.log('❌ Paciente NO encontrado');
+                alert('❌ Paciente no encontrado\n\nLa cédula ' + cedula + ' no está registrada.\n\nRegistre al paciente en el módulo de Gestión de Pacientes.');
+                
+                document.getElementById('pacienteEncontradoBox').style.display = 'none';
+                document.getElementById('contenidoFormularioReceta').style.display = 'none';
+            }
+        }
+
+        // Función para limpiar
+        function limpiarPaciente() {
+            document.getElementById('buscarPacienteCedula').value = '';
+            document.getElementById('pacienteEncontradoBox').style.display = 'none';
+            const contenedor = document.getElementById('contenidoFormularioReceta');
+            if (contenedor) {
+                contenedor.style.display = 'none';
+            }
+        }
+
+        // Permitir buscar con Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const campoCedula = document.getElementById('buscarPacienteCedula');
+            if (campoCedula) {
+                campoCedula.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        buscarYCargarPaciente();
+                    }
+                });
+            }
+
+            // Manejar envío del formulario de nueva receta
+            const formReceta = document.getElementById('nuevaRecetaForm');
+            if (formReceta) {
+                formReceta.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    guardarReceta();
+                });
+            }
+        });
+
+        // Función para guardar la receta
+        function guardarReceta() {
+            // Validar que haya un paciente
+            const pacienteId = document.getElementById('pacienteIdHidden')?.value;
+            const nombrePaciente = document.getElementById('nombrePaciente').value.trim();
+            
+            if (!pacienteId && !nombrePaciente) {
+                alert('⚠️ Debe buscar o registrar un paciente primero');
+                return;
+            }
+
+            // Obtener datos del formulario
+            const fechaEmision = document.getElementById('fechaEmision').value;
+            const diagnostico = document.getElementById('diagnostico').value.trim();
+            const medicamento = document.getElementById('medicamentoNombre').value.trim();
+            const dosis = document.getElementById('dosis').value.trim();
+            const duracion = document.getElementById('duracion').value.trim();
+            const observaciones = document.getElementById('observaciones').value.trim();
+
+            // Validaciones básicas
+            if (!fechaEmision || !diagnostico || !medicamento || !dosis || !duracion) {
+                alert('⚠️ Por favor complete todos los campos obligatorios');
+                return;
+            }
+
+            // Generar número de receta
+            const numeroReceta = 'RX-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 10000)).padStart(5, '0');
+
+            // Crear objeto de receta
+            const receta = {
+                numero_receta: numeroReceta,
+                fecha_emision: fechaEmision,
+                diagnostico: diagnostico,
+                observaciones: observaciones,
+                estado: 'Pendiente',
+                paciente: {
+                    id: pacienteId || null,
+                    nombre: nombrePaciente,
+                    identificacion: document.getElementById('identificacionPaciente').value,
+                    telefono: document.getElementById('telefonoPaciente').value
+                },
+                medicamento: {
+                    nombre: medicamento,
+                    dosis: dosis,
+                    duracion: duracion
+                }
+            };
+
+            console.log('📋 Receta generada:', receta);
+
+            // Aquí iría la llamada al backend
+            // fetch('/api/recetas', { method: 'POST', body: JSON.stringify(receta) })
+
+            // Simular guardado exitoso
+            alert('✅ Receta guardada exitosamente!\n\n' +
+                  'Número de Receta: ' + numeroReceta + '\n' +
+                  'Paciente: ' + nombrePaciente + '\n' +
+                  'Medicamento: ' + medicamento + '\n\n' +
+                  'La receta ha sido registrada en el sistema.');
+
+            // Preguntar si quiere crear otra o ver el historial
+            const respuesta = confirm('¿Desea crear otra receta?\n\n' +
+                                     'Presione OK para crear otra receta\n' +
+                                     'Presione Cancelar para ver el historial');
+
+            if (respuesta) {
+                // Limpiar formulario
+                limpiarFormularioReceta();
+            } else {
+                // Ir al historial
+                window.location.href = 'historial.html';
+            }
+        }
+
+        // Función para limpiar el formulario
+        function limpiarFormularioReceta() {
+            document.getElementById('buscarPacienteCedula').value = '';
+            document.getElementById('pacienteEncontradoBox').style.display = 'none';
+            document.getElementById('contenidoFormularioReceta').style.display = 'none';
+            document.getElementById('nuevaRecetaForm').reset();
+        }
+    </script>
+
+    <style>
+        .btn-secondary:hover {
+            background: #5a6268 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</body>
+</html>
