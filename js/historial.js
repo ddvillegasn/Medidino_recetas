@@ -125,8 +125,35 @@ const recetasPorPagina = 10;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Inicializando historial...');
     inicializarEventos();
-    cargarRecetas();
-    actualizarEstadisticas();
+    // Intentar cargar recetas desde la API; si falla, usar datos locales mock
+    fetch('/api/recetas')
+        .then(res => res.json())
+        .then(data => {
+            // Mapear la respuesta API al formato local esperado
+            recetasArray = (data || []).map(r => ({
+                id: r.id_receta || r.id || null,
+                numero: r.numero_receta || r.numero || '',
+                fecha: (r.fecha_emision || r.fecha || '').split ? (r.fecha_emision || r.fecha || '').split('T')[0] : (r.fecha_emision || r.fecha || ''),
+                paciente: { nombre: r.paciente_nombre || r.paciente?.nombre || r.paciente_identificacion || 'Paciente' },
+                medico: { nombre: r.medico_nombre || r.medico?.nombre || '', especialidad: r.medico_especialidad || '' },
+                medicamentos: (r.detalles || r.medicamentos || []).map(d => ({ nombre: d.medicamento_nombre || d.nombre || '' , dosis: d.dosis, frecuencia: d.frecuencia, duracion: d.duracion })),
+                observaciones: r.observaciones || '',
+                estado: r.estado || 'Pendiente'
+            }));
+
+            console.log('✅ Recetas cargadas desde API:', recetasArray.length);
+            recetasFiltradas = [...recetasArray];
+            paginaActual = 1;
+            cargarRecetas();
+            actualizarEstadisticas();
+        })
+        .catch(err => {
+            console.warn('⚠️ No se pudieron cargar recetas desde la API, usando datos locales:', err);
+            // mantener los datos locales ya inicializados
+            recetasFiltradas = [...recetasArray];
+            cargarRecetas();
+            actualizarEstadisticas();
+        });
 });
 
 // ============================================
@@ -195,7 +222,7 @@ function cargarRecetas() {
                 <td>${medicamentosHTML}</td>
                 <td><span class="badge-estado ${estadoClase}">${receta.estado}</span></td>
                 <td>
-                    <button class="btn-accion btn-ver" onclick="alert('Ver detalles de ${receta.numero}')">
+                    <button class="btn-accion btn-ver" onclick="viewRecetaApi(${receta.id || receta.id_receta})">
                         <i class="fas fa-eye"></i>
                     </button>
                 </td>
@@ -300,4 +327,163 @@ function cambiarPagina(pagina) {
 function formatearFecha(fecha) {
     const date = new Date(fecha + 'T00:00:00');
     return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ==========================
+// Detalle de receta (modal)
+// ==========================
+function viewRecetaApi(id) {
+    if (!id) return alert('ID de receta inválido');
+    fetch(`/api/recetas/${id}`)
+        .then(res => {
+            if (!res.ok) throw new Error('Error al obtener receta');
+            return res.json();
+        })
+        .then(receta => {
+            renderRecetaModal(receta);
+        })
+        .catch(err => {
+            console.error('Error obteniendo receta desde API:', err);
+            alert('No se pudo cargar el detalle de la receta. Revisa la consola.');
+        });
+}
+
+function renderRecetaModal(receta) {
+    // Generar HTML de medicamentos
+    const medicamentosHTML = (receta.detalles || receta.medicamentos || []).map((d, i) => `
+        <div class="detalle-medicamento-modal">
+            <h5>${i + 1}. ${d.medicamento_nombre || d.nombre || ''}</h5>
+            <div class="detalle-med-grid">
+                <div><strong>Dosis:</strong> ${d.dosis || ''}</div>
+                <div><strong>Frecuencia:</strong> ${d.frecuencia || ''}</div>
+                <div><strong>Duración:</strong> ${d.duracion || ''}</div>
+            </div>
+        </div>
+    `).join('');
+
+    const modal = document.createElement('div');
+    modal.id = 'modalDetalleReceta';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content-detalle">
+            <div class="modal-header-detalle">
+                <h3>Receta ${receta.numero_receta || receta.numero || ''}</h3>
+                <button type="button" class="btn-close-modal" id="closeModalDetalle">×</button>
+            </div>
+            <div class="modal-body-detalle">
+                <div class="detalle-section">
+                    <strong>Fecha de emisión:</strong> ${receta.fecha_emision || receta.fecha || ''}
+                </div>
+                <div class="detalle-section">
+                    <strong>Paciente:</strong> ${receta.paciente_nombre || receta.paciente?.nombre || ''}
+                </div>
+                <div class="detalle-section">
+                    <strong>Médico:</strong> ${receta.medico_nombre || receta.medico?.nombre || ''}
+                </div>
+                <div class="detalle-section">
+                    <h4>Medicamentos</h4>
+                    ${medicamentosHTML || '<div class="info-placeholder">No hay medicamentos registrados en esta receta.</div>'}
+                </div>
+                ${receta.observaciones ? `<div class="detalle-section"><h4>Observaciones</h4><p>${receta.observaciones}</p></div>` : ''}
+
+                <!-- Área de vista previa dinámica (oculta por defecto) -->
+                <div id="modalPreviewArea" style="display:none; margin-top:1rem;">
+                </div>
+            </div>
+            <div class="modal-footer-detalle">
+                <button type="button" class="btn-secondary" id="btnModalVisualizar">Visualizar</button>
+                <button type="button" class="btn-primary" id="btnModalEditar">Editar</button>
+                <button type="button" class="btn-secondary" id="closeModalDetalleFooter">Cancelar</button>
+            </div>
+        </div>
+    `;
+
+    // Remover modal existente
+    const existing = document.getElementById('modalDetalleReceta');
+    if (existing) existing.remove();
+
+    document.body.appendChild(modal);
+    // Mostrar modal con animación y bloquear scroll del body
+    setTimeout(() => {
+        modal.classList.add('active');
+        // evitar scroll detrás del modal
+        document.body.style.overflow = 'hidden';
+    }, 10);
+
+    // Cerrar modal y restaurar scroll
+    const closeAndRestore = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => { if (modal && modal.parentNode) modal.parentNode.removeChild(modal); }, 300);
+    };
+
+    document.getElementById('closeModalDetalle')?.addEventListener('click', closeAndRestore);
+    document.getElementById('closeModalDetalleFooter')?.addEventListener('click', closeAndRestore);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeAndRestore(); });
+
+    // Botón Visualizar: muestra una vista formateada dentro del modal
+    const btnVis = document.getElementById('btnModalVisualizar');
+    const previewArea = document.getElementById('modalPreviewArea');
+    btnVis?.addEventListener('click', () => {
+        if (!previewArea) return;
+        if (previewArea.style.display === 'none') {
+            previewArea.style.display = 'block';
+            previewArea.innerHTML = buildPreviewHtml(receta);
+            btnVis.textContent = 'Ocultar vista';
+        } else {
+            previewArea.style.display = 'none';
+            btnVis.textContent = 'Visualizar';
+        }
+    });
+
+    // Botón Editar: preparar edición y redirigir a gestión
+    const btnEditar = document.getElementById('btnModalEditar');
+    btnEditar?.addEventListener('click', () => {
+        try {
+            // Preparar objeto compatible con la página de edición
+            const recetaEditar = {
+                receta: receta,
+                paciente: {
+                    id: receta.id_paciente || null,
+                    nombre: receta.paciente_nombre || (receta.paciente && receta.paciente.nombre) || '',
+                    identificacion: receta.paciente_identificacion || (receta.paciente && receta.paciente.identificacion) || ''
+                },
+                modo: 'editar'
+            };
+            sessionStorage.setItem('recetaEditar', JSON.stringify(recetaEditar));
+        } catch (e) {
+            console.error('Error preparando edición:', e);
+        }
+        // Redirigir a gestión completa
+        window.location.href = '/nueva-receta';
+    });
+}
+
+// Genera HTML simple y responsivo para la vista previa de una receta
+function buildPreviewHtml(receta) {
+    const fecha = receta.fecha_emision ? (receta.fecha_emision.split ? receta.fecha_emision.split('T')[0] : receta.fecha_emision) : (receta.fecha || '');
+    const paciente = receta.paciente_nombre || (receta.paciente && receta.paciente.nombre) || 'Paciente';
+    const medico = receta.medico_nombre || (receta.medico && receta.medico.nombre) || '';
+    const detalles = receta.detalles || receta.medicamentos || [];
+
+    const medicamentosList = detalles.map((d, i) => `
+        <div style="padding:0.5rem 0; border-bottom:1px solid #EEF2F5;">
+            <strong>${i + 1}. ${d.medicamento_nombre || d.nombre || ''}</strong>
+            <div style="font-size:0.95rem; color:#495057; margin-top:0.25rem;">
+                ${d.dosis ? `<div>Dosis: ${d.dosis}</div>` : ''}
+                ${d.frecuencia ? `<div>Frecuencia: ${d.frecuencia}</div>` : ''}
+                ${d.duracion ? `<div>Duración: ${d.duracion}</div>` : ''}
+            </div>
+        </div>
+    `).join('') || '<div class="info-placeholder">No hay medicamentos para mostrar.</div>';
+
+    return `
+        <div class="preview-content" style="padding:1rem;">
+            <h4 style="margin:0 0 0.5rem 0;">Receta ${receta.numero_receta || receta.numero || ''}</h4>
+            <div style="color:#6C757D; font-size:0.95rem; margin-bottom:0.75rem;">Emitida: ${fecha} • Médico: ${medico}</div>
+            <div style="margin-bottom:1rem;"><strong>Paciente:</strong> ${paciente}</div>
+            <div style="margin-bottom:0.5rem;"><h5 style="margin:0 0 0.5rem 0; color:#1E88A8;">Medicamentos</h5>${medicamentosList}</div>
+            ${receta.observaciones ? `<div style="margin-top:1rem;"><h5 style="margin:0 0 0.5rem 0; color:#1E88A8;">Observaciones</h5><div style="color:#495057;">${receta.observaciones}</div></div>` : ''}
+        </div>
+    `;
 }

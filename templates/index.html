@@ -75,15 +75,15 @@
 
         <!-- Navigation Tabs -->
         <nav class="tabs-nav">
-            <button class="tab-item active" data-tab="Nueva Receta">
-                <i class="fas fa-home"></i> Nueva Receta
+            <button class="tab-item active" data-tab="Receta">
+                <i class="fas fa-home"></i> Home Receta
             </button>
-            <button class="tab-item" data-tab="nueva-receta" onclick="window.location.href='{{ url_for('nueva_receta') }}'">
+            <a class="tab-item" data-tab="nueva-receta" href="{{ url_for('nueva_receta') }}">
                 <i class="fas fa-prescription"></i> Gestión de Receta Médica
-            </button>
-            <button class="tab-item" data-tab="historial" onclick="window.location.href='{{ url_for('historial') }}'">
+            </a>
+            <a class="tab-item" data-tab="historial" href="{{ url_for('historial') }}">
                 <i class="fas fa-history"></i> Historial
-            </button>
+            </a>
         </nav>
 
         <!-- Content Container -->
@@ -109,7 +109,7 @@
                 <!-- Gestión de Receta Médica Card -->
                 <div class="card card-form">
                     <h3 class="card-title">
-                        <i class="fas fa-file-prescription"></i> Nueva Receta Médica
+                        <i class="fas fa-file-prescription"></i> Buscar Paciente
                     </h3>
                     <form class="receta-form" id="nuevaRecetaForm">
                         <!-- Información del Paciente -->
@@ -130,7 +130,7 @@
                                     </button>
                                 </div>
                                 <small class="form-hint">
-                                    <i class="fas fa-info-circle"></i> Si el paciente está registrado, se cargarán sus datos automáticamente. Si no existe, puede registrarlo llenando los campos.
+                                    <i class="fas fa-info-circle"></i> Si el paciente está registrado, se cargarán sus datos automáticamente.
                                 </small>
                             </div>
 
@@ -155,116 +155,15 @@
 
                             <!-- TODO EL CONTENIDO DEL FORMULARIO (Oculto hasta buscar paciente) -->
                             <div id="contenidoFormularioReceta" style="display: none;">
-
-                            <hr style="margin: 1.5rem 0; border: 1px solid var(--border-color);">
-
-                            <!-- Formulario de Registro de Nuevo Paciente -->
-                            <div id="formRegistroPaciente">
-                                <p class="texto-registro">
-                                    <i class="fas fa-user-plus"></i> Si el paciente no está registrado, complete los siguientes datos:
-                                </p>
-                                
-                                <!-- Campos del Paciente -->
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="nombrePaciente">
-                                            <i class="fas fa-user"></i> Nombre Completo del Paciente
-                                        </label>
-                                        <input type="text" id="nombrePaciente" placeholder="Ej: Juan Pérez González">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="identificacionPaciente">
-                                            <i class="fas fa-id-card"></i> Identificación
-                                        </label>
-                                        <input type="text" id="identificacionPaciente" placeholder="Ej: 1234567890">
-                                    </div>
-                                </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="fechaNacimiento">
-                                        <i class="fas fa-birthday-cake"></i> Fecha de Nacimiento
-                                    </label>
-                                    <input type="date" id="fechaNacimiento" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="telefonoPaciente">
-                                        <i class="fas fa-phone"></i> Teléfono
-                                    </label>
-                                    <input type="tel" id="telefonoPaciente" placeholder="Ej: 3001234567">
+                                <hr style="margin: 1rem 0; border: 1px solid var(--border-color);">
+                                <div class="index-paciente-actions">
+                                    <p>Si el paciente existe, puede continuar a la gestión completa para emitir una nueva receta médica.</p>
+                                    <button id="btnIrGestionReceta" class="btn-primary" style="display:none;">
+                                        <i class="fas fa-plus-circle"></i> Nueva Receta Médica
+                                    </button>
+                                    <small style="display:block; margin-top:0.5rem; color:#6C757D;">Al hacer clic se abrirá la gestión completa de recetas con el paciente preseleccionado.</small>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Información de la Receta -->
-                        <div class="form-section">
-                            <h4 class="section-title">
-                                <i class="fas fa-prescription"></i> Detalles de la Receta
-                            </h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="fechaEmision">
-                                        <i class="fas fa-calendar"></i> Fecha de Emisión
-                                    </label>
-                                    <input type="date" id="fechaEmision" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="diagnostico">
-                                        <i class="fas fa-notes-medical"></i> Diagnóstico
-                                    </label>
-                                    <input type="text" id="diagnostico" placeholder="Ej: Infección respiratoria" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Medicamento y Dosis -->
-                        <div class="form-section">
-                            <h4 class="section-title">
-                                <i class="fas fa-pills"></i> Medicamento
-                                <small class="text-muted">(Se cargarán medicamentos disponibles del inventario)</small>
-                            </h4>
-                            <div class="form-group">
-                                <label for="medicamentoNombre">
-                                    <i class="fas fa-capsules"></i> Nombre del Medicamento
-                                </label>
-                                <input type="text" id="medicamentoNombre" placeholder="Ej: Amoxicilina 500mg" required>
-                                <small class="form-hint">
-                                    <i class="fas fa-info-circle"></i> Por ahora ingrese manualmente. Los medicamentos disponibles se cargarán automáticamente cuando el módulo de inventario esté listo.
-                                </small>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="dosis">
-                                        <i class="fas fa-prescription-bottle"></i> Dosis
-                                    </label>
-                                    <input type="text" id="dosis" placeholder="Ej: 500 mg cada 8 horas" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="duracion">
-                                        <i class="fas fa-calendar-alt"></i> Duración del Tratamiento
-                                    </label>
-                                    <input type="text" id="duracion" placeholder="Ej: 7 días" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="observaciones">
-                                    <i class="fas fa-comment-medical"></i> Observaciones
-                                </label>
-                                <textarea id="observaciones" rows="3" placeholder="Indicaciones adicionales para el paciente..."></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Botones de Acción -->
-                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                            <button type="submit" class="btn-submit" style="flex: 1; background: #28a745;">
-                                <i class="fas fa-save"></i> Guardar Receta
-                            </button>
-                            <button type="button" class="btn-secondary" onclick="window.location.href='{{ url_for('nueva_receta') }}'" style="flex: 1; background: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
-                                <i class="fas fa-arrow-right"></i> Ir a Gestión Completa
-                            </button>
-                        </div>
-
-                            </div>
-                            <!-- FIN contenidoFormularioReceta -->
 
                     </form>
                 </div>

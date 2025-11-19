@@ -1,11 +1,13 @@
+<!-- Respaldo de nueva-receta.html -->
+<!-- Archivo movido a archive_static para evitar servir copia estática -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medidino - Gestión de Receta Médica</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/nueva-receta.css') }}">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/nueva-receta.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -31,22 +33,42 @@
             </button>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ url_for('index') }}" class="nav-item nav-back">
+            <a href="../../index.html" class="nav-item nav-back">
                 <i class="fas fa-arrow-left"></i>
                 <span>Volver al Menú Principal</span>
             </a>
             <hr style="border: 1px solid #E0E6ED; margin: 0.5rem 0;">
-            <a href="#inicio" class="nav-item active">
+            <a href="index.html" class="nav-item">
                 <i class="fas fa-home"></i>
                 <span>Inicio</span>
             </a>
-            <a href="{{ url_for('nueva_receta') }}" class="nav-item">
+            <a href="nueva-receta.html" class="nav-item active">
                 <i class="fas fa-prescription"></i>
                 <span>Gestión de Receta Médica</span>
             </a>
             <a href="{{ url_for('historial') }}" class="nav-item">
                 <i class="fas fa-history"></i>
                 <span>Historial</span>
+            </a>
+            <a href="#historial" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
+            <a href="#pacientes" class="nav-item">
+                <i class="fas fa-user-injured"></i>
+                <span>Pacientes</span>
+            </a>
+            <a href="#medicos" class="nav-item">
+                <i class="fas fa-user-md"></i>
+                <span>Médicos</span>
+            </a>
+            <a href="#pqrs" class="nav-item">
+                <i class="fas fa-comment-medical"></i>
+                <span>PQRS</span>
+            </a>
+            <a href="#configuracion" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
             </a>
         </nav>
     </aside>
@@ -407,11 +429,6 @@
 
                         <!-- Botones de Acción -->
                         <div class="form-actions">
-                            <label class="checkbox-inline" style="display:flex; align-items:center; gap:0.5rem;">
-                                <input type="checkbox" id="enviarNotificacion" checked>
-                                <span>Enviar notificación al paciente</span>
-                            </label>
-                            <div style="flex:1"></div>
                             <button type="button" class="btn-cancel" id="btnCancelar">
                                 <i class="fas fa-times"></i> Cancelar
                             </button>
@@ -468,8 +485,8 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/nueva-receta.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="js/nueva-receta.js"></script>
+    <script src="js/main.js"></script>
     
     <!-- Script de verificación -->
     <script>

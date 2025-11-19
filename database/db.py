@@ -41,6 +41,14 @@ def get_medicamento_by_nombre(nombre, db_path=None):
         return cur.fetchone()
 
 
+def listar_pacientes(limit=100, db_path=None):
+    """Devuelve una lista de pacientes (útil para depuración y listados)."""
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM PACIENTE ORDER BY nombre LIMIT ?", (limit,))
+        return cur.fetchall()
+
+
 def create_medicamento(nombre, descripcion=None, principio_activo=None, presentacion=None, concentracion=None, db_path=None):
     with connect_db(db_path) as conn:
         cur = conn.cursor()
@@ -151,6 +159,73 @@ def listar_recetas(limit=100, db_path=None, identificacion=None):
         return cur.fetchall()
 
 
+def listar_medicamentos(term=None, solo_disponibles=False, limit=200, db_path=None):
+    """
+    Devuelve una lista de medicamentos con información de inventario.
+
+    Args:
+      term: filtro parcial por nombre (LIKE)
+      solo_disponibles: si True, filtra por cantidad_actual > 0
+      limit: máximo de resultados
+    """
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        query = (
+            "SELECT med.id_medicamento as id, med.nombre, med.presentacion, med.descripcion, "
+            "ifnull(inv.cantidad_actual, 0) as stock, inv.ubicacion as ubicacion, inv.lote as lote "
+            "FROM MEDICAMENTO med "
+            "LEFT JOIN INVENTARIO inv ON med.id_medicamento = inv.id_medicamento "
+        )
+        params = []
+        where_clauses = []
+        if term:
+            where_clauses.append("med.nombre LIKE ?")
+            params.append(f"%{term}%")
+        if solo_disponibles:
+            where_clauses.append("ifnull(inv.cantidad_actual,0) > 0")
+
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
+
+        query += " ORDER BY med.nombre LIMIT ?"
+        params.append(limit)
+
+        cur.execute(query, params)
+        return cur.fetchall()
+
+def get_receta_con_detalles(id_receta, db_path=None):
+    """
+    Devuelve una receta con sus detalles, medicamentos y datos del paciente y médico.
+    """
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        # Obtener datos de la receta con paciente y medico
+        cur.execute(
+            "SELECT r.*, p.nombre AS paciente_nombre, p.identificacion AS paciente_identificacion, m.nombre AS medico_nombre, m.especialidad AS medico_especialidad "
+            "FROM RECETA r "
+            "JOIN PACIENTE p ON r.id_paciente = p.id_paciente "
+            "LEFT JOIN MEDICO m ON r.id_medico = m.id_medico "
+            "WHERE r.id_receta = ?",
+            (id_receta,)
+        )
+        receta = cur.fetchone()
+        if not receta:
+            return None
+
+        # Obtener detalles de la receta con nombres de medicamento
+        cur.execute(
+            "SELECT d.*, med.nombre as medicamento_nombre, med.presentacion "
+            "FROM DETALLE_RECETA d "
+            "LEFT JOIN MEDICAMENTO med ON d.id_medicamento = med.id_medicamento "
+            "WHERE d.id_receta = ?",
+            (id_receta,)
+        )
+        detalles = cur.fetchall()
+
+        receta['detalles'] = detalles
+        return receta
+
+
 def crear_paciente(datos, db_path=None):
     """
     Crea un nuevo paciente si no existe uno con la misma identificacion.
@@ -190,4 +265,28 @@ def crear_paciente(datos, db_path=None):
         conn.commit()
         new_id = cur.lastrowid
         cur.execute("SELECT * FROM PACIENTE WHERE id_paciente = ?", (new_id,))
+        return cur.fetchone()
+
+
+def crear_notificacion(id_paciente=None, id_receta=None, canal='SMS', mensaje=None, db_path=None):
+    """
+    Inserta una notificación en NOTIFICACION_RECETA. Devuelve el registro insertado.
+    Si se pasa identificacion en lugar de id_paciente, resuélvelo antes de llamar.
+    """
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+
+        if not id_paciente and not id_receta:
+            raise ValueError('id_paciente o id_receta es requerido')
+
+        # Insertar notificación
+        estado = 'Pendiente'
+        canal_val = canal or 'Sistema'
+        cur.execute(
+            "INSERT INTO NOTIFICACION_RECETA (id_paciente, id_receta, canal, estado, mensaje) VALUES (?, ?, ?, ?, ?)",
+            (id_paciente, id_receta, canal_val, estado, mensaje)
+        )
+        conn.commit()
+        nid = cur.lastrowid
+        cur.execute("SELECT * FROM NOTIFICACION_RECETA WHERE id_notificacion = ?", (nid,))
         return cur.fetchone()

@@ -17,12 +17,17 @@ function buscarYCargarPaciente() {
     }
     console.log('🔍 Buscando paciente (API) con cédula:', cedula);
 
-    fetch(`/api/pacientes/${encodeURIComponent(cedula)}`)
-        .then(response => {
-            if (response.ok) return response.json();
-            if (response.status === 404) throw new Error('Paciente no encontrado');
-            throw new Error('Error al consultar paciente');
-        })
+        fetch(`/api/pacientes/${encodeURIComponent(cedula)}`)
+            .then(response => {
+                console.log('API /api/pacientes status:', response.status);
+                if (response.ok) return response.json();
+                // Try to log body for debugging (text)
+                return response.text().then(text => {
+                    console.warn('API response body on error:', text);
+                    if (response.status === 404) throw new Error('Paciente no encontrado');
+                    throw new Error('Error al consultar paciente (status ' + response.status + ')');
+                });
+            })
         .then(paciente => {
             console.log('✅ Paciente encontrado (API):', paciente);
 
@@ -32,23 +37,33 @@ function buscarYCargarPaciente() {
                 document.getElementById('pacienteNombreMostrar').textContent = paciente.nombre;
                 document.getElementById('pacienteCedulaMostrar').textContent = paciente.identificacion;
                 document.getElementById('pacienteTelefonoMostrar').textContent = paciente.telefono;
-                document.getElementById('pacienteIdHidden').value = paciente.id_paciente || '';
+                    // API returns id_paciente; accept both keys if present
+                    document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
             }
 
-            // Pre-llenar los campos del formulario
-            document.getElementById('nombrePaciente').value = paciente.nombre || '';
-            document.getElementById('identificacionPaciente').value = paciente.identificacion || '';
-            document.getElementById('fechaNacimiento').value = paciente.fecha_nacimiento || '';
-            document.getElementById('telefonoPaciente').value = paciente.telefono || '';
+            // Pre-llenar los campos del formulario (proteger contra elementos ausentes)
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado para set:', id); })('nombrePaciente', paciente.nombre || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado para set:', id); })('identificacionPaciente', paciente.identificacion || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado para set:', id); })('fechaNacimiento', paciente.fecha_nacimiento || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado para set:', id); })('telefonoPaciente', paciente.telefono || '');
 
-            // Mostrar formulario
+            // Mostrar solo la acción en el índice: botón que lleva a la gestión completa.
             const contenedor = document.getElementById('contenidoFormularioReceta');
             if (contenedor) {
                 contenedor.style.display = 'block';
-                const fechaInput = document.getElementById('fechaEmision');
-                if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
-
-                setTimeout(() => contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                const btn = document.getElementById('btnIrGestionReceta');
+                if (btn) {
+                    btn.style.display = 'inline-flex';
+                    btn.onclick = function () {
+                        try {
+                            sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(paciente));
+                        } catch (e) {
+                            console.error('No se pudo guardar paciente en sessionStorage', e);
+                        }
+                        window.location.href = '/nueva-receta';
+                    };
+                    setTimeout(() => btn.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+                }
             }
 
             alert('✅ Paciente encontrado: ' + (paciente.nombre || '') + '\n\nDatos cargados. Complete la receta.');
@@ -90,6 +105,52 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             guardarReceta();
         });
+    }
+
+    // Si venimos desde 'Gestión' con un paciente seleccionado en sessionStorage, cargarlo
+    try {
+        const pacienteSelRaw = sessionStorage.getItem('pacienteSeleccionado');
+        if (pacienteSelRaw) {
+            const pacienteSel = JSON.parse(pacienteSelRaw);
+            console.log('⚙️ Cargando paciente desde sessionStorage:', pacienteSel);
+
+            // Prellenar los campos visibles en el formulario (si existen)
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado al precargar:', id); })('buscarPacienteCedula', pacienteSel.identificacion || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado al precargar:', id); })('nombrePaciente', pacienteSel.nombre || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado al precargar:', id); })('identificacionPaciente', pacienteSel.identificacion || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado al precargar:', id); })('fechaNacimiento', pacienteSel.fecha_nacimiento || '');
+            (function setIfExists(id, val) { const el = document.getElementById(id); if (el) el.value = val; else console.debug('Elemento no encontrado al precargar:', id); })('telefonoPaciente', pacienteSel.telefono || '');
+
+            // Marcar paciente como encontrado en la UI
+            const pacienteBox = document.getElementById('pacienteEncontradoBox');
+            if (pacienteBox) {
+                pacienteBox.style.display = 'block';
+                document.getElementById('pacienteNombreMostrar').textContent = pacienteSel.nombre || '';
+                document.getElementById('pacienteCedulaMostrar').textContent = pacienteSel.identificacion || '';
+                document.getElementById('pacienteTelefonoMostrar').textContent = pacienteSel.telefono || '';
+                console.debug('Paciente cargado desde sessionStorage (id keys):', pacienteSel.id_paciente, pacienteSel.id);
+                document.getElementById('pacienteIdHidden').value = pacienteSel.id_paciente || pacienteSel.id || '';
+            }
+
+            // Mostrar solo la acción en el índice (botón a gestión completa)
+            const contenedor = document.getElementById('contenidoFormularioReceta');
+            if (contenedor) {
+                contenedor.style.display = 'block';
+                const btn = document.getElementById('btnIrGestionReceta');
+                if (btn) {
+                    btn.style.display = 'inline-flex';
+                    btn.onclick = function () {
+                        try { sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(pacienteSel)); } catch (e) { console.error(e); }
+                        window.location.href = '/nueva-receta';
+                    };
+                }
+            }
+
+            // Limpiar la sessionStorage para evitar recargas indeseadas
+            sessionStorage.removeItem('pacienteSeleccionado');
+        }
+    } catch (err) {
+        console.warn('No se pudo cargar paciente desde sessionStorage:', err);
     }
 });
 
@@ -158,6 +219,30 @@ function guardarReceta() {
                 limpiarFormularioReceta();
             } else {
                 window.location.href = '/historial';
+            }
+            // Si el usuario marcó enviar notificación, crear notificación en backend
+            try {
+                const enviar = document.getElementById('enviarNotificacion')?.checked;
+                if (enviar) {
+                    const notiPayload = {
+                        identificacion: identificacionPaciente,
+                        id_receta: data.id_receta,
+                        canal: 'SMS',
+                        mensaje: `Su receta ${data.numero_receta} ha sido registrada. Revise el historial o contacte a la clínica.`
+                    };
+
+                    fetch('/api/notificaciones', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(notiPayload)
+                    }).then(nres => nres.json()).then(nData => {
+                        console.log('Notificación creada:', nData);
+                    }).catch(nerr => {
+                        console.error('Error creando notificación:', nerr);
+                    });
+                }
+            } catch (e) {
+                console.error('Error al intentar crear notificación:', e);
             }
         } else {
             console.error('Error guardando receta', data);
