@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Historial de Recetas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/historial.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">
+                <i class="fas fa-history"></i> Historial de Recetas Médicas
+            </h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-item nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Menú Principal</span>
+            </a>
+            <hr style="border: 1px solid #E0E6ED; margin: 0.5rem 0;">
+            <a href="{{ url_for('index') }}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="{{ url_for('nueva_receta') }}" class="nav-item">
+                <i class="fas fa-prescription"></i>
+                <span>Gestión de Receta Médica</span>
+            </a>
+            <a href="{{ url_for('historial') }}" class="nav-item active">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner-historial">
+            <div class="banner-header-historial">
+                <div class="banner-icon-historial">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="banner-text-historial">
+                    <h2>Historial de Recetas Médicas</h2>
+                    <p>Consulta, filtra y gestiona todas las recetas emitidas</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <a class="btn-volver-inicio" href="{{ url_for('index') }}" style="background: #6C757D; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-home"></i> Volver a Inicio
+                    </a>
+                    <a class="btn-nueva-receta" href="{{ url_for('nueva_receta') }}">
+                        <i class="fas fa-plus-circle"></i> Nueva Receta
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Filtros y Búsqueda -->
+            <div class="filtros-section">
+                <div class="filtros-card">
+                    <div class="filtros-header">
+                        <h3><i class="fas fa-filter"></i> Filtros de Búsqueda</h3>
+                        <button class="btn-limpiar-filtros" id="btnLimpiarFiltros">
+                            <i class="fas fa-redo"></i> Limpiar
+                        </button>
+                    </div>
+                    
+                    <div class="filtros-grid">
+                        <div class="filtro-item">
+                            <label for="filtroBusqueda">
+                                <i class="fas fa-search"></i> Búsqueda
+                            </label>
+                            <input type="text" id="filtroBusqueda" placeholder="Buscar por paciente, médico o receta...">
+                        </div>
+                        
+                        <div class="filtro-item">
+                            <label for="filtroEstado">
+                                <i class="fas fa-info-circle"></i> Estado
+                            </label>
+                            <select id="filtroEstado">
+                                <option value="">Todos los estados</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Completado">Completado</option>
+                                <option value="Enviado">Enviado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filtro-item">
+                            <label for="filtroFechaInicio">
+                                <i class="fas fa-calendar"></i> Fecha Inicio
+                            </label>
+                            <input type="date" id="filtroFechaInicio">
+                        </div>
+                        
+                        <div class="filtro-item">
+                            <label for="filtroFechaFin">
+                                <i class="fas fa-calendar"></i> Fecha Fin
+                            </label>
+                            <input type="date" id="filtroFechaFin">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Rápidas -->
+            <div class="estadisticas-grid">
+                <div class="estadistica-card">
+                    <div class="estadistica-icon" style="background-color: #E3F2FD;">
+                        <i class="fas fa-file-prescription" style="color: #1976D2;"></i>
+                    </div>
+                    <div class="estadistica-info">
+                        <h4>Total Recetas</h4>
+                        <p class="estadistica-numero" id="totalRecetas">0</p>
+                    </div>
+                </div>
+                
+                <div class="estadistica-card">
+                    <div class="estadistica-icon" style="background-color: #FFF9E6;">
+                        <i class="fas fa-clock" style="color: #F9A825;"></i>
+                    </div>
+                    <div class="estadistica-info">
+                        <h4>Pendientes</h4>
+                        <p class="estadistica-numero" id="totalPendientes">0</p>
+                    </div>
+                </div>
+                
+                <div class="estadistica-card">
+                    <div class="estadistica-icon" style="background-color: #E8F5E9;">
+                        <i class="fas fa-check-circle" style="color: #388E3C;"></i>
+                    </div>
+                    <div class="estadistica-info">
+                        <h4>Completadas</h4>
+                        <p class="estadistica-numero" id="totalCompletadas">0</p>
+                    </div>
+                </div>
+                
+                <div class="estadistica-card">
+                    <div class="estadistica-icon" style="background-color: #E1F5FE;">
+                        <i class="fas fa-paper-plane" style="color: #0288D1;"></i>
+                    </div>
+                    <div class="estadistica-info">
+                        <h4>Enviadas</h4>
+                        <p class="estadistica-numero" id="totalEnviadas">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Recetas -->
+            <div class="tabla-section">
+                <div class="tabla-header">
+                    <h3><i class="fas fa-list"></i> Historial Completo de Recetas</h3>
+                    <div class="tabla-acciones">
+                        <button class="btn-exportar" id="btnExportar">
+                            <i class="fas fa-file-excel"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tabla-container">
+                    <table class="tabla-recetas" id="tablaRecetas">
+                        <thead>
+                            <tr>
+                                <th>N° Receta</th>
+                                <th>Fecha Emisión</th>
+                                <th>Paciente</th>
+                                <th>Médico</th>
+                                <th>Medicamentos</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody">
+                            <!-- Se llena con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="paginacion" id="paginacion"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/historial.js') }}"></script>
+    
+    <style>
+        .btn-volver-inicio:hover {
+            background: #5a6268 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</body>
+</html>

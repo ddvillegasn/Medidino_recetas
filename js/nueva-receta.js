@@ -527,34 +527,57 @@ window.buscarPacienteYRecetas = async function() {
     }
     
     console.log('🔍 Buscando paciente con cédula:', identificacion);
-    console.log('📋 Base de datos de pacientes disponible:', Object.keys(pacientesDB));
-    
-    // 1. Buscar paciente
-    // En producción: const paciente = await fetch(`/api/pacientes/buscar/${identificacion}`).then(r => r.json());
-    const paciente = pacientesDB[identificacion];
-    
-    if (!paciente) {
-        mostrarNotificacion('Paciente no encontrado. Verifique el número de identificación', 'error');
-        ocultarInfoPaciente();
-        return;
+
+    try {
+        const resp = await fetch(`/api/pacientes/${encodeURIComponent(identificacion)}`);
+        if (resp.status === 404) {
+            // Paciente no existe: mostrar formulario para registrar
+            mostrarNotificacion('Paciente no encontrado. Complete los datos y presione Guardar para registrar.', 'info');
+            // Prellenar el campo identificacion en el formulario
+            const container = document.getElementById('datosPacienteContainer');
+            if (container) container.style.display = 'block';
+            document.getElementById('pacienteIdentificacion').value = identificacion;
+            document.getElementById('pacienteIdHidden').value = '';
+            // Clear other fields
+            document.getElementById('pacienteNombre').value = '';
+            document.getElementById('pacienteEdad').value = '';
+            document.getElementById('pacienteGenero').value = '';
+            document.getElementById('pacienteTelefono').value = '';
+            document.getElementById('pacienteCorreo').value = '';
+            document.getElementById('pacienteDireccion').value = '';
+            return;
+        }
+
+        if (!resp.ok) throw new Error('Error al consultar paciente');
+
+        const paciente = await resp.json();
+        console.log('✅ Paciente encontrado (API):', paciente);
+
+        // Mostrar información del paciente
+        mostrarInfoPaciente(paciente);
+
+        // Obtener recetas desde la API
+        try {
+            const rresp = await fetch(`/api/recetas?identificacion=${encodeURIComponent(identificacion)}`);
+            if (rresp.ok) {
+                const recetas = await rresp.json();
+                console.log('📋 Recetas encontradas (API):', recetas.length);
+                mostrarHistorialRecetas(recetas);
+            } else {
+                console.log('⚠️ No se pudieron cargar recetas desde API');
+                mostrarHistorialRecetas([]);
+            }
+        } catch (err) {
+            console.error('Error cargando recetas:', err);
+            mostrarHistorialRecetas([]);
+        }
+
+        mostrarNotificacion(`Paciente encontrado: ${paciente.nombre}`, 'success');
+
+    } catch (error) {
+        console.error('Error en búsqueda de paciente:', error);
+        mostrarNotificacion('Error al buscar paciente en el servidor', 'error');
     }
-    
-    console.log('✅ Paciente encontrado:', paciente);
-    
-    // 2. Mostrar información del paciente
-    mostrarInfoPaciente(paciente);
-    
-    // 3. Buscar recetas del paciente
-    // En producción: const recetas = await fetch(`/api/recetas/paciente/${paciente.id}`).then(r => r.json());
-    const recetas = recetasDB[paciente.id] || [];
-    
-    console.log('📋 Recetas encontradas:', recetas.length);
-    
-    // 4. Mostrar historial de recetas
-    mostrarHistorialRecetas(recetas);
-    
-    // 5. Notificar éxito
-    mostrarNotificacion(`Paciente encontrado: ${paciente.nombre}`, 'success');
 }
 
 // ============================================
@@ -1190,20 +1213,58 @@ window.guardarCambiosPaciente = function() {
         return;
     }
 
-    // Aquí iría la llamada al backend para actualizar el paciente
-    // fetch(`/api/pacientes/${identificacion}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(datosActualizados)
-    // })
+    // Si no existe id, crear paciente en backend
+    if (!datosActualizados.id) {
+        // POST /api/pacientes
+        fetch('/api/pacientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre: datosActualizados.nombre,
+                identificacion: datosActualizados.identificacion,
+                edad: datosActualizados.edad,
+                genero: datosActualizados.genero,
+                telefono: datosActualizados.telefono,
+                correo: datosActualizados.correo,
+                direccion: datosActualizados.direccion
+            })
+        }).then(async res => {
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'Error al crear paciente');
+            }
+            const paciente = await res.json();
+            // Establecer paciente como seleccionado
+            window.pacienteSeleccionado = paciente;
+            document.getElementById('pacienteIdHidden').value = paciente.id_paciente || '';
+            mostrarNotificacion('Paciente registrado correctamente', 'success');
+            console.log('Paciente creado:', paciente);
 
-    // Por ahora, simulamos la actualización localmente
-    pacientesDB[identificacion] = datosActualizados;
+            // Cargar recetas (probablemente vacías) desde API
+            try {
+                const rresp = await fetch(`/api/recetas?identificacion=${encodeURIComponent(paciente.identificacion)}`);
+                if (rresp.ok) {
+                    const recetas = await rresp.json();
+                    mostrarHistorialRecetas(recetas);
+                } else {
+                    mostrarHistorialRecetas([]);
+                }
+            } catch (err) {
+                console.error('Error cargando recetas después de crear paciente:', err);
+            }
 
-    // Mostrar mensaje de éxito
-    mostrarNotificacion('Datos del paciente actualizados correctamente', 'success');
-    
-    console.log('Paciente actualizado:', datosActualizados);
+        }).catch(err => {
+            console.error(err);
+            mostrarNotificacion(err.message || 'Error registrando paciente', 'error');
+        });
+
+        return;
+    }
+
+    // Si tiene id, en este demo intentamos simular un PUT local (o podríamos implementar PUT en backend)
+    // Por ahora actualizamos la UI localmente
+    mostrarNotificacion('Actualización local realizada (en demo). Implementa PUT en backend si quieres persistir cambios.', 'info');
+    console.log('Paciente actualizado (solo UI):', datosActualizados);
 }
 
 // Función auxiliar para validar email

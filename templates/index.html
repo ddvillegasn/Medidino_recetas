@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Emisión y Seguimiento de Recetas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">MODULO EMISION Y SEGUIMIENTO HOME</h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-item nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Menú Principal</span>
+            </a>
+            <hr style="border: 1px solid #E0E6ED; margin: 0.5rem 0;">
+            <a href="#inicio" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="{{ url_for('nueva_receta') }}" class="nav-item">
+                <i class="fas fa-prescription"></i>
+                <span>Gestión de Receta Médica</span>
+            </a>
+            <a href="{{ url_for('historial') }}" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner">
+            <div class="banner-content">
+                <div class="banner-logo">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    <h2>Medidino <span>- Emisión y Seguimiento de Recetas</span></h2>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-address-book"></i> Contáctenos
+                    </button>
+                    <button class="btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Agenda tu cita
+                    </button>
+                </div>
+            </div>
+            <div class="banner-hero">
+                <h1>Emisión y Seguimiento de Recetas</h1>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-item active" data-tab="Nueva Receta">
+                <i class="fas fa-home"></i> Nueva Receta
+            </button>
+            <button class="tab-item" data-tab="nueva-receta" onclick="window.location.href='{{ url_for('nueva_receta') }}'">
+                <i class="fas fa-prescription"></i> Gestión de Receta Médica
+            </button>
+            <button class="tab-item" data-tab="historial" onclick="window.location.href='{{ url_for('historial') }}'">
+                <i class="fas fa-history"></i> Historial
+            </button>
+        </nav>
+
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Información del Médico Activo -->
+            <div class="medico-info-banner">
+                <div class="medico-avatar-small">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="medico-info-text">
+                    <h4 id="medicoActivoNombre">Dr. Roberto Sánchez</h4>
+                    <p id="medicoActivoEspecialidad">Medicina General • RM-12345</p>
+                </div>
+                <div class="medico-status">
+                    <span class="status-badge">
+                        <i class="fas fa-circle"></i> En línea
+                    </span>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard">
+                <!-- Gestión de Receta Médica Card -->
+                <div class="card card-form">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-prescription"></i> Nueva Receta Médica
+                    </h3>
+                    <form class="receta-form" id="nuevaRecetaForm">
+                        <!-- Información del Paciente -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-user-injured"></i> Información del Paciente
+                            </h4>
+                            
+                            <!-- Búsqueda de Paciente Existente -->
+                            <div class="busqueda-paciente-box">
+                                <label>
+                                    <i class="fas fa-search"></i> Buscar Paciente por Cédula
+                                </label>
+                                <div class="input-search-group">
+                                    <input type="text" id="buscarPacienteCedula" placeholder="Ingrese número de cédula">
+                                    <button type="button" class="btn-search" onclick="buscarYCargarPaciente()">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <small class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Si el paciente está registrado, se cargarán sus datos automáticamente. Si no existe, puede registrarlo llenando los campos.
+                                </small>
+                            </div>
+
+                            <!-- Indicador de Paciente Encontrado -->
+                            <div id="pacienteEncontradoBox" style="display: none;">
+                                <div class="paciente-encontrado-card">
+                                    <div class="card-header">
+                                        <i class="fas fa-user-check"></i>
+                                        <strong>Paciente Encontrado</strong>
+                                        <button type="button" class="btn-cambiar" onclick="limpiarPaciente()">
+                                            <i class="fas fa-times"></i> Cambiar
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Nombre:</strong> <span id="pacienteNombreMostrar">---</span></p>
+                                        <p><strong>Cédula:</strong> <span id="pacienteCedulaMostrar">---</span></p>
+                                        <p><strong>Teléfono:</strong> <span id="pacienteTelefonoMostrar">---</span></p>
+                                        <input type="hidden" id="pacienteIdHidden">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TODO EL CONTENIDO DEL FORMULARIO (Oculto hasta buscar paciente) -->
+                            <div id="contenidoFormularioReceta" style="display: none;">
+
+                            <hr style="margin: 1.5rem 0; border: 1px solid var(--border-color);">
+
+                            <!-- Formulario de Registro de Nuevo Paciente -->
+                            <div id="formRegistroPaciente">
+                                <p class="texto-registro">
+                                    <i class="fas fa-user-plus"></i> Si el paciente no está registrado, complete los siguientes datos:
+                                </p>
+                                
+                                <!-- Campos del Paciente -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nombrePaciente">
+                                            <i class="fas fa-user"></i> Nombre Completo del Paciente
+                                        </label>
+                                        <input type="text" id="nombrePaciente" placeholder="Ej: Juan Pérez González">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="identificacionPaciente">
+                                            <i class="fas fa-id-card"></i> Identificación
+                                        </label>
+                                        <input type="text" id="identificacionPaciente" placeholder="Ej: 1234567890">
+                                    </div>
+                                </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fechaNacimiento">
+                                        <i class="fas fa-birthday-cake"></i> Fecha de Nacimiento
+                                    </label>
+                                    <input type="date" id="fechaNacimiento" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefonoPaciente">
+                                        <i class="fas fa-phone"></i> Teléfono
+                                    </label>
+                                    <input type="tel" id="telefonoPaciente" placeholder="Ej: 3001234567">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de la Receta -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-prescription"></i> Detalles de la Receta
+                            </h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fechaEmision">
+                                        <i class="fas fa-calendar"></i> Fecha de Emisión
+                                    </label>
+                                    <input type="date" id="fechaEmision" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="diagnostico">
+                                        <i class="fas fa-notes-medical"></i> Diagnóstico
+                                    </label>
+                                    <input type="text" id="diagnostico" placeholder="Ej: Infección respiratoria" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medicamento y Dosis -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-pills"></i> Medicamento
+                                <small class="text-muted">(Se cargarán medicamentos disponibles del inventario)</small>
+                            </h4>
+                            <div class="form-group">
+                                <label for="medicamentoNombre">
+                                    <i class="fas fa-capsules"></i> Nombre del Medicamento
+                                </label>
+                                <input type="text" id="medicamentoNombre" placeholder="Ej: Amoxicilina 500mg" required>
+                                <small class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Por ahora ingrese manualmente. Los medicamentos disponibles se cargarán automáticamente cuando el módulo de inventario esté listo.
+                                </small>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dosis">
+                                        <i class="fas fa-prescription-bottle"></i> Dosis
+                                    </label>
+                                    <input type="text" id="dosis" placeholder="Ej: 500 mg cada 8 horas" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="duracion">
+                                        <i class="fas fa-calendar-alt"></i> Duración del Tratamiento
+                                    </label>
+                                    <input type="text" id="duracion" placeholder="Ej: 7 días" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="observaciones">
+                                    <i class="fas fa-comment-medical"></i> Observaciones
+                                </label>
+                                <textarea id="observaciones" rows="3" placeholder="Indicaciones adicionales para el paciente..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn-submit" style="flex: 1; background: #28a745;">
+                                <i class="fas fa-save"></i> Guardar Receta
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="window.location.href='{{ url_for('nueva_receta') }}'" style="flex: 1; background: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fas fa-arrow-right"></i> Ir a Gestión Completa
+                            </button>
+                        </div>
+
+                            </div>
+                            <!-- FIN contenidoFormularioReceta -->
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index-page.js') }}"></script>
+    
+    <style>
+        .btn-secondary:hover {
+            background: #5a6268 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</body>
+</html>
