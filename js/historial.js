@@ -441,16 +441,22 @@ function renderRecetaModal(receta) {
     btnEditar?.addEventListener('click', () => {
         try {
             // Preparar objeto compatible con la página de edición
+            const pacienteObj = {
+                id: receta.id_paciente || null,
+                nombre: receta.paciente_nombre || (receta.paciente && receta.paciente.nombre) || '',
+                identificacion: receta.paciente_identificacion || (receta.paciente && receta.paciente.identificacion) || '',
+                telefono: receta.paciente && receta.paciente.telefono || ''
+            };
+
             const recetaEditar = {
                 receta: receta,
-                paciente: {
-                    id: receta.id_paciente || null,
-                    nombre: receta.paciente_nombre || (receta.paciente && receta.paciente.nombre) || '',
-                    identificacion: receta.paciente_identificacion || (receta.paciente && receta.paciente.identificacion) || ''
-                },
+                paciente: pacienteObj,
                 modo: 'editar'
             };
+
+            // Guardar tanto recetaEditar como pacienteSeleccionado para máxima compatibilidad
             sessionStorage.setItem('recetaEditar', JSON.stringify(recetaEditar));
+            sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(pacienteObj));
         } catch (e) {
             console.error('Error preparando edición:', e);
         }
