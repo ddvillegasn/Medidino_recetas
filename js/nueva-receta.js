@@ -7,28 +7,17 @@ console.log('✅ Archivo nueva-receta.js cargado correctamente');
 // Contador de medicamentos
 let medicamentoCount = 1;
 
-// ============================================
-// SESIÓN DEL MÉDICO (Viene del login - localStorage o sessionStorage)
-// ============================================
-// En producción, estos datos se obtienen después del login exitoso
-// y se guardan en sessionStorage o localStorage
-const medicoActivo = obtenerMedicoSesion();
+// URL del endpoint PHP que devuelve médicos en formato JSON.
+// Se obtiene de la configuración centralizada en js/config.js
+// Si no está disponible, usar URL por defecto
+const PHP_MEDICOS_API = (window.MEDICOS_CONFIG && window.MEDICOS_CONFIG.apiUrl) 
+    || 'http://localhost/Medidino_recetas/backend/medicos.php';
 
-function obtenerMedicoSesion() {
-    // Simulación - En producción vendría de:
-    // const medico = JSON.parse(sessionStorage.getItem('medico_sesion'));
-    // o desde el backend: fetch('/api/auth/sesion-actual')
-    
-    return {
-        id: 1,
-        usuario: "roberto.sanchez",           // Usuario de login
-        nombre: "Dr. Roberto Sánchez",
-        especialidad: "Medicina General",
-        registro: "RM-12345",
-        telefono: "601-123-4567",
-        email: "roberto.sanchez@saludyvida.com"
-    };
-}
+// Médico seleccionado desde la lista remota (si el usuario elige uno)
+let medicoSeleccionadoExternamente = null;
+
+// ============================================
+// Eliminada simulación de médico activo. El médico se selecciona en el formulario.
 
 // ============================================
 // DATOS DE EJEMPLO (Simula base de datos)
@@ -298,75 +287,82 @@ const recetasDB = {
 // INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        console.log('Módulo de Gestión de Receta Médica cargado');
-        cargarInfoMedicoActivo();
-        // Exponer la función para reintentos manuales
-        window.cargarMedicamentosDisponibles = cargarMedicamentosDisponibles;
-
-        // Intentar cargar medicamentos y, si falla, permitir reintento manual
-        cargarMedicamentosDisponibles().catch(err => {
-            console.error('Error en carga inicial de medicamentos:', err);
-            const container = document.querySelector('.content-container') || document.body;
-            if (!document.getElementById('btnReintentarMedicamentos')) {
-                const btn = document.createElement('button');
-                btn.id = 'btnReintentarMedicamentos';
-                btn.className = 'btn-secondary';
-                btn.style.margin = '1rem 0';
-                btn.textContent = 'Reintentar carga de medicamentos';
-                btn.addEventListener('click', () => {
-                    mostrarNotificacion('Reintentando carga de medicamentos...', 'info');
-                    cargarMedicamentosDisponibles();
-                });
-                container.insertAdjacentElement('afterbegin', btn);
-            }
-        });
-
-        inicializarEventos();
-        actualizarFechaModal();
-    } catch (err) {
-        console.error('Error inicializando nueva-receta.js:', err);
-    }
+    console.log('Módulo de Gestión de Receta Médica cargado');
+    cargarMedicamentosDisponibles();
+    cargarMedicosDesdePHP().then(() => {
+        const idMedico = localStorage.getItem('medicoSeleccionado');
+        const select = document.getElementById('selectMedico');
+        if (idMedico && select) {
+            select.value = idMedico;
+            medicoSeleccionadoExternamente = parseInt(idMedico);
+        }
+    });
+    inicializarEventos();
+    actualizarFechaModal();
 });
 
-// Si venimos desde otra página (ej. gestión/index) con un paciente seleccionado,
-// prellenar el formulario usando sessionStorage.pacienteSeleccionado
-try {
-    const pacienteSelRaw = sessionStorage.getItem('pacienteSeleccionado');
-    if (pacienteSelRaw) {
-        const pacienteSel = JSON.parse(pacienteSelRaw);
-        console.log('⚙️ Prefilling nueva-receta form desde sessionStorage:', pacienteSel);
+// ==========================
+// CARGAR MÉDICOS DESDE PHP
+// ==========================
+async function cargarMedicosDesdePHP() {
+    const select = document.getElementById('selectMedico');
+    if (!select) return;
 
-        // Establecer paciente como seleccionado global
-        window.pacienteSeleccionado = pacienteSel;
+    select.innerHTML = '<option value="">Cargando médicos...</option>';
 
-        // Mostrar y llenar el contenedor de datos del paciente
-        const container = document.getElementById('datosPacienteContainer');
-        if (container) container.style.display = 'block';
+    try {
+        const resp = await fetch(PHP_MEDICOS_API, { method: 'GET' });
+        if (!resp.ok) throw new Error('Respuesta no OK: ' + resp.status);
+        const json = await resp.json();
 
-        if (document.getElementById('pacienteIdHidden')) document.getElementById('pacienteIdHidden').value = pacienteSel.id || '';
-        if (document.getElementById('pacienteNombre')) document.getElementById('pacienteNombre').value = pacienteSel.nombre || '';
-        if (document.getElementById('pacienteIdentificacion')) document.getElementById('pacienteIdentificacion').value = pacienteSel.identificacion || '';
-        if (document.getElementById('pacienteEdad')) document.getElementById('pacienteEdad').value = pacienteSel.edad || '';
-        if (document.getElementById('pacienteGenero')) document.getElementById('pacienteGenero').value = pacienteSel.genero || '';
-        if (document.getElementById('pacienteTelefono')) document.getElementById('pacienteTelefono').value = pacienteSel.telefono || '';
-        if (document.getElementById('pacienteCorreo')) document.getElementById('pacienteCorreo').value = pacienteSel.correo || '';
-        if (document.getElementById('pacienteDireccion')) document.getElementById('pacienteDireccion').value = pacienteSel.direccion || '';
+        // La API PHP devuelve: { success: true, message: '', data: [ ... ] }
+        const medicos = (json && json.data) ? json.data : (Array.isArray(json) ? json : []);
 
-        // Mostrar el formulario de receta completo
-        const formularioCard = document.getElementById('formularioRecetaCard');
-        if (formularioCard) formularioCard.style.display = 'block';
-
-        // Intentar cargar medicamentos (si no se cargaron aún)
-        if (typeof cargarMedicamentosDisponibles === 'function') {
-            cargarMedicamentosDisponibles();
+        if (!Array.isArray(medicos) || medicos.length === 0) {
+            select.innerHTML = '<option value="">No se encontraron médicos</option>';
+            return;
         }
 
-        // Limpiar la sessionStorage para evitar re-aplicación en recargas
-        sessionStorage.removeItem('pacienteSeleccionado');
+        // Construir opciones
+        select.innerHTML = '<option value="">-- Seleccione un médico --</option>';
+        medicos.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id_medico || m.id || '';
+            const nombreCompleto = [m.nombre, m.apellido].filter(Boolean).join(' ');
+            const especialidad = m.nombre_especialidad ? ` — ${m.nombre_especialidad}` : '';
+            opt.textContent = `${nombreCompleto}${especialidad}`;
+            // Guardar detalles en dataset por si se necesitan
+            opt.dataset.nombre = nombreCompleto;
+            opt.dataset.especialidad = m.nombre_especialidad || '';
+            select.appendChild(opt);
+        });
+
+        // Recuperar médico seleccionado del localStorage y preseleccionarlo
+        const medicoGuardado = localStorage.getItem('medicoSeleccionado');
+        if (medicoGuardado) {
+            select.value = medicoGuardado;
+            medicoSeleccionadoExternamente = parseInt(medicoGuardado);
+            // Deshabilitar el select para que no se pueda cambiar
+            select.disabled = true;
+            console.log(`✅ Médico preseleccionado desde localStorage: ${medicoGuardado}`);
+        }
+
+        // Si el usuario intenta cambiar la selección (solo aplica si no está deshabilitado), actualizar variable y guardar en localStorage
+        if (!select.disabled) {
+            select.addEventListener('change', (e) => {
+                const val = e.target.value;
+                medicoSeleccionadoExternamente = val ? parseInt(val) : null;
+                if (val) {
+                    localStorage.setItem('medicoSeleccionado', val);
+                }
+            });
+        }
+
+        console.log(`✅ Cargados ${medicos.length} médicos desde PHP`);
+    } catch (err) {
+        console.error('❌ Error cargando médicos desde PHP:', err);
+        select.innerHTML = '<option value="">Error al cargar médicos</option>';
     }
-} catch (err) {
-    console.warn('No se pudo prellenar paciente desde sessionStorage:', err);
 }
 
 // ============================================
@@ -412,33 +408,30 @@ async function cargarMedicamentosDisponibles() {
     try {
         // Mostrar indicador de carga
         selectMedicamento.innerHTML = '<option value="">Cargando medicamentos...</option>';
-
-        // Consumir endpoint local que expone medicamentos desde la base de datos
-        const resp = await fetch('/api/medicamentos?disponibles=1');
-        console.log('🔁 /api/medicamentos response status:', resp.status);
-        if (!resp.ok) throw new Error('Error al obtener medicamentos: ' + resp.status);
-        const medicamentosRaw = await resp.json();
-        console.log('🔁 /api/medicamentos payload:', medicamentosRaw);
-
-        // Normalizar posibles formas de objeto desde la API
-        const medicamentos = (medicamentosRaw || []).map(m => ({
-            id: m.id || m.id_medicamento || m.idMedicamento || null,
-            nombre: m.nombre || m.nombre_medicamento || m.medicamento || '',
-            presentacion: m.presentacion || m.presentacion_med || '',
-            stock: m.stock != null ? m.stock : (m.cantidad_actual != null ? m.cantidad_actual : 0),
-            ubicacion: m.ubicacion || m.ubicacion_inventario || '',
-            lote: m.lote || ''
-        }));
-
-        // Guardar en cache para reuso al agregar nuevos selects dinámicamente
-        window.__medicamentosCache = medicamentos;
-
-        // Limpiar select y poblar usando helper shared
+        
+        // En producción: Consumir API del Grupo 1 (Gestión de Medicamentos)
+        // const response = await fetch('/api/medicamentos/disponibles');
+        // const medicamentos = await response.json();
+        
+        // Simulación de datos del inventario
+        const medicamentos = await simularAPIGrupo1Medicamentos();
+        
+        // Limpiar select
         selectMedicamento.innerHTML = '<option value="">Seleccione un medicamento...</option>';
-        populateSelectWithMedications(selectMedicamento, medicamentos);
-
-        console.log(`✅ ${medicamentos.length} medicamentos (normalizados) cargados desde inventario`);
-
+        
+        // Llenar select con medicamentos disponibles
+        medicamentos.forEach(med => {
+            if (med.stock > 0) {  // Solo mostrar con stock disponible
+                const option = document.createElement('option');
+                option.value = med.id;
+                option.textContent = `${med.nombre} ${med.presentacion} - Disponible: ${med.stock} ${med.unidad}`;
+                option.dataset.nombre = `${med.nombre} ${med.presentacion}`;
+                selectMedicamento.appendChild(option);
+            }
+        });
+        
+        console.log(`✅ ${medicamentos.length} medicamentos cargados desde inventario`);
+        
     } catch (error) {
         console.error('❌ Error al cargar medicamentos:', error);
         selectMedicamento.innerHTML = '<option value="">Error al cargar medicamentos</option>';
@@ -594,57 +587,34 @@ window.buscarPacienteYRecetas = async function() {
     }
     
     console.log('🔍 Buscando paciente con cédula:', identificacion);
-
-    try {
-        const resp = await fetch(`/api/pacientes/${encodeURIComponent(identificacion)}`);
-        if (resp.status === 404) {
-            // Paciente no existe: mostrar formulario para registrar
-            mostrarNotificacion('Paciente no encontrado. Complete los datos y presione Guardar para registrar.', 'info');
-            // Prellenar el campo identificacion en el formulario
-            const container = document.getElementById('datosPacienteContainer');
-            if (container) container.style.display = 'block';
-            document.getElementById('pacienteIdentificacion').value = identificacion;
-            document.getElementById('pacienteIdHidden').value = '';
-            // Clear other fields
-            document.getElementById('pacienteNombre').value = '';
-            document.getElementById('pacienteEdad').value = '';
-            document.getElementById('pacienteGenero').value = '';
-            document.getElementById('pacienteTelefono').value = '';
-            document.getElementById('pacienteCorreo').value = '';
-            document.getElementById('pacienteDireccion').value = '';
-            return;
-        }
-
-        if (!resp.ok) throw new Error('Error al consultar paciente');
-
-        const paciente = await resp.json();
-        console.log('✅ Paciente encontrado (API):', paciente);
-
-        // Mostrar información del paciente
-        mostrarInfoPaciente(paciente);
-
-        // Obtener recetas desde la API
-        try {
-            const rresp = await fetch(`/api/recetas?identificacion=${encodeURIComponent(identificacion)}`);
-            if (rresp.ok) {
-                const recetas = await rresp.json();
-                console.log('📋 Recetas encontradas (API):', recetas.length);
-                mostrarHistorialRecetas(recetas);
-            } else {
-                console.log('⚠️ No se pudieron cargar recetas desde API');
-                mostrarHistorialRecetas([]);
-            }
-        } catch (err) {
-            console.error('Error cargando recetas:', err);
-            mostrarHistorialRecetas([]);
-        }
-
-        mostrarNotificacion(`Paciente encontrado: ${paciente.nombre}`, 'success');
-
-    } catch (error) {
-        console.error('Error en búsqueda de paciente:', error);
-        mostrarNotificacion('Error al buscar paciente en el servidor', 'error');
+    console.log('📋 Base de datos de pacientes disponible:', Object.keys(pacientesDB));
+    
+    // 1. Buscar paciente
+    // En producción: const paciente = await fetch(`/api/pacientes/buscar/${identificacion}`).then(r => r.json());
+    const paciente = pacientesDB[identificacion];
+    
+    if (!paciente) {
+        mostrarNotificacion('Paciente no encontrado. Verifique el número de identificación', 'error');
+        ocultarInfoPaciente();
+        return;
     }
+    
+    console.log('✅ Paciente encontrado:', paciente);
+    
+    // 2. Mostrar información del paciente
+    mostrarInfoPaciente(paciente);
+    
+    // 3. Buscar recetas del paciente
+    // En producción: const recetas = await fetch(`/api/recetas/paciente/${paciente.id}`).then(r => r.json());
+    const recetas = recetasDB[paciente.id] || [];
+    
+    console.log('📋 Recetas encontradas:', recetas.length);
+    
+    // 4. Mostrar historial de recetas
+    mostrarHistorialRecetas(recetas);
+    
+    // 5. Notificar éxito
+    mostrarNotificacion(`Paciente encontrado: ${paciente.nombre}`, 'success');
 }
 
 // ============================================
@@ -1149,11 +1119,39 @@ window.mostrarFormularioNuevaReceta = function() {
         return;
     }
     
-    // Guardar paciente en sessionStorage para usarlo en index.html
-    sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(window.pacienteSeleccionado));
+    // Mostrar formulario en la misma página
+    const formularioCard = document.getElementById('formularioRecetaCard');
+    const pacienteContainer = document.getElementById('pacienteRecetasContainer');
     
-    // Redirigir a la página de gestión completa para crear nueva receta
-    window.location.href = '/nueva-receta';
+    if (formularioCard) {
+        formularioCard.style.display = 'block';
+    }
+    
+    if (pacienteContainer) {
+        pacienteContainer.style.display = 'none';
+    }
+    
+    // Pre-llenar datos del paciente en el formulario
+    const paciente = window.pacienteSeleccionado;
+    document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
+    document.getElementById('pacienteNombre').value = paciente.nombre || '';
+    document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
+    document.getElementById('pacienteEdad').value = paciente.edad || '';
+    document.getElementById('pacienteGenero').value = paciente.genero || '';
+    document.getElementById('pacienteTelefono').value = paciente.telefono || '';
+    document.getElementById('pacienteCorreo').value = paciente.correo || '';
+    document.getElementById('pacienteDireccion').value = paciente.direccion || '';
+    
+    // Mostrar sección de datos del paciente
+    const datosPacienteContainer = document.getElementById('datosPacienteContainer');
+    if (datosPacienteContainer) {
+        datosPacienteContainer.style.display = 'block';
+    }
+    
+    // Scroll al formulario
+    setTimeout(() => {
+        formularioCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 }
 
 // ============================================
@@ -1280,58 +1278,20 @@ window.guardarCambiosPaciente = function() {
         return;
     }
 
-    // Si no existe id, crear paciente en backend
-    if (!datosActualizados.id) {
-        // POST /api/pacientes
-        fetch('/api/pacientes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                nombre: datosActualizados.nombre,
-                identificacion: datosActualizados.identificacion,
-                edad: datosActualizados.edad,
-                genero: datosActualizados.genero,
-                telefono: datosActualizados.telefono,
-                correo: datosActualizados.correo,
-                direccion: datosActualizados.direccion
-            })
-        }).then(async res => {
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.error || 'Error al crear paciente');
-            }
-            const paciente = await res.json();
-            // Establecer paciente como seleccionado
-            window.pacienteSeleccionado = paciente;
-            document.getElementById('pacienteIdHidden').value = paciente.id_paciente || '';
-            mostrarNotificacion('Paciente registrado correctamente', 'success');
-            console.log('Paciente creado:', paciente);
+    // Aquí iría la llamada al backend para actualizar el paciente
+    // fetch(`/api/pacientes/${identificacion}`, {
+    //     method: 'PUT',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(datosActualizados)
+    // })
 
-            // Cargar recetas (probablemente vacías) desde API
-            try {
-                const rresp = await fetch(`/api/recetas?identificacion=${encodeURIComponent(paciente.identificacion)}`);
-                if (rresp.ok) {
-                    const recetas = await rresp.json();
-                    mostrarHistorialRecetas(recetas);
-                } else {
-                    mostrarHistorialRecetas([]);
-                }
-            } catch (err) {
-                console.error('Error cargando recetas después de crear paciente:', err);
-            }
+    // Por ahora, simulamos la actualización localmente
+    pacientesDB[identificacion] = datosActualizados;
 
-        }).catch(err => {
-            console.error(err);
-            mostrarNotificacion(err.message || 'Error registrando paciente', 'error');
-        });
-
-        return;
-    }
-
-    // Si tiene id, en este demo intentamos simular un PUT local (o podríamos implementar PUT en backend)
-    // Por ahora actualizamos la UI localmente
-    mostrarNotificacion('Actualización local realizada (en demo). Implementa PUT en backend si quieres persistir cambios.', 'info');
-    console.log('Paciente actualizado (solo UI):', datosActualizados);
+    // Mostrar mensaje de éxito
+    mostrarNotificacion('Datos del paciente actualizados correctamente', 'success');
+    
+    console.log('Paciente actualizado:', datosActualizados);
 }
 
 // Función auxiliar para validar email
@@ -1399,7 +1359,11 @@ function agregarMedicamento() {
                         <i class="fas fa-prescription-bottle"></i>
                         <select id="medicamento_${medicamentoCount}" name="medicamento[]" required>
                             <option value="">Seleccione un medicamento...</option>
-                            <!-- options will be populated dynamically -->
+                            <option value="1">Amoxicilina 500mg - Disponible: 150 unidades</option>
+                            <option value="2">Ibuprofeno 400mg - Disponible: 200 unidades</option>
+                            <option value="3">Paracetamol 500mg - Disponible: 300 unidades</option>
+                            <option value="4">Loratadina 10mg - Disponible: 100 unidades</option>
+                            <option value="5">Omeprazol 20mg - Disponible: 180 unidades</option>
                         </select>
                     </div>
                 </div>
@@ -1431,31 +1395,8 @@ function agregarMedicamento() {
         input.addEventListener('change', actualizarVistaPrevia);
         input.addEventListener('input', actualizarVistaPrevia);
     });
-    // Populate the new select from cache if available
-    const newSelect = container.lastElementChild.querySelector('select');
-    if (newSelect) {
-        populateSelectWithMedications(newSelect, window.__medicamentosCache || []);
-    }
     
     actualizarVistaPrevia();
-}
-
-
-function populateSelectWithMedications(selectElem, medicamentos) {
-    if (!selectElem) return;
-    // leave first placeholder option, then append meds
-    // remove existing options except the first
-    while (selectElem.options.length > 1) selectElem.remove(1);
-    medicamentos.forEach(med => {
-        if ((med.stock || 0) > 0) {
-            const option = document.createElement('option');
-            option.value = med.id;
-            const present = med.presentacion ? ' ' + med.presentacion : '';
-            option.textContent = `${med.nombre}${present} - Disponible: ${med.stock}`;
-            option.dataset.nombre = `${med.nombre}${present}`;
-            selectElem.appendChild(option);
-        }
-    });
 }
 
 // ============================================
@@ -1576,32 +1517,38 @@ function obtenerMedicamentosFormulario() {
 // ============================================
 function generarReceta(e) {
     e.preventDefault();
-    
     // Validar formulario
     if (!validarFormulario()) {
         return;
     }
-    
     // Obtener datos del formulario
     const pacienteId = document.getElementById('pacienteIdHidden').value;
+    const pacienteIdentificacion = document.getElementById('pacienteIdentificacion').value;
     const pacienteNombre = document.getElementById('pacienteNombre').value;
     const observaciones = document.getElementById('observaciones').value;
     const medicamentos = obtenerMedicamentosFormulario();
     
-    // ============================================
-    // ESTRUCTURA SEGÚN BASE DE DATOS
-    // ============================================
+    // Debug: ver qué valores se están enviando
+    console.log('DEBUG generarReceta - Datos capturados:');
+    console.log('  pacienteId:', pacienteId, 'tipo:', typeof pacienteId);
+    console.log('  pacienteIdentificacion:', pacienteIdentificacion);
+    console.log('  pacienteNombre:', pacienteNombre);
     
+    // Obtener médico seleccionado del select
+    const selectMedico = document.getElementById('selectMedico');
+    let idMedicoSeleccionado = null;
+    if (selectMedico && selectMedico.value) {
+        idMedicoSeleccionado = parseInt(selectMedico.value);
+    }
     // 1. RECETA (Tabla principal)
     const receta = {
-        // id_receta: null, // Se auto-genera en backend
         fecha_emision: new Date().toISOString().split('T')[0],
         observaciones: observaciones || null,
-        estado: 'Pendiente', // Estados: Pendiente, Completado, Enviado, Cancelado
-        id_paciente: parseInt(pacienteId), // FK a tabla PACIENTE
-        id_medico: medicoActivo.id // FK a tabla MEDICO (de sesión)
+        estado: 'Pendiente',
+        id_paciente: pacienteId ? parseInt(pacienteId) : null,
+        identificacion: pacienteIdentificacion || null,  // Fallback si id_paciente falla
+        id_medico: idMedicoSeleccionado
     };
-    
     // 2. DETALLE_RECETA (Tabla de detalles - relación con medicamentos)
     const detalles_receta = medicamentos
         .filter(m => m.id && m.dosis && m.frecuencia && m.duracion)
@@ -1628,7 +1575,7 @@ function generarReceta(e) {
     console.log('  - observaciones:', receta.observaciones);
     console.log('  - estado:', receta.estado);
     console.log('  - id_paciente:', receta.id_paciente, '→', pacienteNombre);
-    console.log('  - id_medico:', receta.id_medico, '→', medicoActivo.nombre);
+    console.log('  - id_medico:', receta.id_medico);
     console.log('─────────────────────────────────────');
     console.log('📋 TABLA: DETALLE_RECETA');
     console.log('  Total de medicamentos:', detalles_receta.length);
@@ -1645,84 +1592,38 @@ function generarReceta(e) {
     console.log(JSON.stringify(recetaCompleta, null, 2));
     console.log('═══════════════════════════════════════');
     
-    // Enviar al backend POST /api/recetas
-    (async () => {
-        try {
-            // Construir payload esperado por el backend
-            const pacienteIdHidden = document.getElementById('pacienteIdHidden')?.value;
-            const identificacionPaciente = document.getElementById('pacienteIdentificacion')?.value || document.getElementById('pacienteIdInfo')?.textContent || null;
-
-            const payload = {
-                identificacion: identificacionPaciente || null,
-                id_paciente: pacienteIdHidden ? parseInt(pacienteIdHidden) : undefined,
-                id_medico: medicoActivo.id,
-                fecha_emision: receta.fecha_emision,
-                observaciones: receta.observaciones,
-                detalles: detalles_receta
-            };
-
-            // Limpieza: eliminar undefined
-            if (!payload.id_paciente) delete payload.id_paciente;
-            if (!payload.identificacion) delete payload.identificacion;
-
-            console.log('📤 Enviando receta al backend:', payload);
-
-            const res = await fetch('/api/recetas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json().catch(() => ({}));
-            if (res.status === 201 && data && data.id_receta) {
-                mostrarNotificacion('Receta guardada satisfactoriamente', 'success');
-                mostrarModalExito(data.numero_receta || data.numero);
-
-                // Si el checkbox de notificación está marcado, crear notificación
-                const enviar = document.getElementById('enviarNotificacion')?.checked;
-                if (enviar) {
-                    try {
-                        const notiPayload = {
-                            identificacion: payload.identificacion || null,
-                            id_paciente: payload.id_paciente || null,
-                            id_receta: data.id_receta,
-                            canal: 'Sistema',
-                            mensaje: `Su receta ${data.numero_receta || ''} ha sido registrada.`
-                        };
-
-                        // Si identificacion está ausente pero id_paciente presente, backend resolverá
-                        const nres = await fetch('/api/notificaciones', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(notiPayload)
-                        });
-                        const ndata = await nres.json().catch(() => ({}));
-                        if (nres.ok) {
-                            console.log('Notificación creada:', ndata);
-                        } else {
-                            console.warn('No se pudo crear notificación:', ndata);
-                        }
-                    } catch (nerr) {
-                        console.error('Error creando notificación:', nerr);
-                    }
-                }
-
-                // Después de crear, limpiar o redirigir según UX
-                const respuesta = confirm('¿Desea crear otra receta?\n\nPresione OK para crear otra receta\nPresione Cancelar para ver el historial');
-                if (respuesta) {
-                    limpiarFormulario();
-                } else {
-                    window.location.href = '/historial';
-                }
-            } else {
-                console.error('Error guardando receta:', data);
-                mostrarNotificacion('Error al guardar la receta: ' + (data.error || 'Error desconocido'), 'error');
-            }
-        } catch (err) {
-            console.error('Error en petición a /api/recetas:', err);
-            mostrarNotificacion('Error de red al guardar la receta', 'error');
+    // Enviar al backend Flask
+    fetch('/api/recetas', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(recetaCompleta)
+    })
+    .then(async (res) => {
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(`Error ${res.status}: ${txt}`);
         }
-    })();
+        return res.json();
+    })
+    .then(data => {
+        console.log('✅ Receta guardada:', data);
+        if (data && data.numero_receta) {
+            mostrarModalExito(data.numero_receta);
+            // Limpiar formulario y volver al listado
+            setTimeout(() => {
+                cerrarFormularioReceta();
+                document.getElementById('buscarPacienteId').value = '';
+            }, 1500);
+        } else {
+            mostrarNotificacion('Receta creada pero sin número de respuesta', 'warning');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error al guardar receta:', error);
+        mostrarNotificacion('Error al guardar la receta: ' + error.message, 'error');
+    });
 }
 
 // ============================================

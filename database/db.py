@@ -41,6 +41,61 @@ def get_medicamento_by_nombre(nombre, db_path=None):
         return cur.fetchone()
 
 
+def get_medico_by_id(id_medico, db_path=None):
+    """Devuelve el registro del médico en la base de datos SQLite por su id_local (id_medico)."""
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM MEDICO WHERE id_medico = ?", (id_medico,))
+        return cur.fetchone()
+
+
+def find_medico_by_identificacion_o_correo(identificacion=None, correo=None, db_path=None):
+    """Busca un médico por identificacion (cedula) o correo en la BD local."""
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        if identificacion:
+            cur.execute("SELECT * FROM MEDICO WHERE identificacion = ?", (identificacion,))
+            row = cur.fetchone()
+            if row:
+                return row
+        if correo:
+            cur.execute("SELECT * FROM MEDICO WHERE correo = ?", (correo,))
+            row = cur.fetchone()
+            if row:
+                return row
+    return None
+
+
+def ensure_medico_from_external(external_medico, db_path=None):
+    """Inserta un médico mínimo en la BD SQLite si no existe y devuelve su id_local.
+
+    external_medico: dict que puede contener keys como 'id_medico', 'nombre', 'apellido',
+    'cedula' or 'identificacion', 'email', 'telefono', 'nombre_especialidad', 'numero_licencia'
+    """
+    identificacion = external_medico.get('cedula') or external_medico.get('identificacion') or None
+    correo = external_medico.get('email') or external_medico.get('correo') or None
+
+    existente = find_medico_by_identificacion_o_correo(identificacion=identificacion, correo=correo, db_path=db_path)
+    if existente:
+        return existente.get('id_medico')
+
+    nombre = external_medico.get('nombre', '')
+    apellido = external_medico.get('apellido', '')
+    nombre_completo = (str(nombre) + ' ' + str(apellido)).strip()
+    especialidad = external_medico.get('nombre_especialidad') or external_medico.get('especialidad') or None
+    telefono = external_medico.get('telefono') or external_medico.get('phone') or None
+    registro_profesional = external_medico.get('numero_licencia') or external_medico.get('registro_profesional') or None
+
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO MEDICO (nombre, identificacion, especialidad, correo, telefono, registro_profesional, activo) VALUES (?, ?, ?, ?, ?, ?, 1)",
+            (nombre_completo or None, identificacion, especialidad, correo, telefono, registro_profesional)
+        )
+        conn.commit()
+        return cur.lastrowid
+
+
 def listar_pacientes(limit=100, db_path=None):
     """Devuelve una lista de pacientes (útil para depuración y listados)."""
     with connect_db(db_path) as conn:

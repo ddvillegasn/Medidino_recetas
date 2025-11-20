@@ -154,6 +154,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Cargar médicos desde el módulo PHP y popular el select del índice
+async function cargarMedicosHomeIndex() {
+    const select = document.getElementById('selectMedicoHomeIndex');
+    if (!select) return;
+    select.innerHTML = '<option value="">Cargando médicos...</option>';
+    try {
+        const resp = await fetch('http://localhost/Medidino_recetas/backend/medicos.php');
+        const j = await resp.json();
+        const medicos = (j && j.data) ? j.data : [];
+        if (!Array.isArray(medicos) || medicos.length === 0) {
+            select.innerHTML = '<option value="">No se encontraron médicos</option>';
+            return;
+        }
+        select.innerHTML = '<option value="">-- Seleccione un médico --</option>';
+        medicos.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id_medico || m.id || '';
+            opt.textContent = [m.nombre, m.apellido].filter(Boolean).join(' ') + (m.nombre_especialidad ? (' — ' + m.nombre_especialidad) : '');
+            select.appendChild(opt);
+        });
+
+        // Si hay selección previa en localStorage, aplicarla
+        const sel = localStorage.getItem('medicoSeleccionado');
+        if (sel) select.value = sel;
+
+        // Botón para confirmar selección
+        const btn = document.getElementById('btnSeleccionMedicoIndex');
+        if (btn) {
+            btn.onclick = function() {
+                const val = select.value;
+                if (!val) { alert('Seleccione un médico antes de continuar'); return; }
+                localStorage.setItem('medicoSeleccionado', val);
+                alert('Médico seleccionado. Ahora puede ir a Gestión de Receta.');
+            };
+        }
+    } catch (e) {
+        select.innerHTML = '<option value="">Error al cargar médicos</option>';
+        console.error('Error cargando médicos home index', e);
+    }
+}
+
+// Ejecutar carga de médicos en el home
+document.addEventListener('DOMContentLoaded', cargarMedicosHomeIndex);
+
 // Función para guardar la receta
 function guardarReceta() {
     // Validar que haya un paciente
@@ -182,9 +226,13 @@ function guardarReceta() {
     // Preparar payload para la API
     const identificacionPaciente = document.getElementById('identificacionPaciente').value || null;
 
+    // Obtener médico seleccionado en el home (select) o en localStorage
+    const selectMedHome = document.getElementById('selectMedicoHomeIndex');
+    const selectedMedico = (selectMedHome && selectMedHome.value) ? parseInt(selectMedHome.value) : (localStorage.getItem('medicoSeleccionado') ? parseInt(localStorage.getItem('medicoSeleccionado')) : null);
+
     const payload = {
         identificacion: identificacionPaciente,
-        id_medico: 1, // en demo usamos médico por defecto
+        id_medico: selectedMedico,
         fecha_emision: fechaEmision,
         observaciones: observaciones,
         detalles: [

@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Módulo de Emisión y Seguimiento de Recetas cargado');
     
     // Cargar información del médico activo
-    cargarMedicoActivo();
+    // cargarMedicoActivo();  // ahora la selección de médico se hace desde el home/index
     
     // Establecer fecha de emisión automáticamente a hoy
     const fechaEmisionInput = document.getElementById('fechaEmision');
@@ -309,26 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ============================================
-// MÉDICO ACTIVO (SESIÓN)
-// ============================================
-const medicoActivoMain = {
-    id: 1,
-    nombre: 'Dr. Roberto Sánchez',
-    especialidad: 'Medicina General',
-    registro: 'RM-12345'
-};
-
-function cargarMedicoActivo() {
-    const nombreElement = document.getElementById('medicoActivoNombre');
-    const especialidadElement = document.getElementById('medicoActivoEspecialidad');
-    
-    if (nombreElement && especialidadElement) {
-        nombreElement.textContent = medicoActivoMain.nombre;
-        especialidadElement.textContent = `${medicoActivoMain.especialidad} • ${medicoActivoMain.registro}`;
-        console.log('Médico activo cargado:', medicoActivoMain);
-    }
-}
+// La información del médico activo ahora se gestiona mediante selección en el home
 
 // ============================================
 // BÚSQUEDA RÁPIDA DE PACIENTE

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Registro de Médicos</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/registro-medico.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">REGISTRO DE MÉDICOS</h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </a>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="registro-medico.html" class="nav-item active">
+                <i class="fas fa-user-md"></i>
+                <span>Registro de Médicos</span>
+            </a>
+            <a href="horarios.html" class="nav-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Gestión de Horarios</span>
+            </a>
+            <a href="reportes.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reportes y Estadísticas</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner">
+            <div class="banner-content">
+                <a href="index.html" class="banner-logo">
+                    <i class="fas fa-user-md"></i>
+                    <h2>Medidino <span>- Gestión de Médicos</span></h2>
+                </a>
+            </div>
+            <div class="banner-hero">
+                <h1>Registro de Personal Médico</h1>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-item" data-tab="inicio" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Inicio
+            </button>
+            <button class="tab-item active" data-tab="registro">
+                <i class="fas fa-user-md"></i> Registro de Médicos
+            </button>
+            <button class="tab-item" data-tab="horarios" onclick="window.location.href='horarios.html'">
+                <i class="fas fa-calendar-alt"></i> Horarios
+            </button>
+            <button class="tab-item" data-tab="reportes" onclick="window.location.href='reportes.html'">
+                <i class="fas fa-chart-bar"></i> Reportes
+            </button>
+        </nav>
+
+        <div class="form-container">
+            <form id="doctorRegistrationForm" class="registration-form">
+                <!-- Información Personal -->
+                <div class="form-section">
+                    <h2>Información Personal</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellido">Apellido</label>
+                            <input type="text" id="apellido" name="apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cedula">Cédula / Número de Documento</label>
+                            <input type="text" id="cedula" name="cedula" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+                            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="genero">Género</label>
+                            <select id="genero" name="genero" required>
+                                <option value="">Seleccione...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="O">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="direccion">Dirección</label>
+                            <input type="text" id="direccion" name="direccion">
+                        </div>
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad</label>
+                            <input type="text" id="ciudad" name="ciudad">
+                        </div>
+                        <div class="form-group">
+                            <label for="estado">Departamento</label>
+                            <input type="text" id="estado" name="estado">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información Profesional -->
+                <div class="form-section">
+                    <h2>Información Profesional</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="especialidad">Especialidad</label>
+                            <select id="especialidad" name="especialidad" required>
+                                <option value="">Seleccione especialidad...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_licencia">Número de Licencia Médica</label>
+                            <input type="text" id="numero_licencia" name="numero_licencia" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expedicion_licencia">Fecha de Expedición de Licencia</label>
+                            <input type="date" id="expedicion_licencia" name="expedicion_licencia">
+                        </div>
+                        <div class="form-group">
+                            <label for="vencimiento_licencia">Fecha de Vencimiento de Licencia</label>
+                            <input type="date" id="vencimiento_licencia" name="vencimiento_licencia">
+                        </div>
+                        <div class="form-group">
+                            <label for="experiencia_anos">Años de Experiencia</label>
+                            <input type="number" id="experiencia_anos" name="experiencia_anos" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documentos -->
+                <div class="form-section">
+                    <h2>Documentos</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="curriculum">Curriculum Vitae</label>
+                            <input type="file" id="curriculum" name="curriculum" accept=".pdf,.doc,.docx">
+                        </div>
+                        <div class="form-group">
+                            <label for="titulo">Título Profesional</label>
+                            <input type="file" id="titulo" name="titulo" accept=".pdf,.jpg,.png">
+                        </div>
+                        <div class="form-group">
+                            <label for="certificados">Certificados Adicionales</label>
+                            <input type="file" id="certificados" name="certificados" multiple accept=".pdf">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horario Laboral -->
+                <div class="form-section">
+                    <h2>Horario Laboral</h2>
+                    <div class="schedule-grid">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Médico
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="window.history.back()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- API Client -->
+    <script src="../../backend/api-client.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/registro-medico.js"></script>
+</body>
+</html>

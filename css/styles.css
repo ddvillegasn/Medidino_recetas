@@ -876,3 +876,55 @@ textarea:focus {
         padding: 0.6rem;
     }
 }
+
+/* Modern select styles used for medico selectors */
+.modern-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+.modern-select select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 3rem;
+    border-radius: 10px;
+    border: 1px solid rgba(44,62,80,0.12);
+    background: linear-gradient(180deg, #fff, #fbfdff);
+    font-size: 1rem;
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(30,136,168,0.06);
+    transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.06s ease;
+}
+.modern-select select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 20px rgba(30,136,168,0.12);
+}
+.modern-select::after {
+    content: '\25BC'; /* down arrow */
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: rgba(44,62,80,0.6);
+    font-size: 0.85rem;
+}
+.modern-select .select-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    font-size: 1.05rem;
+    pointer-events: none;
+}
+.modern-select select.with-icon {
+    padding-left: 2.6rem;
+}
+
+/* small helper to make the select visually consistent in cards */
+.form-group .modern-select { margin-top: 0.5rem; }

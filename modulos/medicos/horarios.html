@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Gestión de Horarios</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/horarios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">GESTIÓN DE HORARIOS</h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </a>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="registro-medico.html" class="nav-item">
+                <i class="fas fa-user-md"></i>
+                <span>Registro de Médicos</span>
+            </a>
+            <a href="horarios.html" class="nav-item active">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Gestión de Horarios</span>
+            </a>
+            <a href="reportes.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reportes y Estadísticas</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner">
+            <div class="banner-content">
+                <a href="index.html" class="banner-logo">
+                    <i class="fas fa-user-md"></i>
+                    <h2>Medidino <span>- Gestión de Médicos</span></h2>
+                </a>
+            </div>
+            <div class="banner-hero">
+                <h1>Gestión de Horarios Médicos</h1>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-item" data-tab="inicio" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Inicio
+            </button>
+            <button class="tab-item" data-tab="registro" onclick="window.location.href='registro-medico.html'">
+                <i class="fas fa-user-md"></i> Registro de Médicos
+            </button>
+            <button class="tab-item active" data-tab="horarios">
+                <i class="fas fa-calendar-alt"></i> Horarios
+            </button>
+            <button class="tab-item" data-tab="reportes" onclick="window.location.href='reportes.html'">
+                <i class="fas fa-chart-bar"></i> Reportes
+            </button>
+        </nav>
+
+        <div class="schedule-container">
+            <!-- Filtros y Controles -->
+            <div class="controls-section">
+                <div class="filters">
+                    <select id="doctorSelect" class="filter-select">
+                        <option value="">Seleccionar Médico...</option>
+                    </select>
+                    <select id="serviceSelect" class="filter-select">
+                        <option value="">Todos los Servicios</option>
+                    </select>
+                    <div class="date-range">
+                        <input type="date" id="startDate">
+                        <span>a</span>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn-primary" id="addSchedule">
+                        <i class="fas fa-plus"></i>
+                        Nuevo Horario
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista de Calendario -->
+            <div class="calendar-view">
+                <div class="calendar-header">
+                    <button class="nav-btn" id="prevWeek">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 id="currentWeek">Semana del 29 Oct - 4 Nov 2025</h2>
+                    <button class="nav-btn" id="nextWeek">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-grid">
+                    <!-- Cabecera de días -->
+                    <div class="time-column">
+                        <div class="time-header">Hora</div>
+                        <div class="time-slots">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para Nuevo/Editar Horario -->
+            <div class="modal" id="scheduleModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Gestionar Horario</h2>
+                        <button class="close-modal">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="scheduleForm">
+                            <div class="form-group">
+                                <label>Médico</label>
+                                <select name="doctor" required>
+                                    <option value="">Seleccionar Médico...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Servicio</label>
+                                <select name="service" required>
+                                    <option value="">Seleccionar Servicio...</option>
+                                </select>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Fecha Inicio</label>
+                                    <input type="date" name="startDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha Fin</label>
+                                    <input type="date" name="endDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora Inicio</label>
+                                    <input type="time" name="startTime" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora Fin</label>
+                                    <input type="time" name="endTime" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select name="scheduleType" required>
+                                    <option value="regular">Regular</option>
+                                    <option value="guardia">Guardia</option>
+                                    <option value="reemplazo">Reemplazo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Notas</label>
+                                <textarea name="notes" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" data-action="cancel">Cancelar</button>
+                        <button class="btn-primary" data-action="save">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- API Client -->
+    <script src="../../backend/api-client.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/horarios.js"></script>
+</body>
+</html>

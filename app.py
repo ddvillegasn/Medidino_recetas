@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 from database import db
 import os
+import urllib.request
+import json
 
 # Serve the repository root as static so existing css/ and js/ folders work unchanged
 app = Flask(__name__, static_folder='.', static_url_path='')
@@ -61,6 +63,41 @@ def api_create_or_list_pacientes():
 def api_create_receta():
     try:
         payload = request.get_json(force=True)
+        # Si el payload incluye un id_medico que no existe en la BD SQLite,
+        # intentar obtenerlo desde el módulo PHP (XAMPP) y crear un registro
+        # local mínimo en SQLite para mantener la FK.
+        id_medico_externo = payload.get('id_medico')
+        if id_medico_externo:
+            try:
+                # Verificar si ya existe localmente
+                local_med = db.get_medico_by_id(id_medico_externo)
+                if not local_med:
+                    # Intentar obtener desde el endpoint PHP
+                    # URL asumida (usar la ruta donde corre XAMPP)
+                    php_url = f'http://localhost/Medidino_recetas/backend/medicos.php/{id_medico_externo}'
+                    with urllib.request.urlopen(php_url) as resp:
+                        raw = resp.read().decode('utf-8')
+                        try:
+                            j = json.loads(raw)
+                        except Exception:
+                            j = None
+                    medico_data = None
+                    if j and isinstance(j, dict):
+                        # php API devuelve { success:true, message:'', data: [...] }
+                        data = j.get('data')
+                        if isinstance(data, list) and len(data) > 0:
+                            medico_data = data[0]
+                        elif isinstance(data, dict):
+                            medico_data = data
+
+                    if medico_data:
+                        # Insertar/asegurar médico en SQLite y obtener id_local
+                        nuevo_id = db.ensure_medico_from_external(medico_data)
+                        payload['id_medico'] = nuevo_id
+            except Exception:
+                # No bloquear: si falla la sincronización, dejar que la creación falle
+                pass
+
         result = db.crear_receta_con_detalles(payload)
         return jsonify({
             'success': True,
