@@ -586,38 +586,34 @@ window.buscarPacienteYRecetas = async function() {
     }
     
     console.log('🔍 Buscando paciente con cédula:', identificacion);
+    console.log('📋 Base de datos de pacientes disponible:', Object.keys(pacientesDB));
     
-    // 1. Buscar paciente desde la API
-    try {
-        const response = await fetch(`/api/pacientes/buscar/${identificacion}`);
-        if (!response.ok) {
-            throw new Error('Paciente no encontrado');
-        }
-        const paciente = await response.json();
-        
-        console.log('✅ Paciente encontrado:', paciente);
-        
-        // 2. Mostrar información del paciente
-        mostrarInfoPaciente(paciente);
-        
-        // 3. Buscar recetas del paciente desde la API
-        const recetasResponse = await fetch(`/api/recetas?identificacion=${identificacion}`);
-        if (!recetasResponse.ok) throw new Error('Error al cargar recetas');
-        const recetas = await recetasResponse.json();
-        
-        console.log('📋 Recetas encontradas desde API:', recetas.length);
-        
-        // 4. Mostrar historial de recetas
-        mostrarHistorialRecetas(recetas);
-        
-        // 5. Notificar éxito
-        mostrarNotificacion(`Paciente encontrado: ${paciente.nombre}`, 'success');
-        
-    } catch (error) {
-        console.error('❌ Error buscando paciente:', error);
+    // 1. Buscar paciente
+    // En producción: const paciente = await fetch(`/api/pacientes/buscar/${identificacion}`).then(r => r.json());
+    const paciente = pacientesDB[identificacion];
+    
+    if (!paciente) {
         mostrarNotificacion('Paciente no encontrado. Verifique el número de identificación', 'error');
         ocultarInfoPaciente();
+        return;
     }
+    
+    console.log('✅ Paciente encontrado:', paciente);
+    
+    // 2. Mostrar información del paciente
+    mostrarInfoPaciente(paciente);
+    
+    // 3. Buscar recetas del paciente
+    // En producción: const recetas = await fetch(`/api/recetas/paciente/${paciente.id}`).then(r => r.json());
+    const recetas = recetasDB[paciente.id] || [];
+    
+    console.log('📋 Recetas encontradas:', recetas.length);
+    
+    // 4. Mostrar historial de recetas
+    mostrarHistorialRecetas(recetas);
+    
+    // 5. Notificar éxito
+    mostrarNotificacion(`Paciente encontrado: ${paciente.nombre}`, 'success');
 }
 
 // ============================================
@@ -626,18 +622,13 @@ window.buscarPacienteYRecetas = async function() {
 function mostrarInfoPaciente(paciente) {
     const container = document.getElementById('pacienteRecetasContainer');
     
-    // Llenar datos del paciente en la sección de información
+    // Llenar datos del paciente
     document.getElementById('pacienteNombreInfo').textContent = paciente.nombre;
     document.getElementById('pacienteIdInfo').textContent = paciente.identificacion;
-    document.getElementById('pacienteEdadInfo').textContent = paciente.edad ? `${paciente.edad} años` : 'No especificado';
-    document.getElementById('pacienteGeneroInfo').textContent = paciente.genero || 'No especificado';
-    document.getElementById('pacienteTelefonoInfo').textContent = paciente.telefono || 'No registrado';
+    document.getElementById('pacienteEdadInfo').textContent = `${paciente.edad} años`;
+    document.getElementById('pacienteGeneroInfo').textContent = paciente.genero;
+    document.getElementById('pacienteTelefonoInfo').textContent = paciente.telefono;
     document.getElementById('pacienteEmailInfo').textContent = paciente.correo || 'No registrado';
-    
-    // Llenar campos del formulario
-    document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
-    document.getElementById('pacienteNombre').value = paciente.nombre || '';
-    document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
     
     // Guardar ID del paciente para uso posterior
     window.pacienteSeleccionado = paciente;
@@ -687,31 +678,19 @@ function mostrarHistorialRecetas(recetas) {
     recetas.forEach(receta => {
         const estadoClass = {
             'Completado': 'success',
-            'Activa': 'success',
             'Pendiente': 'warning',
-            'Dispensada': 'info',
-            'Cancelada': 'danger',
-            'Vencida': 'secondary'
+            'Enviado': 'info',
+            'Cancelado': 'danger'
         }[receta.estado] || 'secondary';
         
         const estadoIcon = {
             'Completado': 'fa-check-circle',
-            'Activa': 'fa-check-circle',
             'Pendiente': 'fa-clock',
-            'Dispensada': 'fa-check-double',
-            'Cancelada': 'fa-times-circle',
-            'Vencida': 'fa-exclamation-triangle'
+            'Enviado': 'fa-paper-plane',
+            'Cancelado': 'fa-times-circle'
         }[receta.estado] || 'fa-question-circle';
         
-        // Mapear medicamentos desde detalles de la API
-        const medicamentos = (receta.detalles || receta.medicamentos || []).map(d => ({
-            nombre: d.medicamento_nombre || d.nombre || 'Medicamento',
-            dosis: d.dosis || '',
-            frecuencia: d.frecuencia || '',
-            duracion: d.duracion || ''
-        }));
-        
-        const medicamentosHTML = medicamentos.map(med => `
+        const medicamentosHTML = receta.medicamentos.map(med => `
             <div class="medicamento-item-timeline">
                 <i class="fas fa-pills"></i>
                 <strong>${med.nombre}</strong> - ${med.dosis} - ${med.frecuencia} (${med.duracion})
@@ -736,7 +715,7 @@ function mostrarHistorialRecetas(recetas) {
                 
                 <div class="receta-timeline-medico">
                     <i class="fas fa-user-md"></i>
-                    <strong>${receta.medico_nombre || 'Médico'}</strong>${receta.medico_especialidad ? ' - ' + receta.medico_especialidad : ''}
+                    <strong>${receta.medico_nombre}</strong> - ${receta.medico_especialidad}
                 </div>
                 
                 <div class="receta-timeline-medicamentos">
@@ -755,7 +734,7 @@ function mostrarHistorialRecetas(recetas) {
                     <button type="button" class="btn-timeline-accion btn-ver" onclick="verDetalleReceta(${receta.id_receta})">
                         <i class="fas fa-eye"></i> Ver Detalle
                     </button>
-                    <button type="button" class="btn-timeline-accion btn-editar" onclick="editarReceta(${receta.id_paciente}, ${receta.id_receta})">
+                    <button type="button" class="btn-timeline-accion btn-editar" onclick="editarReceta(${receta.id_receta})">
                         <i class="fas fa-edit"></i> Editar
                     </button>
                 </div>
@@ -1200,6 +1179,8 @@ window.cerrarFormularioReceta = function() {
     
     // Limpiar sessionStorage
     sessionStorage.removeItem('recetaEditar');
+    
+    mostrarNotificacion('Edición cancelada', 'info');
 }
 
 // ============================================
@@ -1651,7 +1632,11 @@ function generarReceta(e) {
         console.log('✅ Receta guardada:', data);
         if (data && data.numero_receta) {
             mostrarModalExito(data.numero_receta);
-            mostrarNotificacion('✅ Receta guardada exitosamente: ' + data.numero_receta, 'success');
+            // Limpiar formulario y volver al listado
+            setTimeout(() => {
+                cerrarFormularioReceta();
+                document.getElementById('buscarPacienteId').value = '';
+            }, 1500);
         } else {
             mostrarNotificacion('Receta creada pero sin número de respuesta', 'warning');
         }
@@ -1688,28 +1673,26 @@ function validarFormulario() {
 // ============================================
 // LIMPIAR FORMULARIO
 // ============================================
-function limpiarFormulario(confirmar = true) {
-    if (confirmar && !confirm('¿Está seguro de que desea limpiar el formulario? Se perderán todos los datos ingresados.')) {
-        return;
+function limpiarFormulario() {
+    if (confirm('¿Está seguro de que desea limpiar el formulario? Se perderán todos los datos ingresados.')) {
+        document.getElementById('formNuevaReceta').reset();
+        
+        // Limpiar campo de búsqueda
+        document.getElementById('buscarPacienteId').value = '';
+        
+        // Ocultar y limpiar datos del paciente
+        document.getElementById('datosPacienteContainer').style.display = 'none';
+        limpiarDatosPaciente();
+        
+        // Eliminar medicamentos adicionales
+        const medicamentos = document.querySelectorAll('.medicamento-item');
+        medicamentos.forEach((item, index) => {
+            if (index > 0) item.remove();
+        });
+        
+        medicamentoCount = 1;
+        actualizarVistaPrevia();
     }
-    
-    document.getElementById('formNuevaReceta').reset();
-    
-    // Limpiar campo de búsqueda
-    document.getElementById('buscarPacienteId').value = '';
-    
-    // Ocultar y limpiar datos del paciente
-    document.getElementById('datosPacienteContainer').style.display = 'none';
-    limpiarDatosPaciente();
-    
-    // Eliminar medicamentos adicionales
-    const medicamentos = document.querySelectorAll('.medicamento-item');
-    medicamentos.forEach((item, index) => {
-        if (index > 0) item.remove();
-    });
-    
-    medicamentoCount = 1;
-    actualizarVistaPrevia();
 }
 
 // ============================================
@@ -1734,7 +1717,7 @@ function mostrarModalExito(numeroReceta) {
 window.cerrarModal = function() {
     const modal = document.getElementById('modalConfirmacion');
     modal.classList.remove('active');
-    limpiarFormulario(false); // false = no pedir confirmación después de guardar exitosamente
+    limpiarFormulario();
 }
 
 window.imprimirReceta = function() {

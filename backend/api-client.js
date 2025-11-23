@@ -6,7 +6,7 @@
 // IMPORTANTE: Ajusta esta ruta según tu configuración local
 // Si tu proyecto está en la raíz de htdocs, usa: http://localhost/backend
 // Si está en una subcarpeta, usa: http://localhost/nombre-carpeta/backend
-const API_URL = 'http://localhost/MediDino/backend';
+const API_URL = 'http://localhost/Medidino_recetas/backend';
 
 // ==================== CONFIGURACIÓN ====================
 

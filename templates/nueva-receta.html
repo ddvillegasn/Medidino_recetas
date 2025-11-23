@@ -159,7 +159,6 @@
                                 <span id="pacienteEmailInfo">---</span>
                             </div>
                         </div>
-                        <input type="hidden" id="pacienteIdHidden">
                     </div>
                 </div>
 
@@ -344,6 +343,13 @@
                                             <label for="duracion_0" class="required">Duración</label>
                                             <input type="text" id="duracion_0" name="duracion[]" placeholder="Ej: 7 días" required>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="cantidad_0" class="required">Cantidad</label>
+                                            <input type="number" id="cantidad_0" name="cantidad[]" min="1" placeholder="Ej: 20" required>
+                                            <small class="form-hint" style="font-size: 0.75rem; color: #666;">
+                                                <i class="fas fa-box"></i> Unidades a dispensar
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -380,10 +386,10 @@
                                     <div class="input-with-icon">
                                         <i class="fas fa-info-circle"></i>
                                         <select id="estadoReceta" name="estadoReceta">
-                                            <option value="Pendiente">⏳ Pendiente</option>
-                                            <option value="Completado">✅ Completado</option>
-                                            <option value="Enviado">📤 Enviado</option>
-                                            <option value="Cancelado">❌ Cancelado</option>
+                                            <option value="Activa">✅ Activa</option>
+                                            <option value="Dispensada">📦 Dispensada</option>
+                                            <option value="Cancelada">❌ Cancelada</option>
+                                            <option value="Vencida">⏰ Vencida</option>
                                         </select>
                                     </div>
                                     <small class="form-hint">
@@ -471,7 +477,7 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/nueva-receta.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nueva-receta.js') }}?v=6"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     <!-- Script de verificación -->

@@ -3,9 +3,19 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 import random
+import mysql.connector
+from mysql.connector import Error
 
 
 DB_FILENAME = os.path.join(os.path.dirname(__file__), 'medidino.db')
+
+# Configuración de MySQL para medicamentos
+MYSQL_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': '',
+    'database': 'farmacia.sql'
+}
 
 
 def dict_factory(cursor, row):
@@ -32,6 +42,11 @@ def get_paciente_by_identificacion(identificacion, db_path=None):
         cur = conn.cursor()
         cur.execute("SELECT * FROM PACIENTE WHERE identificacion = ?", (identificacion,))
         return cur.fetchone()
+
+
+def buscar_paciente_por_identificacion(identificacion, db_path=None):
+    """Alias de get_paciente_by_identificacion para compatibilidad con la API"""
+    return get_paciente_by_identificacion(identificacion, db_path)
 
 
 def get_medicamento_by_nombre(nombre, db_path=None):
@@ -203,7 +218,8 @@ def crear_receta_con_detalles(payload, db_path=None):
 def listar_recetas(limit=100, db_path=None, identificacion=None):
     with connect_db(db_path) as conn:
         cur = conn.cursor()
-        query = "SELECT r.*, p.nombre as paciente_nombre, p.identificacion as paciente_identificacion, m.nombre as medico_nombre FROM RECETA r JOIN PACIENTE p ON r.id_paciente = p.id_paciente JOIN MEDICO m ON r.id_medico = m.id_medico"
+        # Solo traer datos de SQLite (paciente y receta)
+        query = "SELECT r.*, p.nombre as paciente_nombre, p.identificacion as paciente_identificacion FROM RECETA r JOIN PACIENTE p ON r.id_paciente = p.id_paciente"
         params = []
         if identificacion:
             query += " WHERE p.identificacion = ?"
@@ -211,17 +227,152 @@ def listar_recetas(limit=100, db_path=None, identificacion=None):
         query += " ORDER BY r.fecha_emision DESC LIMIT ?"
         params.append(limit)
         cur.execute(query, params)
-        return cur.fetchall()
+        recetas = cur.fetchall()
+        
+        # Conectar a MySQL para obtener nombres de médicos y medicamentos
+        try:
+            mysql_conn = mysql.connector.connect(**MYSQL_CONFIG)
+            mysql_cur = mysql_conn.cursor(dictionary=True)
+            print(f"✅ Conectado a MySQL farmacia.sql")
+            
+            # Conectar a MySQL de médicos
+            medicos_config = {
+                'host': 'localhost',
+                'user': 'root',
+                'password': '',
+                'database': 'medidino_medicos'
+            }
+            medicos_conn = mysql.connector.connect(**medicos_config)
+            medicos_cur = medicos_conn.cursor(dictionary=True)
+            print(f"✅ Conectado a MySQL medidino_medicos")
+            
+        except Exception as e:
+            print(f"⚠️ Error conectando a MySQL: {e}")
+            mysql_conn = None
+            medicos_conn = None
+        
+        # Procesar cada receta
+        for receta in recetas:
+            id_receta = receta['id_receta']
+            id_medico = receta.get('id_medico')
+            
+            # Obtener nombre del médico desde MySQL
+            receta['medico_nombre'] = None
+            if medicos_conn and id_medico:
+                try:
+                    medicos_cur.execute(
+                        "SELECT m.nombre, m.apellido, e.nombre_especialidad FROM medicos m LEFT JOIN especialidades e ON m.id_especialidad = e.id_especialidad WHERE m.id_medico = %s",
+                        (id_medico,)
+                    )
+                    medico = medicos_cur.fetchone()
+                    if medico:
+                        receta['medico_nombre'] = f"{medico.get('nombre', '')} {medico.get('apellido', '')}".strip()
+                        receta['medico_especialidad'] = medico.get('nombre_especialidad', '')
+                except Exception:
+                    pass
+            
+            # Obtener detalles de medicamentos desde SQLite
+            cur.execute(
+                """SELECT d.* FROM DETALLE_RECETA d WHERE d.id_receta = ?""",
+                (id_receta,)
+            )
+            detalles = cur.fetchall()
+            
+            # Para cada detalle, obtener el nombre del medicamento desde MySQL
+            for detalle in detalles:
+                id_medicamento = detalle.get('id_medicamento')
+                detalle['medicamento_nombre'] = None
+                detalle['presentacion'] = None
+                
+                if mysql_conn and id_medicamento:
+                    try:
+                        print(f"🔍 Buscando medicamento id={id_medicamento} en MySQL")
+                        mysql_cur.execute(
+                            "SELECT nombre, tipo, dosis_recomendada FROM medicamento WHERE id_medicamento = %s",
+                            (id_medicamento,)
+                        )
+                        med = mysql_cur.fetchone()
+                        if med:
+                            detalle['medicamento_nombre'] = med.get('nombre')
+                            detalle['presentacion'] = med.get('tipo')  # Usar 'tipo' como presentación
+                            print(f"✅ Medicamento encontrado: {detalle['medicamento_nombre']} ({detalle['presentacion']})")
+                        else:
+                            print(f"⚠️ Medicamento id={id_medicamento} no encontrado en MySQL")
+                    except Exception as e:
+                        print(f"❌ Error consultando medicamento: {e}")
+            
+            receta['detalles'] = detalles
+        
+        # Cerrar conexiones MySQL
+        if mysql_conn:
+            mysql_cur.close()
+            mysql_conn.close()
+        if medicos_conn:
+            medicos_cur.close()
+            medicos_conn.close()
+        
+        return recetas
 
 
 def listar_medicamentos(term=None, solo_disponibles=False, limit=200, db_path=None):
     """
-    Devuelve una lista de medicamentos con información de inventario.
+    Devuelve una lista de medicamentos desde la base de datos MySQL (farmacia).
 
     Args:
       term: filtro parcial por nombre (LIKE)
-      solo_disponibles: si True, filtra por cantidad_actual > 0
+      solo_disponibles: si True, filtra por stock > 0
       limit: máximo de resultados
+    """
+    try:
+        # Conectar a MySQL
+        conn = mysql.connector.connect(**MYSQL_CONFIG)
+        cur = conn.cursor(dictionary=True)
+        
+        query = """
+            SELECT 
+                id_medicamento as id,
+                nombre,
+                categoria,
+                descripcion,
+                dosis_recomendada,
+                tipo,
+                estado,
+                fecha_vencimiento as vencimiento,
+                stock,
+                minimo_stock as stockMinimo
+            FROM medicamento
+            WHERE 1=1
+        """
+        params = []
+        
+        if term:
+            query += " AND nombre LIKE %s"
+            params.append(f"%{term}%")
+        
+        if solo_disponibles:
+            query += " AND stock > 0"
+        
+        # Mostrar todos los medicamentos, sin filtrar por estado
+        query += " ORDER BY nombre LIMIT %s"
+        params.append(limit)
+        
+        cur.execute(query, params)
+        medicamentos = cur.fetchall()
+        
+        cur.close()
+        conn.close()
+        
+        return medicamentos
+        
+    except Error as e:
+        print(f"Error al consultar medicamentos de MySQL: {e}")
+        # Fallback a SQLite si falla MySQL
+        return listar_medicamentos_sqlite(term, solo_disponibles, limit, db_path)
+
+
+def listar_medicamentos_sqlite(term=None, solo_disponibles=False, limit=200, db_path=None):
+    """
+    Versión original que consulta de SQLite (fallback).
     """
     with connect_db(db_path) as conn:
         cur = conn.cursor()
@@ -254,12 +405,11 @@ def get_receta_con_detalles(id_receta, db_path=None):
     """
     with connect_db(db_path) as conn:
         cur = conn.cursor()
-        # Obtener datos de la receta con paciente y medico
+        # Obtener datos de la receta con paciente (sin médico desde SQLite)
         cur.execute(
-            "SELECT r.*, p.nombre AS paciente_nombre, p.identificacion AS paciente_identificacion, m.nombre AS medico_nombre, m.especialidad AS medico_especialidad "
+            "SELECT r.*, p.nombre AS paciente_nombre, p.identificacion AS paciente_identificacion "
             "FROM RECETA r "
             "JOIN PACIENTE p ON r.id_paciente = p.id_paciente "
-            "LEFT JOIN MEDICO m ON r.id_medico = m.id_medico "
             "WHERE r.id_receta = ?",
             (id_receta,)
         )
@@ -267,15 +417,63 @@ def get_receta_con_detalles(id_receta, db_path=None):
         if not receta:
             return None
 
-        # Obtener detalles de la receta con nombres de medicamento
+        # Obtener nombre del médico desde MySQL
+        id_medico = receta.get('id_medico')
+        receta['medico_nombre'] = None
+        if id_medico:
+            try:
+                medicos_config = {
+                    'host': 'localhost',
+                    'user': 'root',
+                    'password': '',
+                    'database': 'medidino_medicos'
+                }
+                medicos_conn = mysql.connector.connect(**medicos_config)
+                medicos_cur = medicos_conn.cursor(dictionary=True)
+                medicos_cur.execute(
+                    "SELECT m.nombre, m.apellido, e.nombre_especialidad FROM medicos m LEFT JOIN especialidades e ON m.id_especialidad = e.id_especialidad WHERE m.id_medico = %s",
+                    (id_medico,)
+                )
+                medico = medicos_cur.fetchone()
+                if medico:
+                    receta['medico_nombre'] = f"{medico.get('nombre', '')} {medico.get('apellido', '')}".strip()
+                    receta['medico_especialidad'] = medico.get('nombre_especialidad', '')
+                medicos_cur.close()
+                medicos_conn.close()
+            except Exception as e:
+                print(f"⚠️ Error obteniendo médico: {e}")
+
+        # Obtener detalles de la receta desde SQLite
         cur.execute(
-            "SELECT d.*, med.nombre as medicamento_nombre, med.presentacion "
-            "FROM DETALLE_RECETA d "
-            "LEFT JOIN MEDICAMENTO med ON d.id_medicamento = med.id_medicamento "
-            "WHERE d.id_receta = ?",
+            "SELECT d.* FROM DETALLE_RECETA d WHERE d.id_receta = ?",
             (id_receta,)
         )
         detalles = cur.fetchall()
+
+        # Obtener nombres de medicamentos desde MySQL
+        try:
+            mysql_conn = mysql.connector.connect(**MYSQL_CONFIG)
+            mysql_cur = mysql_conn.cursor(dictionary=True)
+            
+            for detalle in detalles:
+                id_medicamento = detalle.get('id_medicamento')
+                detalle['medicamento_nombre'] = None
+                detalle['presentacion'] = None
+                
+                if id_medicamento:
+                    mysql_cur.execute(
+                        "SELECT nombre, tipo FROM medicamento WHERE id_medicamento = %s",
+                        (id_medicamento,)
+                    )
+                    med = mysql_cur.fetchone()
+                    if med:
+                        detalle['medicamento_nombre'] = med.get('nombre')
+                        detalle['presentacion'] = med.get('tipo')
+            
+            mysql_cur.close()
+            mysql_conn.close()
+        except Exception as e:
+            print(f"⚠️ Error obteniendo medicamentos: {e}")
 
         receta['detalles'] = detalles
         return receta

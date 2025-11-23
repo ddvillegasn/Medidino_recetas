@@ -94,28 +94,13 @@ const recetasDB = {
     ]
 };
 
-// Convertir a array plano
+// Array que contendrá las recetas del API
 let recetasArray = [];
-for (const pacienteId in recetasDB) {
-    recetasDB[pacienteId].forEach(receta => {
-        const paciente = Object.values(pacientesDBHistorial).find(p => p.id == receta.id_paciente) || { nombre: 'Paciente Desconocido', identificacion: 'N/A', telefono: 'N/A' };
-        recetasArray.push({
-            id: receta.id_receta,
-            numero: receta.numero_receta,
-            fecha: receta.fecha_emision.split('T')[0],
-            paciente: paciente,
-            medico: { nombre: receta.medico_nombre, especialidad: receta.medico_especialidad },
-            medicamentos: receta.medicamentos,
-            observaciones: receta.observaciones,
-            estado: receta.estado
-        });
-    });
-}
 
-console.log('📊 Total recetas:', recetasArray.length);
+console.log('📊 Esperando datos del API...');
 
 // Variables de paginación y filtros
-let recetasFiltradas = [...recetasArray];
+let recetasFiltradas = [];
 let paginaActual = 1;
 const recetasPorPagina = 10;
 
@@ -127,19 +112,40 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarEventos();
     // Intentar cargar recetas desde la API; si falla, usar datos locales mock
     fetch('/api/recetas')
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        })
         .then(data => {
+            console.log('📦 Respuesta del API:', data);
+            
             // Mapear la respuesta API al formato local esperado
-            recetasArray = (data || []).map(r => ({
-                id: r.id_receta || r.id || null,
-                numero: r.numero_receta || r.numero || '',
-                fecha: (r.fecha_emision || r.fecha || '').split ? (r.fecha_emision || r.fecha || '').split('T')[0] : (r.fecha_emision || r.fecha || ''),
-                paciente: { nombre: r.paciente_nombre || r.paciente?.nombre || r.paciente_identificacion || 'Paciente' },
-                medico: { nombre: r.medico_nombre || r.medico?.nombre || '', especialidad: r.medico_especialidad || '' },
-                medicamentos: (r.detalles || r.medicamentos || []).map(d => ({ nombre: d.medicamento_nombre || d.nombre || '' , dosis: d.dosis, frecuencia: d.frecuencia, duracion: d.duracion })),
-                observaciones: r.observaciones || '',
-                estado: r.estado || 'Pendiente'
-            }));
+            recetasArray = (Array.isArray(data) ? data : []).map(r => {
+                // Parsear medicamentos desde detalles
+                const medicamentos = (r.detalles || []).map(d => ({
+                    nombre: d.medicamento_nombre || d.nombre || 'Medicamento',
+                    dosis: d.dosis || '',
+                    frecuencia: d.frecuencia || '',
+                    duracion: d.duracion || ''
+                }));
+                
+                return {
+                    id: r.id_receta || r.id || null,
+                    numero: r.numero_receta || r.numero || 'N/A',
+                    fecha: (r.fecha_emision || r.fecha || '').split('T')[0] || new Date().toISOString().split('T')[0],
+                    paciente: {
+                        nombre: r.paciente_nombre || 'Paciente',
+                        identificacion: r.paciente_identificacion || 'N/A'
+                    },
+                    medico: {
+                        nombre: r.medico_nombre || 'Médico',
+                        especialidad: r.medico_especialidad || ''
+                    },
+                    medicamentos: medicamentos,
+                    observaciones: r.observaciones || '',
+                    estado: r.estado || 'Activa'
+                };
+            });
 
             console.log('✅ Recetas cargadas desde API:', recetasArray.length);
             recetasFiltradas = [...recetasArray];
@@ -148,9 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
             actualizarEstadisticas();
         })
         .catch(err => {
-            console.warn('⚠️ No se pudieron cargar recetas desde la API, usando datos locales:', err);
-            // mantener los datos locales ya inicializados
-            recetasFiltradas = [...recetasArray];
+            console.error('❌ Error cargando recetas desde la API:', err);
+            console.warn('⚠️ Usando datos vacíos');
+            recetasArray = [];
+            recetasFiltradas = [];
             cargarRecetas();
             actualizarEstadisticas();
         });

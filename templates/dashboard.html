@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediDino - Sistema de Gestión Médica</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="logo">
+                <h1>🦕 MediDino</h1>
+                <p>Sistema Integral de Gestión Médica</p>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <h2>Seleccione un Módulo</h2>
+            
+            <div class="modules-grid">
+                <!-- Módulo de Recetas -->
+                <div class="module-card">
+                    <div class="module-icon">📋</div>
+                    <h3>Recetas Médicas</h3>
+                    <p>Emisión y seguimiento de recetas médicas</p>
+                    <ul class="module-features">
+                        <li>Nueva receta</li>
+                        <li>Historial de recetas</li>
+                        <li>Búsqueda de pacientes</li>
+                    </ul>
+                    <button class="module-btn" onclick="window.location.href='/recetas'">Acceder</button>
+                </div>
+
+                <!-- Módulo de Médicos -->
+                <div class="module-card">
+                    <div class="module-icon">👨‍⚕️</div>
+                    <h3>Gestión de Médicos</h3>
+                    <p>Administración de personal médico</p>
+                    <ul class="module-features">
+                        <li>Registro de médicos</li>
+                        <li>Horarios laborales</li>
+                        <li>Reportes y asignaciones</li>
+                    </ul>
+                    <button class="module-btn" onclick="window.open('http://localhost/Medidino_recetas/modulos/medicos/index.html', '_blank')">Acceder</button>
+                </div>
+
+                <!-- Módulo de Medicamentos -->
+                <div class="module-card">
+                    <div class="module-icon">💊</div>
+                    <h3>Gestión de Medicamentos</h3>
+                    <p>Control de inventario farmacéutico</p>
+                    <ul class="module-features">
+                        <li>Inventario de medicamentos</li>
+                        <li>Dispensación</li>
+                        <li>Alertas de stock</li>
+                    </ul>
+                    <button class="module-btn" onclick="window.open('http://localhost/Medidino_recetas/modulos/medicamentos/MediDino-main/index.html', '_blank')">Acceder</button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="dashboard-footer">
+            <p>&copy; 2025 MediDino - Sistema de Gestión Médica Integral</p>
+        </footer>
+    </div>
+</body>
+</html>
