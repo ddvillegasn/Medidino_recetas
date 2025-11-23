@@ -1,0 +1,1172 @@
+/* ============================================
+   ESTILOS - HISTORIAL DE RECETAS
+   ============================================ */
+
+/* ============================================
+   BANNER HISTORIAL
+   ============================================ */
+.banner-historial {
+    background: linear-gradient(135deg, #1E88A8 0%, #134E68 100%);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.banner-header-historial {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.banner-icon-historial {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+
+.banner-icon-historial i {
+    font-size: 2rem;
+    color: white;
+}
+
+.banner-text-historial {
+    flex: 1;
+    min-width: 250px;
+}
+
+.banner-text-historial h2 {
+    margin: 0 0 0.5rem 0;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.banner-text-historial p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+}
+
+.btn-nueva-receta {
+    padding: 0.9rem 1.8rem;
+    background: white;
+    color: #1E88A8;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-nueva-receta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    background: #f0f9ff;
+}
+
+/* ============================================
+   FILTROS Y BÚSQUEDA
+   ============================================ */
+.filtros-section {
+    margin-bottom: 2rem;
+}
+
+.filtros-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filtros-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.filtros-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1E88A8;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-limpiar-filtros {
+    padding: 0.6rem 1.2rem;
+    background-color: #6C757D;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-limpiar-filtros:hover {
+    background-color: #5A6268;
+    transform: translateY(-2px);
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filtro-item label {
+    font-weight: 500;
+    color: #2C3E50;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filtro-item input,
+.filtro-item select {
+    padding: 0.8rem;
+    border: 2px solid #E0E6ED;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.filtro-item input:focus,
+.filtro-item select:focus {
+    outline: none;
+    border-color: #1E88A8;
+    box-shadow: 0 0 0 3px rgba(30, 136, 168, 0.1);
+}
+
+/* ============================================
+   ESTADÍSTICAS
+   ============================================ */
+.estadisticas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.estadistica-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.estadistica-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.estadistica-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.estadistica-icon i {
+    font-size: 1.8rem;
+}
+
+.estadistica-info h4 {
+    font-size: 0.9rem;
+    color: #6C757D;
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+}
+
+.estadistica-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0;
+}
+
+/* ============================================
+   TABLA DE RECETAS
+   ============================================ */
+.tabla-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.tabla-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1E88A8;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tabla-acciones {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-exportar {
+    padding: 0.6rem 1.2rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-exportar:hover {
+    background-color: #45A049;
+    transform: translateY(-2px);
+}
+
+.tabla-container {
+    overflow-x: auto;
+}
+
+.tabla-recetas {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.tabla-recetas thead {
+    background: linear-gradient(135deg, #1E88A8 0%, #4FC3DC 100%);
+    color: white;
+}
+
+.tabla-recetas th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tabla-recetas th:first-child {
+    border-radius: 8px 0 0 0;
+}
+
+.tabla-recetas th:last-child {
+    border-radius: 0 8px 0 0;
+}
+
+.tabla-recetas td {
+    padding: 1rem;
+    border-bottom: 1px solid #E0E6ED;
+}
+
+.tabla-recetas tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.tabla-recetas tbody tr:hover {
+    background-color: #F5F7FA;
+}
+
+.tabla-recetas tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================
+   BADGES DE ESTADO
+   ============================================ */
+.badge-estado {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.badge-pendiente {
+    background-color: #FFF9E6;
+    color: #F9A825;
+}
+
+.badge-completado {
+    background-color: #E8F5E9;
+    color: #388E3C;
+}
+
+.badge-enviado {
+    background-color: #E1F5FE;
+    color: #0288D1;
+}
+
+.badge-cancelado {
+    background-color: #FFEBEE;
+    color: #D32F2F;
+}
+
+/* ============================================
+   LISTA DE MEDICAMENTOS EN TABLA
+   ============================================ */
+.medicamentos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.medicamento-item-small {
+    font-size: 0.85rem;
+    color: #2C3E50;
+}
+
+.medicamento-item-small i {
+    color: #1E88A8;
+    margin-right: 0.3rem;
+}
+
+.ver-mas {
+    color: #1E88A8;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.ver-mas:hover {
+    color: #176a84;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN EN TABLA
+   ============================================ */
+.acciones-grupo {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-accion {
+    padding: 0.5rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.btn-ver {
+    background-color: #2196F3;
+    color: white;
+}
+
+.btn-ver:hover {
+    background-color: #1976D2;
+    transform: scale(1.05);
+}
+
+.btn-editar {
+    background-color: #FFC107;
+    color: white;
+}
+
+.btn-editar:hover {
+    background-color: #F9A825;
+    transform: scale(1.05);
+}
+
+.btn-eliminar {
+    background-color: #F44336;
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background-color: #D32F2F;
+    transform: scale(1.05);
+}
+
+/* ============================================
+   PAGINACIÓN
+   ============================================ */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #E0E6ED;
+}
+
+.paginacion button {
+    padding: 0.6rem 1rem;
+    border: 2px solid #E0E6ED;
+    background-color: white;
+    color: #2C3E50;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.paginacion button:hover:not(:disabled) {
+    border-color: #1E88A8;
+    color: #1E88A8;
+    background-color: #F5F7FA;
+}
+
+.paginacion button.active {
+    background: linear-gradient(135deg, #1E88A8 0%, #4FC3DC 100%);
+    color: white;
+    border-color: #1E88A8;
+}
+
+.paginacion button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   MODAL DETALLE
+   ============================================ */
+.modal-large {
+    max-width: 800px;
+}
+
+.detalle-receta {
+    padding: 1rem 0;
+}
+
+.detalle-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.detalle-section:last-child {
+    border-bottom: none;
+}
+
+.detalle-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1E88A8;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.detalle-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.detalle-label {
+    font-weight: 600;
+    color: #6C757D;
+    font-size: 0.85rem;
+}
+
+.detalle-valor {
+    color: #2C3E50;
+    font-size: 0.95rem;
+}
+
+.medicamento-detalle-card {
+    background-color: #F8F9FA;
+    border: 2px solid #E0E6ED;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.medicamento-detalle-card h5 {
+    color: #1E88A8;
+    margin: 0 0 0.8rem 0;
+    font-size: 1rem;
+}
+
+.medicamento-detalle-card p {
+    margin: 0.4rem 0;
+    color: #2C3E50;
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   HISTORIAL DE CAMBIOS (TIMELINE)
+   ============================================ */
+.historial-timeline {
+    margin-top: 1rem;
+}
+
+.historial-item {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.historial-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -20px;
+    width: 2px;
+    background: #E0E6ED;
+}
+
+.historial-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.historial-icon.creacion {
+    background: #4CAF50;
+}
+
+.historial-icon.modificacion {
+    background: #FF9800;
+}
+
+.historial-icon.envio {
+    background: #2196F3;
+}
+
+.historial-icon.cancelacion {
+    background: #F44336;
+}
+
+.historial-icon.seguimiento {
+    background: #9C27B0;
+}
+
+.historial-content {
+    background: #F8F9FA;
+    border-left: 3px solid #1E88A8;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.historial-header strong {
+    color: #1E88A8;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+}
+
+.historial-fecha {
+    font-size: 0.85rem;
+    color: #6C757D;
+}
+
+.historial-usuario {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2C3E50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.historial-usuario i {
+    color: #1E88A8;
+}
+
+.historial-descripcion {
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+
+
+/* Modal overlay y contenido (necesario para mostrar detalle de receta) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+}
+
+.modal-content-detalle {
+    background: white;
+    border-radius: 16px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content-detalle {
+    transform: scale(1);
+}
+
+.modal-header-detalle {
+    background: linear-gradient(135deg, #1E88A8 0%, #2E3B4E 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header-detalle h3 { margin: 0; font-size: 1.3rem; }
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.modal-body-detalle { padding: 2rem; }
+
+.modal-footer-detalle {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #E0E6ED;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-secondary, .btn-primary {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary { background-color: #E0E6ED; color: #495057; }
+.btn-primary { background-color: #1E88A8; color: white; }
+
+.medicamento-detalle-card strong {
+    color: #2C3E50;
+    font-weight: 600;
+}
+
+/* ============================================
+   MODAL DANGER
+   ============================================ */
+.modal-danger {
+    background: linear-gradient(135deg, #F44336 0%, #E57373 100%);
+}
+
+.btn-danger {
+    background-color: #F44336;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-danger:hover {
+    background-color: #D32F2F;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+}
+
+.text-danger {
+    color: #F44336;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+/* ============================================
+   FORMULARIO EN MODAL
+   ============================================ */
+.form-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1E88A8;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #2C3E50;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.8rem;
+    border: 2px solid #E0E6ED;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1E88A8;
+    box-shadow: 0 0 0 3px rgba(30, 136, 168, 0.1);
+}
+
+.form-group input:disabled {
+    background-color: #F5F7FA;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   ESTADOS VACÍOS
+   ============================================ */
+.estado-vacio {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6C757D;
+}
+
+.estado-vacio i {
+    font-size: 4rem;
+    color: #E0E6ED;
+    margin-bottom: 1rem;
+}
+
+.estado-vacio h4 {
+    font-size: 1.2rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.estado-vacio p {
+    margin: 0;
+}
+
+/* ============================================
+   ANIMACIONES PARA NOTIFICACIONES
+   ============================================ */
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .filtros-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .estadisticas-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    /* Banner responsive */
+    .banner-historial {
+        padding: 1.5rem;
+    }
+    
+    .banner-header-historial {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .banner-text-historial {
+        min-width: 100%;
+        text-align: center;
+    }
+    
+    .banner-text-historial h2 {
+        font-size: 1.5rem;
+    }
+    
+    .btn-nueva-receta {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Filtros */
+    .filtros-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .estadisticas-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tabla-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .tabla-acciones {
+        width: 100%;
+    }
+    
+    .btn-exportar {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .tabla-recetas {
+        font-size: 0.85rem;
+    }
+    
+    .tabla-recetas th,
+    .tabla-recetas td {
+        padding: 0.7rem 0.5rem;
+    }
+    
+    .acciones-grupo {
+        flex-direction: column;
+    }
+    
+    .btn-accion {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-container {
+        padding: 1rem;
+    }
+    
+    .filtros-card,
+    .tabla-section {
+        padding: 1rem;
+    }
+    
+    .estadistica-card {
+        padding: 1rem;
+    }
+    
+    .estadistica-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .estadistica-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .estadistica-numero {
+        font-size: 1.5rem;
+    }
+}
+
+/* ============================================
+   ESTILOS PARA HISTORIAL EN MODAL
+   ============================================ */
+.historial-timeline-modal {
+    margin-top: 1.5rem;
+}
+
+.historial-item-modal {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.historial-item-modal:last-child .historial-line-modal {
+    display: none;
+}
+
+.historial-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.historial-dot-modal {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+.historial-dot-modal.creacion {
+    background: #4CAF50;
+}
+
+.historial-dot-modal.modificacion {
+    background: #1E88A8;
+}
+
+.historial-dot-modal.envio {
+    background: #2196F3;
+}
+
+.historial-dot-modal.cancelacion {
+    background: #F44336;
+}
+
+.historial-line-modal {
+    width: 2px;
+    flex: 1;
+    background: #C9D6DF;
+    margin-top: 0.5rem;
+    min-height: 40px;
+}
+
+.historial-content-modal {
+    flex: 1;
+    background: white;
+    border: 1px solid #E0E6ED;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.historial-header-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.historial-tipo-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.historial-tipo-badge.creacion {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.historial-tipo-badge.modificacion {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+
+.historial-tipo-badge.envio {
+    background: #E1F5FE;
+    color: #0277BD;
+}
+
+.historial-tipo-badge.cancelacion {
+    background: #FFEBEE;
+    color: #C62828;
+}
+
+.historial-fecha-modal {
+    color: #6C757D;
+    font-size: 0.85rem;
+}
+
+.historial-usuario-modal {
+    color: #1E88A8;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.historial-descripcion-modal {
+    color: #2C3E50;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Estilos para grid de medicamentos en detalle */
+.medicamentos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.medicamento-detalle-card {
+    background: #F8F9FA;
+    border-left: 4px solid #1E88A8;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.medicamento-detalle-card h5 {
+    color: #1E88A8;
+    margin: 0 0 0.8rem 0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.medicamento-detalle-card p {
+    margin: 0.4rem 0;
+    color: #2C3E50;
+    font-size: 0.9rem;
+}
+
+.detalle-observaciones {
+    background: #F8F9FA;
+    border-left: 4px solid #F9A825;
+    padding: 1rem;
+    border-radius: 6px;
+    color: #2C3E50;
+    line-height: 1.6;
+}
+
+/* Responsive para historial en modal */
+@media (max-width: 768px) {
+    .historial-item-modal {
+        gap: 0.5rem;
+    }
+    
+    .historial-content-modal {
+        padding: 0.8rem;
+    }
+    
+    .historial-header-modal {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .medicamentos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

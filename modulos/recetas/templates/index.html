@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidino - Emisión y Seguimiento de Recetas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">MODULO EMISION Y SEGUIMIENTO HOME</h1>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>Medidino</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../../index.html" class="nav-item nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Menú Principal</span>
+            </a>
+            <hr style="border: 1px solid #E0E6ED; margin: 0.5rem 0;">
+            <a href="#inicio" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="{{ url_for('nueva_receta') }}" class="nav-item">
+                <i class="fas fa-prescription"></i>
+                <span>Gestión de Receta Médica</span>
+            </a>
+            <a href="{{ url_for('historial') }}" class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Banner Section -->
+        <section class="banner">
+            <div class="banner-content">
+                <div class="banner-logo">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    <h2>Medidino <span>- Emisión y Seguimiento de Recetas</span></h2>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-address-book"></i> Contáctenos
+                    </button>
+                    <button class="btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Agenda tu cita
+                    </button>
+                </div>
+            </div>
+            <div class="banner-hero">
+                <h1>Emisión y Seguimiento de Recetas</h1>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-item active" data-tab="Receta">
+                <i class="fas fa-home"></i> Home Receta
+            </button>
+            <a class="tab-item" data-tab="nueva-receta" href="{{ url_for('nueva_receta') }}">
+                <i class="fas fa-prescription"></i> Gestión de Receta Médica
+            </a>
+            <a class="tab-item" data-tab="historial" href="{{ url_for('historial') }}">
+                <i class="fas fa-history"></i> Historial
+            </a>
+        </nav>
+
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Selector de Médico (reemplaza banner fijo) -->
+            <div class="medico-info-banner" style="align-items:flex-start; gap:1rem;">
+                <div style="flex:1">
+                    <label for="selectMedicoHomeIndex" style="font-weight:700; display:block; margin-bottom:0.5rem;">Seleccione el médico con el que trabajará</label>
+                    <select id="selectMedicoHomeIndex" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #ccc;">
+                        <option value="">Cargando médicos...</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:center;">
+                    <button id="btnSeleccionMedicoIndex" class="btn-primary" style="padding:0.6rem 1rem;">Usar médico seleccionado</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard">
+                <!-- Gestión de Receta Médica Card -->
+                <div class="card card-form">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-prescription"></i> Buscar Paciente
+                    </h3>
+                    <form class="receta-form" id="nuevaRecetaForm">
+                        <!-- Información del Paciente -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-user-injured"></i> Información del Paciente
+                            </h4>
+                            
+                            <!-- Búsqueda de Paciente Existente -->
+                            <div class="busqueda-paciente-box">
+                                <label>
+                                    <i class="fas fa-search"></i> Buscar Paciente por Cédula
+                                </label>
+                                <div class="input-search-group">
+                                    <input type="text" id="buscarPacienteCedula" placeholder="Ingrese número de cédula">
+                                    <button type="button" class="btn-search" onclick="buscarYCargarPaciente()">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <small class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Si el paciente está registrado, se cargarán sus datos automáticamente.
+                                </small>
+                            </div>
+
+                            <!-- Indicador de Paciente Encontrado -->
+                            <div id="pacienteEncontradoBox" style="display: none;">
+                                <div class="paciente-encontrado-card">
+                                    <div class="card-header">
+                                        <i class="fas fa-user-check"></i>
+                                        <strong>Paciente Encontrado</strong>
+                                        <button type="button" class="btn-cambiar" onclick="limpiarPaciente()">
+                                            <i class="fas fa-times"></i> Cambiar
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Nombre:</strong> <span id="pacienteNombreMostrar">---</span></p>
+                                        <p><strong>Cédula:</strong> <span id="pacienteCedulaMostrar">---</span></p>
+                                        <p><strong>Teléfono:</strong> <span id="pacienteTelefonoMostrar">---</span></p>
+                                        <input type="hidden" id="pacienteIdHidden">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TODO EL CONTENIDO DEL FORMULARIO (Oculto hasta buscar paciente) -->
+                            <div id="contenidoFormularioReceta" style="display: none;">
+                                <hr style="margin: 1rem 0; border: 1px solid var(--border-color);">
+                                <div class="index-paciente-actions">
+                                    <p>Si el paciente existe, puede continuar a la gestión completa para emitir una nueva receta médica.</p>
+                                    <button id="btnIrGestionReceta" class="btn-primary" style="display:none;">
+                                        <i class="fas fa-plus-circle"></i> Nueva Receta Médica
+                                    </button>
+                                    <small style="display:block; margin-top:0.5rem; color:#6C757D;">Al hacer clic se abrirá la gestión completa de recetas con el paciente preseleccionado.</small>
+                                </div>
+                            </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index-page.js') }}"></script>
+    
+    <style>
+        .btn-secondary:hover {
+            background: #5a6268 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</body>
+</html>

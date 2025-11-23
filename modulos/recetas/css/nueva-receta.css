@@ -1,0 +1,1663 @@
+/* ============================================
+   ESTILOS ESPECÍFICOS - GESTIÓN DE RECETA MÉDICA
+   ============================================ */
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.content-container {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   TARJETA DE INFORMACIÓN DEL MÉDICO (SESIÓN ACTIVA)
+   ============================================ */
+.medico-info-card {
+    background: linear-gradient(135deg, #2E3B4E 0%, #1E88A8 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.medico-avatar {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.medico-datos h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.medico-datos p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    opacity: 0.95;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.medico-datos p i {
+    opacity: 0.8;
+}
+
+.medico-badge {
+    background: rgba(76, 175, 80, 0.9);
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.medico-badge i {
+    font-size: 1.1rem;
+}
+
+.form-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   CARD DE FORMULARIO
+   ============================================ */
+.form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #1E88A8 0%, #4FC3DC 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: white !important;
+}
+
+.card-title i {
+    color: white;
+}
+
+.card-subtitle {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+    color: white;
+}
+
+.btn-nueva-receta {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-nueva-receta:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-nueva-receta i {
+    font-size: 1.1rem;
+}
+
+.btn-close-form {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-close-form:hover {
+    background: rgba(255, 77, 77, 0.9);
+    border-color: rgba(255, 77, 77, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 77, 77, 0.4);
+}
+
+.btn-close-form i {
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   FORMULARIO
+   ============================================ */
+.form-receta {
+    padding: 2rem;
+}
+
+/* Botón de búsqueda inline */
+.btn-search-inline {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(30, 136, 168, 0.2);
+}
+
+.btn-search-inline:hover {
+    background: #1a7090;
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 8px rgba(30, 136, 168, 0.3);
+}
+
+.btn-search-inline:active {
+    transform: translateY(-50%) scale(0.98);
+}
+
+/* Ajustar padding del input para el botón */
+.input-with-icon input#buscarPacienteId {
+    padding-right: 130px;
+}
+
+/* Efecto de focus en el campo de búsqueda */
+.input-with-icon input#buscarPacienteId:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(30, 136, 168, 0.1);
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1E88A8;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-row:last-child {
+    margin-bottom: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group-lg {
+    grid-column: span 2;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #2C3E50;
+    font-size: 0.95rem;
+}
+
+.form-group label.required::after {
+    content: " *";
+    color: #F44336;
+    font-weight: bold;
+}
+
+/* ============================================
+   INPUTS CON ICONOS
+   ============================================ */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 1rem;
+    color: #6C757D;
+    font-size: 1.1rem;
+}
+
+.input-with-icon select,
+.input-with-icon input {
+    padding-left: 3rem !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #E0E6ED;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1E88A8;
+    box-shadow: 0 0 0 3px rgba(30, 136, 168, 0.1);
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236C757D' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.form-hint {
+    color: #6C757D;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* ============================================
+   INFO BOX
+   ============================================ */
+.info-box {
+    background-color: #F5F7FA;
+    border: 2px solid #E0E6ED;
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-placeholder {
+    color: #6C757D;
+    font-size: 0.9rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-content {
+    font-size: 0.9rem;
+}
+
+.info-content p {
+    margin: 0.3rem 0;
+    color: #2C3E50;
+}
+
+.info-content strong {
+    color: #1E88A8;
+}
+
+/* ============================================
+   SECCIÓN DE MEDICAMENTOS
+   ============================================ */
+.medicamento-item {
+    background-color: #F8F9FA;
+    border: 2px solid #E0E6ED;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.medicamento-item:hover {
+    border-color: #4FC3DC;
+    box-shadow: 0 3px 10px rgba(30, 136, 168, 0.1);
+}
+
+.medicamento-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E0E6ED;
+}
+
+.medicamento-header h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1E88A8;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-remove-medicamento {
+    background-color: #F44336;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-remove-medicamento:hover {
+    background-color: #D32F2F;
+    transform: scale(1.05);
+}
+
+.btn-add-medicamento {
+    width: 100%;
+    padding: 1rem;
+    background-color: white;
+    color: #1E88A8;
+    border: 2px dashed #1E88A8;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-add-medicamento:hover {
+    background-color: #1E88A8;
+    color: white;
+    border-style: solid;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN
+   ============================================ */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #E0E6ED;
+}
+
+.btn-cancel,
+.btn-clear,
+.btn-submit {
+    padding: 0.9rem 1.8rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.btn-cancel {
+    background-color: #F44336;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #D32F2F;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+}
+
+.btn-clear {
+    background-color: #6C757D;
+    color: white;
+}
+
+.btn-clear:hover {
+    background-color: #5A6268;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    color: white;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #45A049 0%, #5CB860 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* ============================================
+   VISTA PREVIA
+   ============================================ */
+.preview-card {
+    position: sticky;
+    top: 90px;
+    height: fit-content;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+}
+
+.preview-content {
+    padding: 2rem;
+}
+
+.preview-placeholder {
+    text-align: center;
+    color: #6C757D;
+    padding: 3rem 1rem;
+}
+
+.preview-placeholder i {
+    font-size: 4rem;
+    color: #E0E6ED;
+    margin-bottom: 1rem;
+}
+
+.preview-placeholder p {
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-body p {
+    margin: 0.8rem 0;
+    color: #2C3E50;
+}
+
+.modal-footer {
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1200px) {
+    .form-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-card {
+        position: static;
+        max-height: none;
+    }
+
+    .medico-info-card {
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+    }
+
+    .medico-badge {
+        grid-column: 1 / -1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-receta {
+        padding: 1.5rem;
+    }
+
+    .card-header {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-lg {
+        grid-column: span 1;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .medico-info-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 1.2rem;
+    }
+
+    .medico-avatar {
+        margin: 0 auto;
+    }
+
+    .medico-datos p {
+        justify-content: center;
+    }
+
+    .btn-cancel,
+    .btn-clear,
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .medicamento-item {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-title {
+        font-size: 1.2rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .form-actions {
+        gap: 0.8rem;
+    }
+}
+
+/* ============================================
+   NOTIFICACIONES
+   ============================================ */
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.notificacion {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.notificacion i {
+    font-size: 1.2rem;
+}
+
+/* ============================================
+   TIMELINE DE RECETAS
+   ============================================ */
+.recetas-timeline {
+    margin-top: 2rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #F8F9FA;
+    border-radius: 12px;
+    color: #6C757D;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #C9D6DF;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.empty-state small {
+    font-size: 0.9rem;
+}
+
+.receta-timeline-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #1E88A8;
+    transition: all 0.3s ease;
+}
+
+.receta-timeline-card:hover {
+    box-shadow: 0 4px 16px rgba(30, 136, 168, 0.15);
+    transform: translateY(-2px);
+}
+
+.receta-timeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #E0E6ED;
+    flex-wrap: wrap;
+}
+
+.receta-timeline-fecha {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.receta-timeline-fecha i {
+    color: #1E88A8;
+}
+
+.receta-timeline-numero {
+    font-weight: 700;
+    color: #1E88A8;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+}
+
+.receta-timeline-estado {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.badge-success {
+    background-color: #E8F5E9;
+    color: #388E3C;
+}
+
+.badge-warning {
+    background-color: #FFF9E6;
+    color: #F9A825;
+}
+
+.badge-info {
+    background-color: #E1F5FE;
+    color: #0288D1;
+}
+
+.badge-danger {
+    background-color: #FFEBEE;
+    color: #D32F2F;
+}
+
+.receta-timeline-medico {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+.receta-timeline-medico i {
+    color: #1E88A8;
+    font-size: 1.1rem;
+}
+
+.receta-timeline-medicamentos {
+    background: #F8F9FA;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.receta-timeline-medicamentos h5 {
+    color: #1E88A8;
+    margin: 0 0 0.8rem 0;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.medicamento-item-timeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.medicamento-item-timeline i {
+    color: #1E88A8;
+    margin-top: 0.2rem;
+}
+
+.receta-timeline-observaciones {
+    background: #FFF9E6;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    color: #856404;
+}
+
+.receta-timeline-observaciones i {
+    margin-top: 0.2rem;
+}
+
+.receta-timeline-acciones {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.btn-timeline-accion {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-ver {
+    background-color: #E3F2FD;
+    color: #1976D2;
+}
+
+.btn-ver:hover {
+    background-color: #1976D2;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+}
+
+.btn-editar {
+    background-color: #FFF9E6;
+    color: #F9A825;
+}
+
+.btn-editar:hover {
+    background-color: #F9A825;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(249, 168, 37, 0.3);
+}
+
+/* ============================================
+   MODAL DETALLE RECETA
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+}
+
+.modal-content-detalle {
+    background: white;
+    border-radius: 16px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content-detalle {
+    transform: scale(1);
+}
+
+.modal-header-detalle {
+    background: linear-gradient(135deg, #1E88A8 0%, #2E3B4E 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header-detalle h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.btn-close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body-detalle {
+    padding: 2rem;
+}
+
+.detalle-section {
+    margin-bottom: 2rem;
+}
+
+.detalle-section h4 {
+    color: #1E88A8;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    color: #495057;
+}
+
+.detalle-grid div {
+    padding: 0.5rem 0;
+}
+
+.detalle-medicamento-modal {
+    background: #F8F9FA;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.detalle-medicamento-modal h5 {
+    color: #2C3E50;
+    margin: 0 0 0.8rem 0;
+    font-size: 1rem;
+}
+
+.detalle-med-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.modal-footer-detalle {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #E0E6ED;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-secondary, .btn-primary {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary {
+    background-color: #E0E6ED;
+    color: #495057;
+}
+
+.btn-secondary:hover {
+    background-color: #C9D6DF;
+}
+
+.btn-primary {
+    background-color: #1E88A8;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #176A85;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 136, 168, 0.3);
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    .modal-content-detalle {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .modal-header-detalle {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body-detalle {
+        padding: 1.5rem;
+    }
+    
+    .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-footer-detalle {
+        flex-direction: column;
+    }
+    
+    .btn-secondary, .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   HERO SECTION DE BÚSQUEDA - DISEÑO MEJORADO
+   ============================================ */
+.search-hero-section {
+    background: linear-gradient(135deg, #1E88A8 0%, #2E3B4E 100%);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(30, 136, 168, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.search-hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.search-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.search-hero-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    color: white;
+}
+
+.search-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.search-hero-text h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+}
+
+.search-hero-text p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.95;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.search-box-modern {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.search-input-modern {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #F8F9FA;
+    border: 2px solid #E0E6ED;
+    border-radius: 12px;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.search-input-modern:focus-within {
+    border-color: #1E88A8;
+    box-shadow: 0 0 0 4px rgba(30, 136, 168, 0.1);
+}
+
+.search-input-icon {
+    font-size: 1.5rem;
+    color: #1E88A8;
+    margin-left: 1rem;
+}
+
+.search-input-modern input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 1rem 0.5rem;
+    font-size: 1.1rem;
+    color: #2C3E50;
+    outline: none;
+}
+
+.search-input-modern input::placeholder {
+    color: #A0AEC0;
+}
+
+.btn-search-modern {
+    background: linear-gradient(135deg, #1E88A8 0%, #4FC3DC 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(30, 136, 168, 0.3);
+    white-space: nowrap;
+}
+
+.btn-search-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 136, 168, 0.4);
+}
+
+.btn-search-modern:active {
+    transform: translateY(0);
+}
+
+.btn-search-modern i {
+    font-size: 1.2rem;
+}
+
+.search-suggestions {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.suggestion-label {
+    color: #6C757D;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.suggestion-label i {
+    color: #F9A825;
+}
+
+.suggestion-chip {
+    background: #E3F2FD;
+    color: #1976D2;
+    border: 2px solid #BBDEFB;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.suggestion-chip:hover {
+    background: #1976D2;
+    color: white;
+    border-color: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.suggestion-chip:active {
+    transform: translateY(0);
+}
+
+/* Responsive para el hero de búsqueda */
+@media (max-width: 768px) {
+    .search-hero-section {
+        padding: 2rem 1.5rem;
+    }
+    
+    .search-hero-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .search-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        font-size: 2rem;
+    }
+    
+    .search-hero-text h2 {
+        font-size: 1.5rem;
+    }
+    
+    .search-hero-text p {
+        font-size: 1rem;
+    }
+    
+    .search-box-modern {
+        padding: 1rem;
+    }
+    
+    .search-input-modern {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-search-modern {
+        width: 100%;
+        justify-content: center;
+        padding: 0.9rem 1.5rem;
+    }
+    
+    .search-suggestions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-hero-text h2 {
+        font-size: 1.3rem;
+    }
+    
+    .btn-search-modern span {
+        display: none;
+    }
+    
+    .btn-search-modern {
+        padding: 0.9rem;
+        border-radius: 10px;
+    }
+    
+    .suggestion-chip {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* ============================================
+   HISTORIAL DE CAMBIOS EN MODAL
+   ============================================ */
+.historial-section {
+    background: #F8F9FA;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.historial-timeline {
+    margin-top: 1.5rem;
+}
+
+.historial-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.historial-item:last-child {
+    margin-bottom: 0;
+}
+
+.historial-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.historial-dot {
+    width: 16px;
+    height: 16px;
+    background: #1E88A8;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #1E88A8;
+    z-index: 2;
+}
+
+.historial-line {
+    width: 2px;
+    flex: 1;
+    background: #C9D6DF;
+    margin-top: 0.5rem;
+}
+
+.historial-content {
+    flex: 1;
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.historial-fecha {
+    color: #6C757D;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.historial-fecha i {
+    color: #1E88A8;
+}
+
+.historial-usuario {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.historial-usuario i {
+    color: #1E88A8;
+}
+
+.historial-cambio {
+    margin-bottom: 0.8rem;
+}
+
+.historial-campo {
+    display: inline-block;
+    background: #E3F2FD;
+    color: #1976D2;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.historial-campo i {
+    margin-right: 0.3rem;
+}
+
+.historial-valores {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.valor-anterior {
+    background: #FFEBEE;
+    color: #C62828;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.valor-nuevo {
+    background: #E8F5E9;
+    color: #2E7D32;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+}
+
+.valor-nuevo-solo {
+    background: #E8F5E9;
+    color: #2E7D32;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.cambio-arrow {
+    color: #1E88A8;
+    font-size: 1.2rem;
+}
+
+.historial-motivo {
+    color: #6C757D;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid #E0E6ED;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.historial-motivo i {
+    color: #F9A825;
+    margin-top: 0.2rem;
+}
+
+/* Responsive para historial */
+@media (max-width: 768px) {
+    .historial-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .historial-valores {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .cambio-arrow {
+        display: none;
+    }
+}
+
+/* ============================================
+   ALERTAS Y NOTIFICACIONES
+   ============================================ */
+.alert-warning {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    border-left: 4px solid #F57C00;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(245, 124, 0, 0.15);
+}
+
+.alert-warning i {
+    color: #F57C00;
+    font-size: 1.5rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.alert-warning strong {
+    color: #E65100;
+    font-weight: 600;
+}
+
+/* ============================================
+   ESTADO DE RECETA (Solo visible en edición)
+   ============================================ */
+#seccionEstadoReceta {
+    border: 2px solid #E3F2FD;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #F8FBFF 0%, #F0F7FF 100%);
+    margin-top: 1rem;
+}
+
+#seccionEstadoReceta .section-title {
+    color: #1565C0;
+}
+
+#seccionEstadoReceta .section-title i {
+    color: #1E88A8;
+}
+
+#estadoReceta {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.9rem 1rem;
+    background: white;
+    border: 2px solid #B3D9E6;
+}
+
+#estadoReceta:focus {
+    border-color: #1E88A8;
+    box-shadow: 0 0 0 3px rgba(30, 136, 168, 0.1);
+}
+
+#motivoCambioEstado {
+    font-style: italic;
+}
+
+#motivoCambioEstado::placeholder {
+    font-style: italic;
+    color: #90A4AE;
+}
+
