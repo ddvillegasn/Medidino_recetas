@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico - Botón Eliminar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1E88A8; }
+        h2 { color: #2C3E50; margin-top: 0; }
+        .status { 
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .code {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #1E88A8;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #1E88A8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #176a84;
+        }
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .btn-eliminar-test {
+            background-color: #FFEBEE;
+            color: #D32F2F;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-eliminar-test:hover {
+            background-color: #D32F2F;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico - Botón Eliminar en Recetas</h1>
+    
+    <div class="card">
+        <h2>1. Verificación de Archivos JavaScript</h2>
+        <button onclick="verificarJS()">Verificar Carga de JS</button>
+        <div id="result-js"></div>
+    </div>
+    
+    <div class="card">
+        <h2>2. Verificación de Función eliminarReceta</h2>
+        <button onclick="verificarFuncion()">Verificar Función</button>
+        <div id="result-funcion"></div>
+    </div>
+    
+    <div class="card">
+        <h2>3. Test Visual del Botón</h2>
+        <p>Este es el botón de eliminar con los estilos aplicados:</p>
+        <div class="test-buttons">
+            <button class="btn-eliminar-test" onclick="alert('✅ El botón funciona correctamente!')">
+                <i class="fas fa-trash-alt"></i> Eliminar (TEST)
+            </button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>4. Simulación de Historial</h2>
+        <button onclick="simularHistorial()">Generar Historial de Prueba</button>
+        <div id="historial-simulado"></div>
+    </div>
+    
+    <div class="card">
+        <h2>5. Test de Endpoint DELETE</h2>
+        <input type="number" id="test-id" placeholder="ID de receta (ej: 999)" value="999">
+        <button onclick="testEndpoint()">Probar Endpoint DELETE</button>
+        <div id="result-endpoint"></div>
+    </div>
+    
+    <div class="card">
+        <h2>6. Instrucciones de Verificación Manual</h2>
+        <ol>
+            <li>Abre la consola del navegador (F12)</li>
+            <li>Ve a la pestaña "Console"</li>
+            <li>Escribe: <code class="code">typeof eliminarReceta</code></li>
+            <li>Debe devolver: <code>"function"</code></li>
+        </ol>
+        
+        <h3>Si el botón no aparece:</h3>
+        <ul>
+            <li>✅ Limpia la caché del navegador (Ctrl + Shift + Delete)</li>
+            <li>✅ Haz hard refresh (Ctrl + Shift + R)</li>
+            <li>✅ Verifica que el archivo JS se cargue sin errores</li>
+            <li>✅ Revisa la consola en busca de errores</li>
+        </ul>
+    </div>
+
+    <script>
+        function verificarJS() {
+            const resultDiv = document.getElementById('result-js');
+            let html = '<div class="status">';
+            
+            // Verificar si nueva-receta.js está cargado
+            const scripts = Array.from(document.scripts).map(s => s.src);
+            const jsLoaded = scripts.some(s => s.includes('nueva-receta.js'));
+            
+            if (jsLoaded) {
+                html += '<div class="success">✅ Se detectó que nueva-receta.js debería estar cargado</div>';
+            } else {
+                html += '<div class="warning">⚠️ nueva-receta.js no se detecta en esta página (esto es normal en la página de diagnóstico)</div>';
+            }
+            
+            html += '<div class="code">Scripts cargados:<br>';
+            scripts.forEach(s => {
+                if (s) html += `- ${s}<br>`;
+            });
+            html += '</div>';
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+        
+        function verificarFuncion() {
+            const resultDiv = document.getElementById('result-funcion');
+            let html = '<div class="status">';
+            
+            if (typeof window.eliminarReceta === 'function') {
+                html += '<div class="success">✅ La función eliminarReceta está definida</div>';
+            } else {
+                html += '<div class="warning">⚠️ La función eliminarReceta NO está definida en esta página (normal en diagnóstico)</div>';
+                html += '<div class="code">En la página de nueva-receta.html, ejecuta en consola:<br>typeof eliminarReceta<br><br>Debería devolver: "function"</div>';
+            }
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+        
+        function simularHistorial() {
+            const container = document.getElementById('historial-simulado');
+            
+            const html = `
+                <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: #1E88A8; margin-top: 0;">📋 Receta de Ejemplo</h4>
+                    <p><strong>Número:</strong> RX-2025-00123</p>
+                    <p><strong>Fecha:</strong> 23/11/2025</p>
+                    <p><strong>Estado:</strong> <span style="background: #E8F5E9; color: #388E3C; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">Activa</span></p>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button style="background-color: #E3F2FD; color: #1976D2; padding: 0.6rem 1.2rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button style="background-color: #FFF9E6; color: #F9A825; padding: 0.6rem 1.2rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn-eliminar-test">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        async function testEndpoint() {
+            const id = document.getElementById('test-id').value;
+            const resultDiv = document.getElementById('result-endpoint');
+            resultDiv.innerHTML = '<div class="status warning">⏳ Probando endpoint...</div>';
+            
+            try {
+                const response = await fetch(`/api/recetas/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                let html = '<div class="status">';
+                if (response.ok) {
+                    html += `<div class="success">✅ Endpoint funciona correctamente<br>Status: ${response.status}</div>`;
+                } else if (response.status === 404) {
+                    html += `<div class="warning">⚠️ Receta no encontrada (esto es esperado para ID de prueba)<br>Status: ${response.status}</div>`;
+                } else {
+                    html += `<div class="error">❌ Error: Status ${response.status}</div>`;
+                }
+                
+                html += `<div class="code">Respuesta del servidor:<br>${JSON.stringify(data, null, 2)}</div>`;
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>

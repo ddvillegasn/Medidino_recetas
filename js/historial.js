@@ -229,9 +229,17 @@ function cargarRecetas() {
                 <td>${medicamentosHTML}</td>
                 <td><span class="badge-estado ${estadoClase}">${receta.estado}</span></td>
                 <td>
-                    <button class="btn-accion btn-ver" onclick="viewRecetaApi(${receta.id || receta.id_receta})">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    <div class="acciones-grupo">
+                        <button class="btn-accion btn-ver" onclick="viewRecetaApi(${receta.id || receta.id_receta})" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-accion btn-editar" onclick="editarRecetaHistorial(${receta.id || receta.id_receta})" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-accion btn-eliminar" onclick="eliminarRecetaHistorial(${receta.id || receta.id_receta}, '${receta.numero}')" title="Eliminar">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -339,7 +347,7 @@ function formatearFecha(fecha) {
 // ==========================
 // Detalle de receta (modal)
 // ==========================
-function viewRecetaApi(id) {
+window.viewRecetaApi = function(id) {
     if (!id) return alert('ID de receta inválido');
     fetch(`/api/recetas/${id}`)
         .then(res => {
@@ -443,32 +451,16 @@ function renderRecetaModal(receta) {
         }
     });
 
-    // Botón Editar: preparar edición y redirigir a gestión
+    // Botón Editar: usar la función editarRecetaHistorial
     const btnEditar = document.getElementById('btnModalEditar');
     btnEditar?.addEventListener('click', () => {
-        try {
-            // Preparar objeto compatible con la página de edición
-            const pacienteObj = {
-                id: receta.id_paciente || null,
-                nombre: receta.paciente_nombre || (receta.paciente && receta.paciente.nombre) || '',
-                identificacion: receta.paciente_identificacion || (receta.paciente && receta.paciente.identificacion) || '',
-                telefono: receta.paciente && receta.paciente.telefono || ''
-            };
-
-            const recetaEditar = {
-                receta: receta,
-                paciente: pacienteObj,
-                modo: 'editar'
-            };
-
-            // Guardar tanto recetaEditar como pacienteSeleccionado para máxima compatibilidad
-            sessionStorage.setItem('recetaEditar', JSON.stringify(recetaEditar));
-            sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(pacienteObj));
-        } catch (e) {
-            console.error('Error preparando edición:', e);
+        const id_receta = receta.id_receta || receta.id;
+        if (id_receta) {
+            editarRecetaHistorial(id_receta);
+        } else {
+            console.error('No se encontró el ID de la receta');
+            alert('Error: No se puede editar esta receta (ID no encontrado)');
         }
-        // Redirigir a gestión completa
-        window.location.href = '/nueva-receta';
     });
 }
 
@@ -499,4 +491,193 @@ function buildPreviewHtml(receta) {
             ${receta.observaciones ? `<div style="margin-top:1rem;"><h5 style="margin:0 0 0.5rem 0; color:#1E88A8;">Observaciones</h5><div style="color:#495057;">${receta.observaciones}</div></div>` : ''}
         </div>
     `;
+}
+
+// ============================================
+// EDITAR RECETA DESDE HISTORIAL
+// ============================================
+window.editarRecetaHistorial = async function(id_receta) {
+    if (!id_receta) {
+        alert('ID de receta inválido');
+        return;
+    }
+    
+    try {
+        console.log(`✏️ Preparando edición de receta ID: ${id_receta}`);
+        
+        // Obtener datos completos de la receta
+        const response = await fetch(`/api/recetas/${id_receta}`);
+        if (!response.ok) {
+            throw new Error('No se pudo cargar la receta');
+        }
+        
+        const receta = await response.json();
+        console.log('📋 Receta obtenida:', receta);
+        
+        // Preparar objeto de paciente
+        const pacienteObj = {
+            id: receta.id_paciente || null,
+            id_paciente: receta.id_paciente || null,
+            nombre: receta.paciente_nombre || '',
+            identificacion: receta.paciente_identificacion || ''
+        };
+        
+        // Guardar en sessionStorage para que nueva-receta.html lo detecte
+        const recetaEditar = {
+            receta: receta,
+            paciente: pacienteObj,
+            modo: 'editar'
+        };
+        
+        sessionStorage.setItem('recetaEditar', JSON.stringify(recetaEditar));
+        sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(pacienteObj));
+        
+        console.log('✅ Datos guardados en sessionStorage');
+        
+        // Redirigir a la página de gestión de recetas
+        window.location.href = '/nueva-receta';
+        
+    } catch (error) {
+        console.error('❌ Error al preparar edición:', error);
+        alert(`Error al cargar la receta para editar: ${error.message}`);
+    }
+}
+
+// ============================================
+// ELIMINAR RECETA DESDE HISTORIAL
+// ============================================
+window.eliminarRecetaHistorial = async function(id_receta, numero_receta) {
+    if (!id_receta) {
+        alert('ID de receta inválido');
+        return;
+    }
+    
+    // Confirmar eliminación
+    if (!confirm(`¿Está seguro de que desea eliminar la receta ${numero_receta}?\n\nEsta acción no se puede deshacer.`)) {
+        return;
+    }
+    
+    try {
+        console.log(`🗑️ Eliminando receta ID: ${id_receta}`);
+        
+        const response = await fetch(`/api/recetas/${id_receta}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Error al eliminar la receta');
+        }
+        
+        const result = await response.json();
+        console.log('✅ Receta eliminada:', result);
+        
+        // Mostrar notificación de éxito
+        mostrarNotificacion(`Receta ${numero_receta} eliminada correctamente`, 'success');
+        
+        // Recargar la lista de recetas desde la API
+        await recargarRecetas();
+        
+    } catch (error) {
+        console.error('❌ Error eliminando receta:', error);
+        mostrarNotificacion(`Error al eliminar la receta: ${error.message}`, 'error');
+    }
+}
+
+// ============================================
+// RECARGAR RECETAS DESDE API
+// ============================================
+window.recargarRecetas = async function() {
+    try {
+        const response = await fetch('/api/recetas');
+        if (!response.ok) {
+            throw new Error('Error al cargar recetas');
+        }
+        
+        const data = await response.json();
+        
+        // Mapear la respuesta API al formato local esperado
+        recetasArray = (Array.isArray(data) ? data : []).map(r => {
+            const medicamentos = (r.detalles || []).map(d => ({
+                nombre: d.medicamento_nombre || d.nombre || 'Medicamento',
+                dosis: d.dosis || '',
+                frecuencia: d.frecuencia || '',
+                duracion: d.duracion || ''
+            }));
+            
+            return {
+                id: r.id_receta || r.id || null,
+                numero: r.numero_receta || r.numero || 'N/A',
+                fecha: (r.fecha_emision || r.fecha || '').split('T')[0] || new Date().toISOString().split('T')[0],
+                paciente: {
+                    nombre: r.paciente_nombre || 'Paciente',
+                    identificacion: r.paciente_identificacion || 'N/A'
+                },
+                medico: {
+                    nombre: r.medico_nombre || 'Médico',
+                    especialidad: r.medico_especialidad || ''
+                },
+                medicamentos: medicamentos,
+                observaciones: r.observaciones || '',
+                estado: r.estado || 'Activa'
+            };
+        });
+        
+        console.log('✅ Recetas recargadas:', recetasArray.length);
+        
+        // Aplicar filtros actuales
+        aplicarFiltros();
+        
+        // Actualizar estadísticas
+        actualizarEstadisticas();
+        
+    } catch (error) {
+        console.error('❌ Error recargando recetas:', error);
+        throw error;
+    }
+}
+
+// ============================================
+// NOTIFICACIONES
+// ============================================
+window.mostrarNotificacion = function(mensaje, tipo = 'success') {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion notificacion-${tipo}`;
+    notificacion.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${tipo === 'success' ? '#4CAF50' : tipo === 'error' ? '#F44336' : '#2196F3'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    `;
+    
+    const icon = tipo === 'success' ? 'fa-check-circle' : tipo === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+    notificacion.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${mensaje}</span>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    // Eliminar después de 3 segundos
+    setTimeout(() => {
+        notificacion.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.parentNode.removeChild(notificacion);
+            }
+        }, 300);
+    }, 3000);
 }

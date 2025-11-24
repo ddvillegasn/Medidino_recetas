@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Funciones - Historial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1E88A8; }
+        h2 { color: #2C3E50; margin-top: 0; }
+        .btn {
+            background: #1E88A8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #176a84; }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Funciones - Historial.js</h1>
+    
+    <div class="test-card">
+        <h2>1. Verificar Funciones Globales</h2>
+        <button class="btn" onclick="verificarFunciones()">Verificar</button>
+        <div id="result-funciones" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>2. Test de Botón Editar</h2>
+        <p>Simula el clic en el botón "Editar" de la tabla</p>
+        <button class="btn" onclick="testEditarBoton()">Test Editar (ID: 1)</button>
+        <div id="result-editar" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>3. Test de Botón Eliminar</h2>
+        <p>Simula el clic en el botón "Eliminar" de la tabla</p>
+        <button class="btn" onclick="testEliminarBoton()">Test Eliminar (ID: 999)</button>
+        <div id="result-eliminar" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>4. Test de Botón Ver</h2>
+        <p>Simula el clic en el botón "Ver" de la tabla</p>
+        <button class="btn" onclick="testVerBoton()">Test Ver (ID: 1)</button>
+        <div id="result-ver" class="result"></div>
+    </div>
+    
+    <div class="test-card">
+        <h2>5. Ver Historial Real</h2>
+        <a href="/historial" class="btn">Ir al Historial</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/historial.js') }}?v=10"></script>
+    <script>
+        function verificarFunciones() {
+            const resultDiv = document.getElementById('result-funciones');
+            let html = '';
+            
+            const funciones = [
+                'viewRecetaApi',
+                'editarRecetaHistorial',
+                'eliminarRecetaHistorial',
+                'recargarRecetas',
+                'mostrarNotificacion'
+            ];
+            
+            funciones.forEach(func => {
+                const existe = typeof window[func] === 'function';
+                const icono = existe ? '✅' : '❌';
+                const clase = existe ? 'success' : 'error';
+                html += `<div class="${clase}">${icono} ${func}: ${existe ? 'Disponible' : 'NO ENCONTRADA'}</div>`;
+            });
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        function testEditarBoton() {
+            const resultDiv = document.getElementById('result-editar');
+            
+            if (typeof window.editarRecetaHistorial !== 'function') {
+                resultDiv.innerHTML = '<div class="error">❌ Función editarRecetaHistorial NO está disponible</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="success">✅ Función encontrada. Llamando con ID: 1...</div>';
+            
+            try {
+                // Llamar la función con un ID de prueba
+                window.editarRecetaHistorial(1);
+            } catch (error) {
+                resultDiv.innerHTML += `<div class="error">❌ Error al ejecutar: ${error.message}</div>`;
+            }
+        }
+        
+        function testEliminarBoton() {
+            const resultDiv = document.getElementById('result-eliminar');
+            
+            if (typeof window.eliminarRecetaHistorial !== 'function') {
+                resultDiv.innerHTML = '<div class="error">❌ Función eliminarRecetaHistorial NO está disponible</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="success">✅ Función encontrada. Llamando con ID: 999 (no existe)...</div>';
+            
+            try {
+                // Llamar la función con un ID que no existe
+                window.eliminarRecetaHistorial(999, 'RX-TEST-999');
+            } catch (error) {
+                resultDiv.innerHTML += `<div class="error">❌ Error al ejecutar: ${error.message}</div>`;
+            }
+        }
+        
+        function testVerBoton() {
+            const resultDiv = document.getElementById('result-ver');
+            
+            if (typeof window.viewRecetaApi !== 'function') {
+                resultDiv.innerHTML = '<div class="error">❌ Función viewRecetaApi NO está disponible</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="success">✅ Función encontrada. Abriendo modal con ID: 1...</div>';
+            
+            try {
+                // Llamar la función con un ID de prueba
+                window.viewRecetaApi(1);
+            } catch (error) {
+                resultDiv.innerHTML += `<div class="error">❌ Error al ejecutar: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

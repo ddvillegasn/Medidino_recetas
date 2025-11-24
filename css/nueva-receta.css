@@ -943,6 +943,18 @@
     box-shadow: 0 4px 8px rgba(249, 168, 37, 0.3);
 }
 
+.btn-eliminar {
+    background-color: #FFEBEE;
+    color: #D32F2F;
+}
+
+.btn-eliminar:hover {
+    background-color: #D32F2F;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+}
+
 /* ============================================
    MODAL DETALLE RECETA
    ============================================ */

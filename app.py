@@ -29,6 +29,21 @@ def historial():
     return render_template('historial.html')
 
 
+@app.route('/test-endpoints')
+def test_endpoints():
+    return app.send_static_file('test_endpoints.html')
+
+
+@app.route('/diagnostico')
+def diagnostico():
+    return app.send_static_file('diagnostico.html')
+
+
+@app.route('/test-historial')
+def test_historial():
+    return render_template('test_historial_funciones.html')
+
+
 # -------------------------
 # API endpoints (JSON)
 # -------------------------
@@ -199,15 +214,65 @@ def api_list_recetas():
     return jsonify(recetas)
 
 
-@app.route('/api/recetas/<int:id_receta>', methods=['GET'])
-def api_get_receta(id_receta):
-    try:
-        receta = db.get_receta_con_detalles(id_receta)
-        if not receta:
-            return jsonify({'error': 'Receta no encontrada'}), 404
-        return jsonify(receta)
-    except Exception as e:
-        return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500
+@app.route('/api/recetas/<int:id_receta>', methods=['GET', 'PUT', 'DELETE'])
+def api_get_update_delete_receta(id_receta):
+    if request.method == 'GET':
+        try:
+            receta = db.get_receta_con_detalles(id_receta)
+            if not receta:
+                return jsonify({'error': 'Receta no encontrada'}), 404
+            return jsonify(receta)
+        except Exception as e:
+            return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500
+    
+    elif request.method == 'PUT':
+        try:
+            payload = request.get_json(force=True)
+            
+            # Normalizar el payload: si viene con estructura {receta: {}, detalles: []}, extraerlo
+            if 'receta' in payload and 'detalles' in payload:
+                # Estructura desde nueva-receta.js
+                receta_data = payload['receta']
+                detalles_data = payload['detalles']
+                
+                # Construir payload normalizado
+                payload_normalizado = {
+                    'observaciones': receta_data.get('observaciones'),
+                    'estado': receta_data.get('estado'),
+                    'detalles': detalles_data
+                }
+            else:
+                # Estructura simple (para compatibilidad)
+                payload_normalizado = payload
+            
+            result = db.actualizar_receta_con_detalles(id_receta, payload_normalizado)
+            if not result:
+                return jsonify({'error': 'Receta no encontrada'}), 404
+            return jsonify({
+                'success': True,
+                'message': 'Receta actualizada correctamente',
+                'id_receta': id_receta
+            }), 200
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500
+    
+    elif request.method == 'DELETE':
+        try:
+            result = db.eliminar_receta(id_receta)
+            if not result:
+                return jsonify({'error': 'Receta no encontrada'}), 404
+            return jsonify({
+                'success': True,
+                'message': 'Receta eliminada correctamente'
+            }), 200
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': 'Error interno del servidor', 'details': str(e)}), 500
 
 
 @app.route('/api/medicamentos', methods=['GET'])

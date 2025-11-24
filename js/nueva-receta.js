@@ -296,6 +296,9 @@ document.addEventListener('DOMContentLoaded', () => {
             select.value = idMedico;
             medicoSeleccionadoExternamente = parseInt(idMedico);
         }
+        
+        // 🔥 NUEVO: Cargar receta desde historial si existe
+        verificarYCargarRecetaDesdeHistorial();
     });
     inicializarEventos();
     actualizarFechaModal();
@@ -753,10 +756,13 @@ function mostrarHistorialRecetas(recetas) {
                 
                 <div class="receta-timeline-acciones">
                     <button type="button" class="btn-timeline-accion btn-ver" onclick="verDetalleReceta(${receta.id_receta})">
-                        <i class="fas fa-eye"></i> Ver Detalle
+                        <i class="fas fa-eye"></i> Ver
                     </button>
-                    <button type="button" class="btn-timeline-accion btn-editar" onclick="editarReceta(${receta.id_paciente}, ${receta.id_receta})">
+                    <button type="button" class="btn-timeline-accion btn-editar" onclick="editarReceta(${receta.id_receta})">
                         <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button type="button" class="btn-timeline-accion btn-eliminar" onclick="eliminarReceta(${receta.id_receta}, '${receta.numero_receta}')">
+                        <i class="fas fa-trash-alt"></i> Eliminar
                     </button>
                 </div>
             </div>
@@ -1632,9 +1638,35 @@ function generarReceta(e) {
     console.log(JSON.stringify(recetaCompleta, null, 2));
     console.log('═══════════════════════════════════════');
     
+    // Verificar si estamos en modo edición
+    const formularioCard = document.getElementById('formularioRecetaCard');
+    const modoEdicion = formularioCard?.dataset.modoEdicion === 'true';
+    const idReceta = formularioCard?.dataset.idReceta;
+    
+    let url = '/api/recetas';
+    let method = 'POST';
+    let mensajeExito = '✅ Receta creada exitosamente';
+    
+    if (modoEdicion && idReceta) {
+        // Modo EDICIÓN: actualizar receta existente
+        url = `/api/recetas/${idReceta}`;
+        method = 'PUT';
+        mensajeExito = '✅ Receta actualizada exitosamente';
+        
+        // Agregar el estado al payload si está en modo edición
+        const estadoField = document.getElementById('estadoReceta');
+        if (estadoField && estadoField.value) {
+            recetaCompleta.receta.estado = estadoField.value;
+        }
+        
+        console.log(`🔄 MODO EDICIÓN: Actualizando receta ID ${idReceta}`);
+    } else {
+        console.log('🆕 MODO CREACIÓN: Nueva receta');
+    }
+    
     // Enviar al backend Flask
-    fetch('/api/recetas', {
-        method: 'POST',
+    fetch(url, {
+        method: method,
         headers: {
             'Content-Type': 'application/json'
         },
@@ -1648,12 +1680,31 @@ function generarReceta(e) {
         return res.json();
     })
     .then(data => {
-        console.log('✅ Receta guardada:', data);
-        if (data && data.numero_receta) {
-            mostrarModalExito(data.numero_receta);
-            mostrarNotificacion('✅ Receta guardada exitosamente: ' + data.numero_receta, 'success');
+        console.log('✅ Respuesta del servidor:', data);
+        
+        if (modoEdicion) {
+            // En modo edición, mostrar mensaje y redirigir al historial
+            mostrarNotificacion(mensajeExito, 'success');
+            
+            // Limpiar datos del formulario
+            if (formularioCard) {
+                delete formularioCard.dataset.modoEdicion;
+                delete formularioCard.dataset.idReceta;
+            }
+            
+            // Esperar 2 segundos y redirigir al historial
+            setTimeout(() => {
+                window.location.href = '/historial';
+            }, 2000);
+            
         } else {
-            mostrarNotificacion('Receta creada pero sin número de respuesta', 'warning');
+            // En modo creación, mostrar modal de éxito
+            if (data && data.numero_receta) {
+                mostrarModalExito(data.numero_receta);
+                mostrarNotificacion('✅ Receta guardada exitosamente: ' + data.numero_receta, 'success');
+            } else {
+                mostrarNotificacion('Receta creada pero sin número de respuesta', 'warning');
+            }
         }
     })
     .catch(error => {
@@ -1763,6 +1814,51 @@ function actualizarFechaModal() {
 // ============================================
 // ESTILOS ADICIONALES PARA VISTA PREVIA
 // ============================================
+// ============================================
+// ELIMINAR RECETA
+// ============================================
+window.eliminarReceta = async function(id_receta, numero_receta) {
+    // Confirmar eliminación
+    if (!confirm(`¿Está seguro de que desea eliminar la receta ${numero_receta}?\n\nEsta acción no se puede deshacer.`)) {
+        return;
+    }
+    
+    try {
+        console.log(`🗑️ Eliminando receta ID: ${id_receta}`);
+        
+        const response = await fetch(`/api/recetas/${id_receta}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Error al eliminar la receta');
+        }
+        
+        const result = await response.json();
+        console.log('✅ Receta eliminada:', result);
+        
+        mostrarNotificacion(`Receta ${numero_receta} eliminada correctamente`, 'success');
+        
+        // Recargar el historial de recetas
+        if (window.pacienteSeleccionado) {
+            const identificacion = window.pacienteSeleccionado.identificacion;
+            const recetasResponse = await fetch(`/api/recetas?identificacion=${identificacion}`);
+            if (recetasResponse.ok) {
+                const recetas = await recetasResponse.json();
+                mostrarHistorialRecetas(recetas);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Error eliminando receta:', error);
+        mostrarNotificacion(`Error al eliminar la receta: ${error.message}`, 'error');
+    }
+}
+
 const styles = `
     <style>
         .preview-receta {
@@ -1806,7 +1902,242 @@ const styles = `
             color: #2C3E50;
             margin: 0 0 0.5rem 0;
         }
+        .btn-timeline-accion.btn-eliminar {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-timeline-accion.btn-eliminar:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
     </style>
 `;
 
 document.head.insertAdjacentHTML('beforeend', styles);
+
+// ============================================
+// CARGAR RECETA DESDE HISTORIAL PARA EDICIÓN
+// ============================================
+async function verificarYCargarRecetaDesdeHistorial() {
+    try {
+        // Verificar si hay una receta pendiente de editar en sessionStorage
+        const recetaEditarJSON = sessionStorage.getItem('recetaEditar');
+        const pacienteJSON = sessionStorage.getItem('pacienteSeleccionado');
+        
+        if (!recetaEditarJSON || !pacienteJSON) {
+            console.log('ℹ️ No hay receta para editar desde historial');
+            return;
+        }
+        
+        console.log('🔄 Detectada receta para editar desde historial');
+        
+        const datosEdicion = JSON.parse(recetaEditarJSON);
+        const paciente = JSON.parse(pacienteJSON);
+        const receta = datosEdicion.receta;
+        
+        console.log('📋 Receta a editar:', receta);
+        console.log('👤 Paciente:', paciente);
+        
+        // Limpiar sessionStorage para evitar recargas repetidas
+        sessionStorage.removeItem('recetaEditar');
+        sessionStorage.removeItem('pacienteSeleccionado');
+        
+        // Mostrar el formulario
+        const formularioCard = document.getElementById('formularioRecetaCard');
+        const datosPacienteContainer = document.getElementById('datosPacienteContainer');
+        
+        if (!formularioCard) {
+            console.error('❌ No se encontró el formulario');
+            return;
+        }
+        
+        // Cambiar título del formulario
+        const titulo = document.getElementById('tituloFormularioReceta');
+        if (titulo) {
+            titulo.innerHTML = `<i class="fas fa-edit"></i> Editar Receta ${receta.numero_receta || ''}`;
+        }
+        
+        // Pre-llenar datos del paciente
+        document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
+        document.getElementById('pacienteNombre').value = paciente.nombre || '';
+        document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
+        
+        // Buscar y mostrar información completa del paciente
+        if (paciente.identificacion) {
+            await buscarYMostrarPaciente(paciente.identificacion);
+        }
+        
+        // Mostrar sección de datos del paciente
+        if (datosPacienteContainer) {
+            datosPacienteContainer.style.display = 'block';
+        }
+        
+        // Pre-llenar médico si existe
+        const selectMedico = document.getElementById('selectMedico');
+        if (selectMedico && receta.id_medico) {
+            selectMedico.value = receta.id_medico;
+            medicoSeleccionadoExternamente = parseInt(receta.id_medico);
+        }
+        
+        // Pre-llenar observaciones
+        const observacionesField = document.getElementById('observaciones');
+        if (observacionesField) {
+            observacionesField.value = receta.observaciones || '';
+        }
+        
+        // Pre-llenar estado (mostrar sección de estado)
+        const seccionEstado = document.getElementById('seccionEstadoReceta');
+        const estadoField = document.getElementById('estadoReceta');
+        if (seccionEstado && estadoField) {
+            seccionEstado.style.display = 'block';
+            estadoField.value = receta.estado || 'Activa';
+        }
+        
+        // Pre-llenar medicamentos
+        await cargarMedicamentosDeReceta(receta);
+        
+        // Guardar ID de receta para actualización
+        formularioCard.dataset.idReceta = receta.id_receta || receta.id || '';
+        formularioCard.dataset.modoEdicion = 'true';
+        
+        // Mostrar formulario
+        formularioCard.style.display = 'block';
+        
+        // Scroll al formulario
+        setTimeout(() => {
+            formularioCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+        
+        mostrarNotificacion('Receta cargada para edición', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error al cargar receta desde historial:', error);
+        mostrarNotificacion('Error al cargar la receta: ' + error.message, 'error');
+    }
+}
+
+// ============================================
+// BUSCAR Y MOSTRAR INFORMACIÓN DEL PACIENTE
+// ============================================
+async function buscarYMostrarPaciente(identificacion) {
+    try {
+        const response = await fetch(`/api/pacientes/buscar/${identificacion}`);
+        if (!response.ok) {
+            throw new Error('Paciente no encontrado');
+        }
+        
+        const paciente = await response.json();
+        
+        // Llenar todos los campos del paciente
+        document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
+        document.getElementById('pacienteNombre').value = paciente.nombre || '';
+        document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
+        document.getElementById('pacienteEdad').value = paciente.edad || '';
+        document.getElementById('pacienteGenero').value = paciente.genero || '';
+        document.getElementById('pacienteTelefono').value = paciente.telefono || '';
+        document.getElementById('pacienteCorreo').value = paciente.correo || '';
+        document.getElementById('pacienteDireccion').value = paciente.direccion || '';
+        
+        // Guardar para uso global
+        window.pacienteSeleccionado = paciente;
+        
+    } catch (error) {
+        console.warn('⚠️ No se pudo cargar información adicional del paciente:', error);
+    }
+}
+
+// ============================================
+// CARGAR MEDICAMENTOS DE LA RECETA
+// ============================================
+async function cargarMedicamentosDeReceta(receta) {
+    const medicamentosContainer = document.getElementById('medicamentosContainer');
+    if (!medicamentosContainer) return;
+    
+    const detalles = receta.detalles || receta.medicamentos || [];
+    
+    if (detalles.length === 0) {
+        console.warn('⚠️ No hay medicamentos en esta receta');
+        return;
+    }
+    
+    // Limpiar medicamentos existentes
+    medicamentosContainer.innerHTML = '';
+    medicamentoCount = 0;
+    
+    // Esperar a que se carguen los medicamentos disponibles
+    await cargarMedicamentosDisponibles();
+    
+    // Agregar cada medicamento de la receta
+    for (let index = 0; index < detalles.length; index++) {
+        const med = detalles[index];
+        
+        const medicamentoHTML = `
+            <div class="medicamento-item" data-index="${index}">
+                <div class="medicamento-header">
+                    <h5><i class="fas fa-capsules"></i> Medicamento #${index + 1}</h5>
+                    ${index > 0 ? `
+                        <button type="button" class="btn-remove-medicamento" onclick="eliminarMedicamento(this)">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </button>
+                    ` : ''}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group form-group-lg">
+                        <label for="medicamento_${index}" class="required">Medicamento</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-prescription-bottle"></i>
+                            <select id="medicamento_${index}" name="medicamento[]" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dosis_${index}" class="required">Dosis</label>
+                        <input type="text" id="dosis_${index}" name="dosis[]" value="${med.dosis || ''}" placeholder="Ej: 500mg" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="frecuencia_${index}" class="required">Frecuencia</label>
+                        <input type="text" id="frecuencia_${index}" name="frecuencia[]" value="${med.frecuencia || ''}" placeholder="Ej: Cada 8 horas" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duracion_${index}" class="required">Duración</label>
+                        <input type="text" id="duracion_${index}" name="duracion[]" value="${med.duracion || ''}" placeholder="Ej: 7 días" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad_${index}" class="required">Cantidad</label>
+                        <input type="number" id="cantidad_${index}" name="cantidad[]" min="1" value="${med.cantidad || 1}" placeholder="Ej: 20" required>
+                        <small class="form-hint" style="font-size: 0.75rem; color: #666;">
+                            <i class="fas fa-box"></i> Unidades a dispensar
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        medicamentosContainer.insertAdjacentHTML('beforeend', medicamentoHTML);
+        
+        // Seleccionar el medicamento correcto
+        const select = document.getElementById(`medicamento_${index}`);
+        if (select && med.id_medicamento) {
+            // Esperar un poco para que se carguen las opciones
+            setTimeout(() => {
+                select.value = med.id_medicamento;
+            }, 500);
+        }
+        
+        medicamentoCount++;
+    }
+    
+    // Agregar eventos a los nuevos inputs
+    const inputs = medicamentosContainer.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('change', actualizarVistaPrevia);
+        input.addEventListener('input', actualizarVistaPrevia);
+    });
+    
+    actualizarVistaPrevia();
+}

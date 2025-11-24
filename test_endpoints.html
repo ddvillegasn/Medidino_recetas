@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Endpoints - Recetas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #1E88A8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #176a84;
+        }
+        .result {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Endpoints - Recetas Médicas</h1>
+    
+    <div class="test-section">
+        <h2>1. Listar Recetas</h2>
+        <button onclick="testListarRecetas()">GET /api/recetas</button>
+        <div id="result-listar" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Obtener Receta por ID</h2>
+        <input type="number" id="receta-id-get" placeholder="ID de receta" value="1">
+        <button onclick="testGetReceta()">GET /api/recetas/:id</button>
+        <div id="result-get" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Actualizar Receta</h2>
+        <input type="number" id="receta-id-update" placeholder="ID de receta" value="1">
+        <br>
+        <textarea id="observaciones-update" placeholder="Nuevas observaciones" rows="3" style="width: 100%; margin: 10px 0; padding: 8px;">Actualización de prueba</textarea>
+        <button onclick="testUpdateReceta()">PUT /api/recetas/:id</button>
+        <div id="result-update" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Eliminar Receta (⚠️ Cuidado!)</h2>
+        <input type="number" id="receta-id-delete" placeholder="ID de receta a eliminar">
+        <button onclick="testDeleteReceta()" style="background-color: #dc3545;">DELETE /api/recetas/:id</button>
+        <div id="result-delete" class="result"></div>
+    </div>
+
+    <script>
+        async function testListarRecetas() {
+            const resultDiv = document.getElementById('result-listar');
+            resultDiv.innerHTML = 'Cargando...';
+            
+            try {
+                const response = await fetch('/api/recetas');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `<span class="success">✅ Status: ${response.status}</span>\n\n` + 
+                                     JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testGetReceta() {
+            const id = document.getElementById('receta-id-get').value;
+            const resultDiv = document.getElementById('result-get');
+            resultDiv.innerHTML = 'Cargando...';
+            
+            try {
+                const response = await fetch(`/api/recetas/${id}`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">${response.ok ? '✅' : '❌'} Status: ${response.status}</span>\n\n` + 
+                                     JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testUpdateReceta() {
+            const id = document.getElementById('receta-id-update').value;
+            const observaciones = document.getElementById('observaciones-update').value;
+            const resultDiv = document.getElementById('result-update');
+            resultDiv.innerHTML = 'Actualizando...';
+            
+            try {
+                const response = await fetch(`/api/recetas/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        observaciones: observaciones,
+                        estado: 'Activa'
+                    })
+                });
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">${response.ok ? '✅' : '❌'} Status: ${response.status}</span>\n\n` + 
+                                     JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testDeleteReceta() {
+            const id = document.getElementById('receta-id-delete').value;
+            
+            if (!id) {
+                alert('Por favor ingrese un ID de receta');
+                return;
+            }
+            
+            if (!confirm(`¿Está seguro de eliminar la receta con ID ${id}?`)) {
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result-delete');
+            resultDiv.innerHTML = 'Eliminando...';
+            
+            try {
+                const response = await fetch(`/api/recetas/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">${response.ok ? '✅' : '❌'} Status: ${response.status}</span>\n\n` + 
+                                     JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

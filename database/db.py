@@ -543,3 +543,118 @@ def crear_notificacion(id_paciente=None, id_receta=None, canal='SMS', mensaje=No
         nid = cur.lastrowid
         cur.execute("SELECT * FROM NOTIFICACION_RECETA WHERE id_notificacion = ?", (nid,))
         return cur.fetchone()
+
+
+def actualizar_receta_con_detalles(id_receta, payload, db_path=None):
+    """
+    Actualiza una receta existente y sus detalles.
+    
+    payload expected keys:
+      - observaciones (opcional)
+      - estado (opcional): Activa, Dispensada, Cancelada, Vencida
+      - detalles (opcional): lista de detalles para reemplazar los existentes
+    """
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        try:
+            # Verificar que la receta existe
+            cur.execute("SELECT * FROM RECETA WHERE id_receta = ?", (id_receta,))
+            receta = cur.fetchone()
+            if not receta:
+                return None
+            
+            # Actualizar campos de la receta
+            observaciones = payload.get('observaciones')
+            estado = payload.get('estado')
+            
+            if observaciones is not None or estado is not None:
+                updates = []
+                params = []
+                
+                if observaciones is not None:
+                    updates.append("observaciones = ?")
+                    params.append(observaciones)
+                
+                if estado is not None:
+                    updates.append("estado = ?")
+                    params.append(estado)
+                
+                params.append(id_receta)
+                query = f"UPDATE RECETA SET {', '.join(updates)} WHERE id_receta = ?"
+                cur.execute(query, params)
+            
+            # Si se proporcionan nuevos detalles, eliminar los anteriores y crear los nuevos
+            detalles = payload.get('detalles')
+            if detalles is not None:
+                # Eliminar detalles existentes
+                cur.execute("DELETE FROM DETALLE_RECETA WHERE id_receta = ?", (id_receta,))
+                
+                # Insertar nuevos detalles
+                for det in detalles:
+                    id_medicamento = det.get('id_medicamento')
+                    if not id_medicamento:
+                        nombre = det.get('medicamento_nombre') or det.get('medicamento')
+                        if not nombre:
+                            continue
+                        
+                        cur.execute("SELECT id_medicamento FROM MEDICAMENTO WHERE nombre = ?", (nombre,))
+                        m = cur.fetchone()
+                        if m:
+                            id_medicamento = m['id_medicamento']
+                        else:
+                            cur.execute("INSERT INTO MEDICAMENTO (nombre) VALUES (?)", (nombre,))
+                            id_medicamento = cur.lastrowid
+                    
+                    dosis = det.get('dosis') or ''
+                    frecuencia = det.get('frecuencia') or ''
+                    duracion = det.get('duracion') or ''
+                    cantidad = det.get('cantidad')
+                    indicaciones = det.get('indicaciones')
+                    
+                    cur.execute(
+                        "INSERT INTO DETALLE_RECETA (id_receta, id_medicamento, dosis, frecuencia, duracion, cantidad, indicaciones) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        (id_receta, id_medicamento, dosis, frecuencia, duracion, cantidad, indicaciones)
+                    )
+            
+            conn.commit()
+            return {'id_receta': id_receta}
+            
+        except Exception:
+            conn.rollback()
+            raise
+
+
+def eliminar_receta(id_receta, db_path=None):
+    """
+    Elimina una receta y todos sus detalles.
+    
+    Args:
+        id_receta: ID de la receta a eliminar
+    
+    Returns:
+        dict con resultado o None si no existe
+    """
+    with connect_db(db_path) as conn:
+        cur = conn.cursor()
+        try:
+            # Verificar que la receta existe
+            cur.execute("SELECT * FROM RECETA WHERE id_receta = ?", (id_receta,))
+            receta = cur.fetchone()
+            if not receta:
+                return None
+            
+            # Eliminar detalles primero (restricción de clave foránea)
+            cur.execute("DELETE FROM DETALLE_RECETA WHERE id_receta = ?", (id_receta,))
+            
+            # Eliminar notificaciones relacionadas
+            cur.execute("DELETE FROM NOTIFICACION_RECETA WHERE id_receta = ?", (id_receta,))
+            
+            # Eliminar la receta
+            cur.execute("DELETE FROM RECETA WHERE id_receta = ?", (id_receta,))
+            
+            conn.commit()
+            return {'id_receta': id_receta, 'deleted': True}
+            
+        except Exception:
+            conn.rollback()
+            raise
