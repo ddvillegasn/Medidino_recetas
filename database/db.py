@@ -241,7 +241,8 @@ def listar_recetas(limit=100, db_path=None, identificacion=None):
                 'host': 'localhost',
                 'user': 'root',
                 'password': '',
-                'database': 'medidino_medicos'
+                'database': 'medidino_medicos',
+                'port': 3307
             }
             medicos_conn = mysql.connector.connect(**medicos_config)
             medicos_cur = medicos_conn.cursor(dictionary=True)
@@ -427,7 +428,8 @@ def get_receta_con_detalles(id_receta, db_path=None):
                     'host': 'localhost',
                     'user': 'root',
                     'password': '',
-                    'database': 'medidino_medicos'
+                    'database': 'medidino_medicos',
+                    'port': 3307
                 }
                 medicos_conn = mysql.connector.connect(**medicos_config)
                 medicos_cur = medicos_conn.cursor(dictionary=True)
