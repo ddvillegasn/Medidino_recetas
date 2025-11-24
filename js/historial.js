@@ -703,6 +703,9 @@ function buildPreviewHtml(receta) {
 // ============================================
 // EDITAR RECETA DESDE HISTORIAL
 // ============================================
+// ============================================
+// EDITAR RECETA - ABRE MODAL DE EDICIÓN IN-PLACE
+// ============================================
 window.editarRecetaHistorial = async function(id_receta) {
     if (!id_receta) {
         alert('ID de receta inválido');
@@ -710,7 +713,7 @@ window.editarRecetaHistorial = async function(id_receta) {
     }
     
     try {
-        console.log(`✏️ Preparando edición de receta ID: ${id_receta}`);
+        console.log(`✏️ Cargando receta para edición ID: ${id_receta}`);
         
         // Obtener datos completos de la receta
         const response = await fetch(`/api/recetas/${id_receta}`);
@@ -721,31 +724,11 @@ window.editarRecetaHistorial = async function(id_receta) {
         const receta = await response.json();
         console.log('📋 Receta obtenida:', receta);
         
-        // Preparar objeto de paciente
-        const pacienteObj = {
-            id: receta.id_paciente || null,
-            id_paciente: receta.id_paciente || null,
-            nombre: receta.paciente_nombre || '',
-            identificacion: receta.paciente_identificacion || ''
-        };
-        
-        // Guardar en sessionStorage para que nueva-receta.html lo detecte
-        const recetaEditar = {
-            receta: receta,
-            paciente: pacienteObj,
-            modo: 'editar'
-        };
-        
-        sessionStorage.setItem('recetaEditar', JSON.stringify(recetaEditar));
-        sessionStorage.setItem('pacienteSeleccionado', JSON.stringify(pacienteObj));
-        
-        console.log('✅ Datos guardados en sessionStorage');
-        
-        // Redirigir a la página de gestión de recetas
-        window.location.href = '/nueva-receta';
+        // Mostrar modal de edición in-place (sin redirigir)
+        mostrarModalEdicion(receta);
         
     } catch (error) {
-        console.error('❌ Error al preparar edición:', error);
+        console.error('❌ Error al cargar receta:', error);
         alert(`Error al cargar la receta para editar: ${error.message}`);
     }
 }
