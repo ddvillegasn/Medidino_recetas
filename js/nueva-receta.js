@@ -1954,6 +1954,13 @@ async function verificarYCargarRecetaDesdeHistorial() {
             console.log('👤 Detectado paciente seleccionado desde index');
             const paciente = JSON.parse(pacienteJSON);
             
+            // Ocultar el buscador de pacientes
+            const searchHeroSection = document.querySelector('.search-hero-section');
+            if (searchHeroSection) {
+                searchHeroSection.style.display = 'none';
+                console.log('🔒 Buscador de pacientes oculto');
+            }
+            
             // Pre-llenar datos del paciente
             document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
             document.getElementById('pacienteNombre').value = paciente.nombre || '';
