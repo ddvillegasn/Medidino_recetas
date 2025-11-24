@@ -10,7 +10,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1E88A8 0%, #134E68 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -32,7 +32,7 @@ body {
    ============================================ */
 
 .dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1E88A8 0%, #134E68 100%);
     color: white;
     padding: 40px;
     text-align: center;
@@ -94,7 +94,7 @@ body {
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1E88A8 0%, #134E68 100%);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -102,7 +102,7 @@ body {
 .module-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    border-color: #667eea;
+    border-color: #1E88A8;
 }
 
 .module-card:hover::before {
@@ -145,7 +145,7 @@ body {
     content: '✓';
     position: absolute;
     left: 0;
-    color: #667eea;
+    color: #1E88A8;
     font-weight: bold;
 }
 
@@ -154,7 +154,7 @@ body {
 }
 
 .module-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1E88A8 0%, #134E68 100%);
     color: white;
     border: none;
     padding: 12px 30px;
@@ -168,7 +168,7 @@ body {
 
 .module-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(30, 136, 168, 0.4);
 }
 
 /* ============================================
