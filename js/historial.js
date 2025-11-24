@@ -451,17 +451,224 @@ function renderRecetaModal(receta) {
         }
     });
 
-    // Botón Editar: usar la función editarRecetaHistorial
+    // Botón Editar: cambiar a modo edición en el mismo modal
     const btnEditar = document.getElementById('btnModalEditar');
     btnEditar?.addEventListener('click', () => {
-        const id_receta = receta.id_receta || receta.id;
-        if (id_receta) {
-            editarRecetaHistorial(id_receta);
-        } else {
-            console.error('No se encontró el ID de la receta');
-            alert('Error: No se puede editar esta receta (ID no encontrado)');
-        }
+        closeAndRestore();
+        mostrarModalEdicion(receta);
     });
+}
+
+// ============================================
+// MODAL DE EDICIÓN IN-PLACE
+// ============================================
+function mostrarModalEdicion(receta) {
+    const detalles = receta.detalles || [];
+    
+    // Generar HTML de medicamentos EDITABLES
+    const medicamentosEditables = detalles.map((d, i) => `
+        <div class="medicamento-editable" style="background: #F8F9FA; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #1E88A8;">
+            <h5 style="margin: 0 0 1rem 0; color: #2C3E50;">
+                <i class="fas fa-pills"></i> Medicamento ${i + 1}
+            </h5>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
+                        <i class="fas fa-prescription-bottle"></i> Medicamento:
+                    </label>
+                    <input type="text" class="input-editable" id="med_nombre_${i}" 
+                           value="${d.medicamento_nombre || d.nombre || ''}" 
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
+                        <i class="fas fa-weight"></i> Dosis:
+                    </label>
+                    <input type="text" class="input-editable" id="med_dosis_${i}" 
+                           value="${d.dosis || ''}" placeholder="Ej: 500mg"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
+                        <i class="fas fa-clock"></i> Frecuencia:
+                    </label>
+                    <input type="text" class="input-editable" id="med_frecuencia_${i}" 
+                           value="${d.frecuencia || ''}" placeholder="Ej: Cada 8 horas"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
+                        <i class="fas fa-calendar-alt"></i> Duración:
+                    </label>
+                    <input type="text" class="input-editable" id="med_duracion_${i}" 
+                           value="${d.duracion || ''}" placeholder="Ej: 7 días"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
+                        <i class="fas fa-box"></i> Cantidad:
+                    </label>
+                    <input type="number" class="input-editable" id="med_cantidad_${i}" 
+                           value="${d.cantidad || 1}" min="1" placeholder="20"
+                           style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    const modal = document.createElement('div');
+    modal.id = 'modalEdicionReceta';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content-detalle" style="max-width: 900px;">
+            <div class="modal-header-detalle">
+                <h3><i class="fas fa-edit"></i> Editar Receta ${receta.numero_receta || ''}</h3>
+                <button type="button" class="btn-close-modal" id="closeModalEdicion">×</button>
+            </div>
+            <div class="modal-body-detalle" style="max-height: 600px; overflow-y: auto;">
+                <div class="detalle-section" style="background: #E3F2FD; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <strong><i class="fas fa-user"></i> Paciente:</strong> ${receta.paciente_nombre || ''}
+                        </div>
+                        <div>
+                            <strong><i class="fas fa-calendar"></i> Fecha:</strong> ${receta.fecha_emision || ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detalle-section">
+                    <h4 style="margin: 0 0 1rem 0; color: #1E88A8;"><i class="fas fa-capsules"></i> Medicamentos</h4>
+                    ${medicamentosEditables}
+                </div>
+                
+                <div class="detalle-section">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #495057;">
+                        <i class="fas fa-comment-medical"></i> Observaciones:
+                    </label>
+                    <textarea id="observaciones_editar" rows="3" 
+                              style="width: 100%; padding: 0.75rem; border: 1px solid #CED4DA; border-radius: 4px; resize: vertical;"
+                              placeholder="Observaciones médicas...">${receta.observaciones || ''}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer-detalle">
+                <button type="button" class="btn-primary" id="btnGuardarEdicion">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+                <button type="button" class="btn-secondary" id="btnCancelarEdicion">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Remover modal existente
+    const existing = document.getElementById('modalEdicionReceta');
+    if (existing) existing.remove();
+
+    document.body.appendChild(modal);
+    setTimeout(() => {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }, 10);
+
+    // Función para cerrar
+    const closeModal = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => { if (modal && modal.parentNode) modal.parentNode.removeChild(modal); }, 300);
+    };
+
+    // Eventos de cierre
+    document.getElementById('closeModalEdicion')?.addEventListener('click', closeModal);
+    document.getElementById('btnCancelarEdicion')?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // Evento de guardar
+    document.getElementById('btnGuardarEdicion')?.addEventListener('click', async () => {
+        await guardarEdicionReceta(receta, detalles.length, closeModal);
+    });
+}
+
+// ============================================
+// GUARDAR EDICIÓN DE RECETA
+// ============================================
+async function guardarEdicionReceta(receta, numMedicamentos, closeModalCallback) {
+    try {
+        console.log('💾 Guardando cambios de la receta...');
+        
+        // Recopilar datos de medicamentos editados
+        const detallesActualizados = [];
+        for (let i = 0; i < numMedicamentos; i++) {
+            const nombre = document.getElementById(`med_nombre_${i}`)?.value || '';
+            const dosis = document.getElementById(`med_dosis_${i}`)?.value || '';
+            const frecuencia = document.getElementById(`med_frecuencia_${i}`)?.value || '';
+            const duracion = document.getElementById(`med_duracion_${i}`)?.value || '';
+            const cantidad = document.getElementById(`med_cantidad_${i}`)?.value || 1;
+            
+            if (nombre && dosis && frecuencia && duracion) {
+                detallesActualizados.push({
+                    id_medicamento: receta.detalles[i]?.id_medicamento || null,
+                    medicamento_nombre: nombre,
+                    dosis: dosis,
+                    frecuencia: frecuencia,
+                    duracion: duracion,
+                    cantidad: parseInt(cantidad)
+                });
+            }
+        }
+        
+        if (detallesActualizados.length === 0) {
+            alert('Debe agregar al menos un medicamento con todos los campos llenos');
+            return;
+        }
+        
+        // Recopilar observaciones
+        const observaciones = document.getElementById('observaciones_editar')?.value || '';
+        
+        // Preparar payload
+        const payload = {
+            receta: {
+                observaciones: observaciones,
+                estado: receta.estado || 'Activa'
+            },
+            detalles: detallesActualizados
+        };
+        
+        console.log('📤 Enviando actualización:', payload);
+        
+        // Enviar al servidor
+        const response = await fetch(`/api/recetas/${receta.id_receta || receta.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Error al actualizar la receta');
+        }
+        
+        const result = await response.json();
+        console.log('✅ Receta actualizada:', result);
+        
+        // Cerrar modal
+        closeModalCallback();
+        
+        // Mostrar notificación
+        mostrarNotificacion('Receta actualizada correctamente', 'success');
+        
+        // Recargar tabla
+        await recargarRecetas();
+        
+    } catch (error) {
+        console.error('❌ Error guardando cambios:', error);
+        alert(`Error al guardar cambios: ${error.message}`);
+    }
 }
 
 // Genera HTML simple y responsivo para la vista previa de una receta
