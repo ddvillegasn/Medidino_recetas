@@ -2004,6 +2004,20 @@ async function verificarYCargarRecetaDesdeHistorial() {
         console.log('📋 Receta a editar:', receta);
         console.log('👤 Paciente:', paciente);
         
+        // Ocultar buscador de pacientes
+        const searchHeroSection = document.querySelector('.search-hero-section');
+        if (searchHeroSection) {
+            searchHeroSection.style.display = 'none';
+            console.log('🔒 Buscador oculto en modo edición');
+        }
+        
+        // Mostrar contenedor de información del paciente
+        const pacienteRecetasContainer = document.getElementById('pacienteRecetasContainer');
+        if (pacienteRecetasContainer) {
+            pacienteRecetasContainer.style.display = 'block';
+            console.log('✅ Contenedor de paciente visible');
+        }
+        
         // Limpiar sessionStorage para evitar recargas repetidas
         sessionStorage.removeItem('recetaEditar');
         sessionStorage.removeItem('pacienteSeleccionado');
@@ -2017,25 +2031,45 @@ async function verificarYCargarRecetaDesdeHistorial() {
             return;
         }
         
+        console.log('📝 Preparando formulario para edición...');
+        
         // Cambiar título del formulario
         const titulo = document.getElementById('tituloFormularioReceta');
         if (titulo) {
             titulo.innerHTML = `<i class="fas fa-edit"></i> Editar Receta ${receta.numero_receta || ''}`;
         }
         
-        // Pre-llenar datos del paciente
-        document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
-        document.getElementById('pacienteNombre').value = paciente.nombre || '';
-        document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
-        
-        // Buscar y mostrar información completa del paciente
+        // Cargar información completa del paciente usando la API
         if (paciente.identificacion) {
-            await buscarYMostrarPaciente(paciente.identificacion);
+            try {
+                console.log('🔍 Buscando paciente:', paciente.identificacion);
+                const response = await fetch(`/api/pacientes/buscar/${paciente.identificacion}`);
+                if (response.ok) {
+                    const pacienteCompleto = await response.json();
+                    console.log('✅ Paciente encontrado:', pacienteCompleto);
+                    
+                    // Mostrar información del paciente en la tarjeta
+                    mostrarInfoPaciente(pacienteCompleto);
+                    
+                    // Pre-llenar datos del paciente en el formulario
+                    document.getElementById('pacienteIdHidden').value = pacienteCompleto.id_paciente || pacienteCompleto.id || '';
+                    document.getElementById('pacienteNombre').value = pacienteCompleto.nombre || '';
+                    document.getElementById('pacienteIdentificacion').value = pacienteCompleto.identificacion || '';
+                } else {
+                    console.warn('⚠️ No se encontró el paciente, usando datos del sessionStorage');
+                    document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
+                    document.getElementById('pacienteNombre').value = paciente.nombre || '';
+                    document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
+                }
+            } catch (error) {
+                console.error('❌ Error buscando paciente:', error);
+            }
         }
         
-        // Mostrar sección de datos del paciente
+        // Mostrar sección de datos del paciente en el formulario
         if (datosPacienteContainer) {
             datosPacienteContainer.style.display = 'block';
+            console.log('✅ Sección de datos del paciente visible');
         }
         
         // Pre-llenar médico si existe
@@ -2060,21 +2094,28 @@ async function verificarYCargarRecetaDesdeHistorial() {
         }
         
         // Pre-llenar medicamentos
+        console.log('💊 Cargando medicamentos de la receta...');
         await cargarMedicamentosDeReceta(receta);
+        console.log('✅ Medicamentos cargados');
         
         // Guardar ID de receta para actualización
         formularioCard.dataset.idReceta = receta.id_receta || receta.id || '';
         formularioCard.dataset.modoEdicion = 'true';
+        console.log(`📌 ID de receta guardado: ${formularioCard.dataset.idReceta}`);
+        console.log(`📌 Modo edición activado: ${formularioCard.dataset.modoEdicion}`);
         
         // Mostrar formulario
         formularioCard.style.display = 'block';
+        console.log('✅ Formulario mostrado');
         
         // Scroll al formulario
         setTimeout(() => {
             formularioCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            console.log('📜 Scroll al formulario completado');
         }, 300);
         
         mostrarNotificacion('Receta cargada para edición', 'success');
+        console.log('✅ ¡Proceso de edición completado exitosamente!');
         
     } catch (error) {
         console.error('❌ Error al cargar receta desde historial:', error);
