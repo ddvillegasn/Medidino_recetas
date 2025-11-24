@@ -283,12 +283,11 @@ def listar_recetas(limit=100, db_path=None, identificacion=None):
             # Para cada detalle, obtener el nombre del medicamento desde MySQL
             for detalle in detalles:
                 id_medicamento = detalle.get('id_medicamento')
-                detalle['medicamento_nombre'] = None
+                detalle['medicamento_nombre'] = 'Medicamento no disponible'
                 detalle['presentacion'] = None
                 
                 if mysql_conn and id_medicamento:
                     try:
-                        print(f"🔍 Buscando medicamento id={id_medicamento} en MySQL")
                         mysql_cur.execute(
                             "SELECT nombre, tipo, dosis_recomendada FROM medicamento WHERE id_medicamento = %s",
                             (id_medicamento,)
@@ -297,7 +296,6 @@ def listar_recetas(limit=100, db_path=None, identificacion=None):
                         if med:
                             detalle['medicamento_nombre'] = med.get('nombre')
                             detalle['presentacion'] = med.get('tipo')  # Usar 'tipo' como presentación
-                            print(f"✅ Medicamento encontrado: {detalle['medicamento_nombre']} ({detalle['presentacion']})")
                         else:
                             print(f"⚠️ Medicamento id={id_medicamento} no encontrado en MySQL")
                     except Exception as e:
@@ -460,7 +458,7 @@ def get_receta_con_detalles(id_receta, db_path=None):
             
             for detalle in detalles:
                 id_medicamento = detalle.get('id_medicamento')
-                detalle['medicamento_nombre'] = None
+                detalle['medicamento_nombre'] = 'Medicamento no disponible'
                 detalle['presentacion'] = None
                 
                 if id_medicamento:
@@ -472,6 +470,8 @@ def get_receta_con_detalles(id_receta, db_path=None):
                     if med:
                         detalle['medicamento_nombre'] = med.get('nombre')
                         detalle['presentacion'] = med.get('tipo')
+                    else:
+                        print(f"⚠️ Medicamento id={id_medicamento} no encontrado en MySQL")
             
             mysql_cur.close()
             mysql_conn.close()
