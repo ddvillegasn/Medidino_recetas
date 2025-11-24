@@ -2126,7 +2126,11 @@ async function cargarMedicamentosDeReceta(receta) {
         return;
     }
     
-    console.log('📦 Cargando medicamentos de la receta:', detalles);
+    console.log('📦 Cargando medicamentos de la receta:');
+    console.log('Total de medicamentos:', detalles.length);
+    detalles.forEach((d, i) => {
+        console.log(`  ${i + 1}. ID: ${d.id_medicamento}, Nombre: ${d.medicamento_nombre || d.nombre}, Dosis: ${d.dosis}`);
+    });
     
     // Limpiar medicamentos existentes
     medicamentosContainer.innerHTML = '';
@@ -2217,12 +2221,27 @@ async function cargarMedicamentosDeReceta(receta) {
                 // Verificar si se seleccionó correctamente
                 if (select.value != med.id_medicamento) {
                     console.warn(`⚠️ No se pudo seleccionar medicamento ID ${med.id_medicamento} - puede que no exista en la lista`);
+                    console.log(`Nombre del medicamento:`, med.medicamento_nombre || med.nombre);
                     console.log(`Opciones disponibles:`, Array.from(select.options).map(o => `${o.value}: ${o.text}`));
+                    
+                    // Intentar buscar por nombre si el ID no coincide
+                    const nombreBuscado = (med.medicamento_nombre || med.nombre || '').toLowerCase();
+                    if (nombreBuscado) {
+                        for (let i = 0; i < select.options.length; i++) {
+                            const optionText = select.options[i].text.toLowerCase();
+                            if (optionText.includes(nombreBuscado)) {
+                                select.selectedIndex = i;
+                                console.log(`✅ Medicamento encontrado por nombre: "${select.options[i].text}"`);
+                                break;
+                            }
+                        }
+                    }
                 } else {
-                    console.log(`✅ Medicamento ${med.id_medicamento} seleccionado en posición ${index}`);
+                    console.log(`✅ Medicamento ID ${med.id_medicamento} seleccionado en posición ${index}`);
                 }
             } else {
                 console.warn(`⚠️ Medicamento en posición ${index} no tiene id_medicamento`);
+                console.log(`Datos del medicamento:`, med);
             }
         }
         
