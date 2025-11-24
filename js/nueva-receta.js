@@ -1949,6 +1949,32 @@ async function verificarYCargarRecetaDesdeHistorial() {
         const recetaEditarJSON = sessionStorage.getItem('recetaEditar');
         const pacienteJSON = sessionStorage.getItem('pacienteSeleccionado');
         
+        // Si solo hay paciente (sin receta), cargar el paciente
+        if (!recetaEditarJSON && pacienteJSON) {
+            console.log('👤 Detectado paciente seleccionado desde index');
+            const paciente = JSON.parse(pacienteJSON);
+            
+            // Pre-llenar datos del paciente
+            document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
+            document.getElementById('pacienteNombre').value = paciente.nombre || '';
+            document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
+            
+            // Buscar y mostrar información completa del paciente
+            if (paciente.identificacion) {
+                await buscarYMostrarPaciente(paciente.identificacion);
+            }
+            
+            // Mostrar sección de datos del paciente
+            const datosPacienteContainer = document.getElementById('datosPacienteContainer');
+            if (datosPacienteContainer) {
+                datosPacienteContainer.style.display = 'block';
+            }
+            
+            console.log('✅ Paciente cargado automáticamente:', paciente.nombre);
+            // NO eliminar sessionStorage aquí para permitir navegación hacia atrás
+            return;
+        }
+        
         if (!recetaEditarJSON || !pacienteJSON) {
             console.log('ℹ️ No hay receta para editar desde historial');
             return;
