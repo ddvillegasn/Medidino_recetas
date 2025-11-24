@@ -1,0 +1,181 @@
+/* ============================================
+   VARIABLES GLOBALES - SISTEMA MEDIDINO
+   ============================================
+   
+   Este archivo contiene todas las variables CSS
+   reutilizables para mantener consistencia
+   en todos los módulos del sistema.
+   
+   USO: Importar este archivo en cada módulo
+   @import url('../../assets/css/variables.css');
+   ============================================ */
+
+:root {
+    /* ========================================
+       COLORES PRINCIPALES
+       ======================================== */
+    --primary-color: #1E88A8;        /* Azul principal */
+    --secondary-color: #2E3B4E;       /* Gris oscuro */
+    --accent-color: #4FC3DC;          /* Turquesa claro */
+    
+    /* ========================================
+       COLORES DE ESTADO
+       ======================================== */
+    --success-color: #4CAF50;         /* Verde - Éxito */
+    --warning-color: #FFC107;         /* Amarillo - Advertencia */
+    --danger-color: #F44336;          /* Rojo - Error */
+    --info-color: #2196F3;            /* Azul - Información */
+    
+    /* ========================================
+       COLORES DE FONDO
+       ======================================== */
+    --bg-color: #F5F7FA;              /* Fondo de página */
+    --card-bg: #FFFFFF;               /* Fondo de tarjetas */
+    --bg-secondary: #E8F5E9;          /* Fondo alternativo */
+    --bg-dark: #2C3E50;               /* Fondo oscuro */
+    
+    /* ========================================
+       COLORES DE TEXTO
+       ======================================== */
+    --text-primary: #2C3E50;          /* Texto principal */
+    --text-secondary: #6C757D;        /* Texto secundario */
+    --text-light: #FFFFFF;            /* Texto blanco */
+    --text-muted: #ADB5BD;            /* Texto deshabilitado */
+    --text-dark: #1a1a1a;             /* Texto muy oscuro */
+    
+    /* ========================================
+       BORDES Y SOMBRAS
+       ======================================== */
+    --border-color: #E0E6ED;
+    --border-light: #F0F0F0;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 5px 20px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.2);
+    
+    /* ========================================
+       ESPACIADO
+       ======================================== */
+    --spacing-xs: 0.5rem;    /* 8px */
+    --spacing-sm: 0.8rem;    /* 13px */
+    --spacing-md: 1rem;      /* 16px */
+    --spacing-lg: 1.5rem;    /* 24px */
+    --spacing-xl: 2rem;      /* 32px */
+    --spacing-2xl: 3rem;     /* 48px */
+    
+    /* ========================================
+       BORDER RADIUS
+       ======================================== */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 20px;
+    --radius-full: 50%;
+    
+    /* ========================================
+       TIPOGRAFÍA
+       ======================================== */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-xs: 0.75rem;   /* 12px */
+    --font-size-sm: 0.85rem;   /* 14px */
+    --font-size-base: 0.95rem; /* 15px */
+    --font-size-lg: 1.1rem;    /* 18px */
+    --font-size-xl: 1.4rem;    /* 22px */
+    --font-size-2xl: 1.8rem;   /* 29px */
+    --font-size-3xl: 2.5rem;   /* 40px */
+    
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* ========================================
+       TRANSICIONES
+       ======================================== */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* ========================================
+       Z-INDEX
+       ======================================== */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 500;
+    --z-modal-backdrop: 999;
+    --z-modal: 1000;
+    --z-sidebar: 1001;
+    --z-header: 1002;
+    --z-tooltip: 1100;
+}
+
+/* ============================================
+   GRADIENTES PREDEFINIDOS
+   ============================================ */
+.gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+}
+
+.gradient-success {
+    background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+}
+
+.gradient-warning {
+    background: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+}
+
+.gradient-danger {
+    background: linear-gradient(135deg, #F44336 0%, #E57373 100%);
+}
+
+/* ============================================
+   CLASES UTILITARIAS DE COLOR
+   ============================================ */
+.text-primary { color: var(--primary-color); }
+.text-secondary { color: var(--text-secondary); }
+.text-success { color: var(--success-color); }
+.text-warning { color: var(--warning-color); }
+.text-danger { color: var(--danger-color); }
+.text-muted { color: var(--text-muted); }
+
+.bg-primary { background-color: var(--primary-color); }
+.bg-secondary { background-color: var(--secondary-color); }
+.bg-success { background-color: var(--success-color); }
+.bg-warning { background-color: var(--warning-color); }
+.bg-danger { background-color: var(--danger-color); }
+
+/* ============================================
+   CLASES UTILITARIAS DE ESPACIADO
+   ============================================ */
+.m-0 { margin: 0; }
+.mt-1 { margin-top: var(--spacing-xs); }
+.mt-2 { margin-top: var(--spacing-sm); }
+.mt-3 { margin-top: var(--spacing-md); }
+.mt-4 { margin-top: var(--spacing-lg); }
+.mt-5 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-xs); }
+.mb-2 { margin-bottom: var(--spacing-sm); }
+.mb-3 { margin-bottom: var(--spacing-md); }
+.mb-4 { margin-bottom: var(--spacing-lg); }
+.mb-5 { margin-bottom: var(--spacing-xl); }
+
+.p-0 { padding: 0; }
+.p-1 { padding: var(--spacing-xs); }
+.p-2 { padding: var(--spacing-sm); }
+.p-3 { padding: var(--spacing-md); }
+.p-4 { padding: var(--spacing-lg); }
+.p-5 { padding: var(--spacing-xl); }
+
+/* ============================================
+   CLASES UTILITARIAS DE TEXTO
+   ============================================ */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }

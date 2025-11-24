@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Medicamentos - MediDino</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #17a2b8;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: #138496;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .report-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .report-card.stock {
+            border-left-color: #17a2b8;
+        }
+
+        .report-card.movimientos {
+            border-left-color: #764ba2;
+        }
+
+        .report-card.bajo-stock {
+            border-left-color: #f59e0b;
+        }
+
+        .report-card.dispensaciones {
+            border-left-color: #10b981;
+        }
+
+        .report-card.alertas {
+            border-left-color: #ef4444;
+        }
+
+        .report-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .report-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .report-card p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+
+        .report-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .report-btn:hover {
+            background-color: #138496;
+        }
+
+        @media (max-width: 1200px) {
+            .reports-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .reports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .stats-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f5 100%);
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #17a2b8;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        table thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .filter-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .btn-filter {
+            padding: 10px 20px;
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn-filter:hover {
+            background-color: #138496;
+        }
+
+        .btn-export {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-left: 10px;
+        }
+
+        .btn-export:hover {
+            background-color: #218838;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="gestionMedicamentos.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Volver a Gestión de Medicamentos
+        </a>
+
+        <header>
+            <h1>
+                <i class="fas fa-chart-bar"></i>
+                Reportes de Medicamentos
+            </h1>
+            <p>Sistema Integral de Análisis y Estadísticas del Inventario Farmacéutico</p>
+        </header>
+
+        <!-- Sección de Estadísticas Generales -->
+        <div class="stats-section">
+            <h2><i class="fas fa-tachometer-alt"></i> Estadísticas Generales</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalMedicamentos">0</div>
+                    <div class="stat-label">Total Medicamentos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="medicamentosActivos">0</div>
+                    <div class="stat-label">Medicamentos Activos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stockDisponible">0</div>
+                    <div class="stat-label">Stock Total</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="bajoStock">0</div>
+                    <div class="stat-label">Bajo Stock</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opciones de Reportes -->
+        <div class="reports-grid">
+            <div class="report-card stock" onclick="mostrarReporte('stock')">
+                <div class="report-icon"><i class="fas fa-boxes"></i></div>
+                <h3>Stock Disponible</h3>
+                <p>Visualiza el inventario actual de todos los medicamentos registrados en el sistema.</p>
+                <button class="report-btn">Ver Reporte</button>
+            </div>
+
+            <div class="report-card movimientos" onclick="mostrarReporte('movimientos')">
+                <div class="report-icon"><i class="fas fa-exchange-alt"></i></div>
+                <h3>Movimientos</h3>
+                <p>Historial de entradas, salidas y ajustes del inventario durante un período.</p>
+                <button class="report-btn">Ver Reporte</button>
+            </div>
+
+            <div class="report-card bajo-stock" onclick="mostrarReporte('bajo-stock')">
+                <div class="report-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3>Bajo Stock</h3>
+                <p>Medicamentos que han caído por debajo del nivel mínimo configurado.</p>
+                <button class="report-btn">Ver Reporte</button>
+            </div>
+
+            <div class="report-card dispensaciones" onclick="mostrarReporte('dispensaciones')">
+                <div class="report-icon"><i class="fas fa-file-medical"></i></div>
+                <h3>Dispensaciones</h3>
+                <p>Registro de medicamentos dispensados a pacientes durante un período.</p>
+                <button class="report-btn">Ver Reporte</button>
+            </div>
+
+            <div class="report-card alertas" onclick="mostrarReporte('alertas')">
+                <div class="report-icon"><i class="fas fa-bell"></i></div>
+                <h3>Alertas</h3>
+                <p>Sistema de alertas activas del inventario y vencimientos próximos.</p>
+                <button class="report-btn">Ver Reporte</button>
+            </div>
+        </div>
+
+        <!-- REPORTE: Stock Disponible -->
+        <div class="content-section" id="reporte-stock">
+            <h2><i class="fas fa-boxes"></i> Reporte de Stock Disponible</h2>
+            
+            <div class="filter-section">
+                <h3>Filtros</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>Buscar Medicamento:</label>
+                        <input type="text" id="filtroStock" placeholder="Nombre del medicamento...">
+                    </div>
+                    <div>
+                        <label>Categoría:</label>
+                        <select id="filtroCategoria">
+                            <option value="">Todas</option>
+                            <option value="analgesico">Analgésico</option>
+                            <option value="antibiotico">Antibiótico</option>
+                            <option value="antiinflamatorio">Antiinflamatorio</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-filter" onclick="cargarReporte('stock')">Aplicar Filtros</button>
+                <button class="btn-export" onclick="exportarReporte('stock')">Exportar CSV</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Mínimo</th>
+                            <th>Precio</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-stock">
+                        <tr><td colspan="7" class="no-data"><i class="fas fa-inbox"></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTE: Movimientos -->
+        <div class="content-section" id="reporte-movimientos">
+            <h2><i class="fas fa-exchange-alt"></i> Reporte de Movimientos</h2>
+            
+            <div class="filter-section">
+                <h3>Filtros</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>Fecha Inicio:</label>
+                        <input type="date" id="filtroFechaInicio">
+                    </div>
+                    <div>
+                        <label>Fecha Fin:</label>
+                        <input type="date" id="filtroFechaFin">
+                    </div>
+                    <div>
+                        <label>Tipo:</label>
+                        <select id="filtroTipoMovimiento">
+                            <option value="">Todos</option>
+                            <option value="entrada">Entrada</option>
+                            <option value="salida">Salida</option>
+                            <option value="ajuste">Ajuste</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-filter" onclick="cargarReporte('movimientos')">Aplicar Filtros</button>
+                <button class="btn-export" onclick="exportarReporte('movimientos')">Exportar CSV</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Medicamento</th>
+                            <th>Cantidad</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-movimientos">
+                        <tr><td colspan="5" class="no-data"><i class="fas fa-inbox"></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTE: Bajo Stock -->
+        <div class="content-section" id="reporte-bajo-stock">
+            <h2><i class="fas fa-exclamation-triangle"></i> Reporte de Bajo Stock</h2>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Déficit</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-bajo-stock">
+                        <tr><td colspan="6" class="no-data"><i class="fas fa-inbox"></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTE: Dispensaciones -->
+        <div class="content-section" id="reporte-dispensaciones">
+            <h2><i class="fas fa-file-medical"></i> Reporte de Dispensaciones</h2>
+            
+            <div class="filter-section">
+                <h3>Filtros</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>Fecha Inicio:</label>
+                        <input type="date" id="filtroFechaDispStart">
+                    </div>
+                    <div>
+                        <label>Fecha Fin:</label>
+                        <input type="date" id="filtroFechaDispEnd">
+                    </div>
+                </div>
+                <button class="btn-filter" onclick="cargarReporte('dispensaciones')">Aplicar Filtros</button>
+                <button class="btn-export" onclick="exportarReporte('dispensaciones')">Exportar CSV</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Paciente</th>
+                            <th>Medicamento</th>
+                            <th>Cantidad</th>
+                            <th>Médico</th>
+                            <th>N° Receta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-dispensaciones">
+                        <tr><td colspan="6" class="no-data"><i class="fas fa-inbox"></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTE: Alertas -->
+        <div class="content-section" id="reporte-alertas">
+            <h2><i class="fas fa-bell"></i> Reporte de Alertas</h2>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Medicamento</th>
+                            <th>Descripción</th>
+                            <th>Fecha Generada</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-alertas">
+                        <tr><td colspan="5" class="no-data"><i class="fas fa-inbox"></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const baseURL = '/MediDino-main/';
+        let datosActuales = {};
+
+        // Cargar estadísticas generales
+        function cargarEstadisticas() {
+            fetch(baseURL + 'api_medicamentos.php?action=obtener')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.medicamentos) {
+                        const meds = data.medicamentos;
+                        document.getElementById('totalMedicamentos').textContent = meds.length;
+                        document.getElementById('medicamentosActivos').textContent = 
+                            meds.filter(m => m.estado === 'activo').length;
+                        document.getElementById('stockDisponible').textContent = 
+                            meds.reduce((sum, m) => sum + parseInt(m.stock || 0), 0);
+                        document.getElementById('bajoStock').textContent = 
+                            meds.filter(m => parseInt(m.stock || 0) > 0 && parseInt(m.stock || 0) <= parseInt(m.stockMinimo || 10)).length;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function mostrarReporte(tipo) {
+            // Ocultar todos
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Mostrar el seleccionado
+            const seccion = document.getElementById('reporte-' + tipo);
+            if (seccion) {
+                seccion.classList.add('active');
+                cargarReporte(tipo);
+            }
+        }
+
+        function cargarReporte(tipo) {
+            if (tipo === 'stock') {
+                cargarReporteStock();
+            } else if (tipo === 'bajo-stock') {
+                cargarReporteBajoStock();
+            } else if (tipo === 'dispensaciones') {
+                cargarReporteDispensaciones();
+            } else if (tipo === 'alertas') {
+                cargarReporteAlertas();
+            }
+        }
+
+        function cargarReporteStock() {
+            fetch(baseURL + 'api_medicamentos.php?action=obtener')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.medicamentos) {
+                        const tbody = document.getElementById('tbody-stock');
+                        tbody.innerHTML = '';
+                        
+                        data.medicamentos.forEach(med => {
+                            const estado = parseInt(med.stock || 0) === 0 ? 'agotado' :
+                                          parseInt(med.stock || 0) <= parseInt(med.stockMinimo || 10) ? 'bajo' : 'disponible';
+                            
+                            const badgeClass = estado === 'disponible' ? 'badge-success' :
+                                              estado === 'bajo' ? 'badge-warning' : 'badge-danger';
+                            
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td><strong>${med.nombre}</strong></td>
+                                    <td>${med.categoria || '--'}</td>
+                                    <td>${med.stock || 0}</td>
+                                    <td>${med.stockMinimo || 10}</td>
+                                    <td>$${parseFloat(med.precio || 0).toFixed(2)}</td>
+                                    <td>${med.vencimiento || '--'}</td>
+                                    <td><span class="badge ${badgeClass}">${estado.toUpperCase()}</span></td>
+                                </tr>
+                            `;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('tbody-stock').innerHTML = 
+                        '<tr><td colspan="7" class="no-data"><i class="fas fa-exclamation"></i> Error al cargar datos</td></tr>';
+                });
+        }
+
+        function cargarReporteBajoStock() {
+            fetch(baseURL + 'api_medicamentos.php?action=obtener')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.medicamentos) {
+                        const bajoStock = data.medicamentos.filter(m => 
+                            parseInt(m.stock || 0) > 0 && parseInt(m.stock || 0) <= parseInt(m.stockMinimo || 10)
+                        );
+                        
+                        const tbody = document.getElementById('tbody-bajo-stock');
+                        tbody.innerHTML = '';
+                        
+                        if (bajoStock.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" class="no-data"><i class="fas fa-check-circle"></i> No hay medicamentos con bajo stock</td></tr>';
+                            return;
+                        }
+                        
+                        bajoStock.forEach(med => {
+                            const deficit = parseInt(med.stockMinimo || 10) - parseInt(med.stock || 0);
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td><strong>${med.nombre}</strong></td>
+                                    <td>${med.stock || 0}</td>
+                                    <td>${med.stockMinimo || 10}</td>
+                                    <td><span class="badge badge-danger">${deficit}</span></td>
+                                    <td>${med.categoria || '--'}</td>
+                                    <td><span class="badge badge-warning">${med.estado || 'activo'}</span></td>
+                                </tr>
+                            `;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('tbody-bajo-stock').innerHTML = 
+                        '<tr><td colspan="6" class="no-data"><i class="fas fa-exclamation"></i> Error al cargar datos</td></tr>';
+                });
+        }
+
+        function cargarReporteDispensaciones() {
+            fetch(baseURL + 'api_medicamentos.php?action=obtenerDispensaciones')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('tbody-dispensaciones');
+                    tbody.innerHTML = '';
+                    
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="no-data"><i class="fas fa-inbox"></i> No hay dispensaciones registradas</td></tr>';
+                        return;
+                    }
+                    
+                    data.forEach(disp => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${new Date(disp.fecha).toLocaleDateString('es-ES')}</td>
+                                <td>${disp.paciente || '--'}</td>
+                                <td>${disp.nombre_medicamento || '--'}</td>
+                                <td><span class="badge badge-info">${disp.cantidad}</span></td>
+                                <td>${disp.medico || '--'}</td>
+                                <td>${disp.numero_receta || '--'}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('tbody-dispensaciones').innerHTML = 
+                        '<tr><td colspan="6" class="no-data"><i class="fas fa-exclamation"></i> Error al cargar datos</td></tr>';
+                });
+        }
+
+        function cargarReporteAlertas() {
+            fetch(baseURL + 'api_medicamentos.php?action=obtener')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.medicamentos) {
+                        const medicamentos = data.medicamentos;
+                        const alertas = [];
+                        const hoy = new Date();
+                        hoy.setHours(0, 0, 0, 0);
+                        
+                        const en3Dias = new Date(hoy.getTime() + 3 * 24 * 60 * 60 * 1000);
+                        
+                        medicamentos.forEach(med => {
+                            const stock = parseInt(med.stock) || 0;
+                            const stockMinimo = parseInt(med.stockMinimo) || 10;
+                            
+                            // Stock agotado
+                            if (stock === 0) {
+                                alertas.push({
+                                    tipo: 'critical',
+                                    medicamento: med.nombre,
+                                    descripcion: 'Stock Agotado',
+                                    fecha: new Date().toLocaleDateString('es-ES'),
+                                    estado: 'activa'
+                                });
+                            } else if (stock <= stockMinimo) {
+                                alertas.push({
+                                    tipo: 'warning',
+                                    medicamento: med.nombre,
+                                    descripcion: `Stock Bajo - Solo ${stock} unidades`,
+                                    fecha: new Date().toLocaleDateString('es-ES'),
+                                    estado: 'activa'
+                                });
+                            }
+                            
+                            // Vencimientos
+                            if (med.vencimiento && med.vencimiento !== '--' && med.vencimiento !== '0000-00-00') {
+                                const vencDate = new Date(med.vencimiento);
+                                vencDate.setHours(0, 0, 0, 0);
+                                
+                                if (vencDate < hoy) {
+                                    alertas.push({
+                                        tipo: 'critical',
+                                        medicamento: med.nombre,
+                                        descripcion: `Medicamento Vencido desde ${med.vencimiento}`,
+                                        fecha: new Date().toLocaleDateString('es-ES'),
+                                        estado: 'vencido'
+                                    });
+                                } else if (vencDate.getTime() === hoy.getTime()) {
+                                    alertas.push({
+                                        tipo: 'info',
+                                        medicamento: med.nombre,
+                                        descripcion: `Se vence hoy (${med.vencimiento})`,
+                                        fecha: new Date().toLocaleDateString('es-ES'),
+                                        estado: 'activa'
+                                    });
+                                } else if (vencDate <= en3Dias) {
+                                    alertas.push({
+                                        tipo: 'warning',
+                                        medicamento: med.nombre,
+                                        descripcion: `Próximo a vencer (${med.vencimiento})`,
+                                        fecha: new Date().toLocaleDateString('es-ES'),
+                                        estado: 'activa'
+                                    });
+                                }
+                            }
+                        });
+                        
+                        const tbody = document.getElementById('tbody-alertas');
+                        tbody.innerHTML = '';
+                        
+                        if (alertas.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="5" class="no-data"><i class="fas fa-check-circle"></i> No hay alertas activas</td></tr>';
+                            return;
+                        }
+                        
+                        alertas.forEach(alerta => {
+                            const tipoDisplay = alerta.tipo === 'critical' ? '🔴 CRÍTICA' : 
+                                               alerta.tipo === 'warning' ? '🟡 ADVERTENCIA' : '🔵 INFORMATIVA';
+                            const badgeClass = alerta.tipo === 'critical' ? 'badge-danger' : 
+                                              alerta.tipo === 'warning' ? 'badge-warning' : 'badge-info';
+                            
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td><span class="badge ${badgeClass}">${tipoDisplay}</span></td>
+                                    <td><strong>${alerta.medicamento}</strong></td>
+                                    <td>${alerta.descripcion}</td>
+                                    <td>${alerta.fecha}</td>
+                                    <td><span class="badge badge-success">${alerta.estado}</span></td>
+                                </tr>
+                            `;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('tbody-alertas').innerHTML = 
+                        '<tr><td colspan="5" class="no-data"><i class="fas fa-exclamation"></i> Error al cargar datos</td></tr>';
+                });
+        }
+
+        function exportarReporte(tipo) {
+            alert('Funcionalidad de exportación en desarrollo');
+        }
+
+        // Cargar estadísticas al iniciar
+        window.addEventListener('load', cargarEstadisticas);
+    </script>
+</body>
+</html>

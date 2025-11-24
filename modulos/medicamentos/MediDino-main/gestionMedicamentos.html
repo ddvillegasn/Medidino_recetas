@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediDino - Gestión de Medicamentos</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/medicamentos-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-container">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-title-section">
+                <h1 class="header-title">
+                    <i class="fas fa-pills"></i>
+                    Gestión de Medicamentos
+                </h1>
+                <p class="header-subtitle">Sistema Integral de Inventario Farmacéutico</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-header" title="Exportar datos">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="btn-header" title="Configuración">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>MediDino</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item nav-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al Menú Principal</span>
+            </a>
+            <hr class="nav-divider">
+            
+            <!-- Sección Principal -->
+            <div class="nav-section">
+                <h4 class="nav-section-title">GESTIÓN PRINCIPAL</h4>
+                <a href="#dashboard" class="nav-item active" data-form="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#inventario" class="nav-item" data-form="inventario">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventario Actual</span>
+                </a>
+                <a href="#alertas" class="nav-item" data-form="alertas">
+                    <i class="fas fa-bell"></i>
+                    <span>Alertas</span>
+                    <span class="nav-badge" id="alertasBadge">0</span>
+                </a>
+            </div>
+
+            <!-- Sección Operaciones -->
+            <div class="nav-section">
+                <h4 class="nav-section-title">OPERACIONES</h4>
+                <a href="#registro" class="nav-item" data-form="registro">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Registrar Medicamento</span>
+                </a>
+                <a href="#dispensacion" class="nav-item" data-form="dispensacion">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    <span>Dispensación</span>
+                </a>
+                <a href="#movimientos" class="nav-item" data-form="movimientos">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Movimientos</span>
+                </a>
+                <a href="#solicitudes" class="nav-item" data-form="solicitudes">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Solicitudes</span>
+                </a>
+            </div>
+
+            <!-- Sección Gestión -->
+            <div class="nav-section">
+                <h4 class="nav-section-title">GESTIÓN</h4>
+                <a href="#recordatorios" class="nav-item" data-form="recordatorios">
+                    <i class="fas fa-clock"></i>
+                    <span>Recordatorios</span>
+                </a>
+                <a href="#usuarios" class="nav-item" data-form="usuarios">
+                    <i class="fas fa-users"></i>
+                    <span>Usuarios</span>
+                </a>
+                <a href="#reportes" class="nav-item" data-form="reportes">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- SECCIÓN DASHBOARD -->
+        <section class="content-section active" id="dashboard-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <p>Resumen general del inventario de medicamentos</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-refresh" onclick="actualizarDashboardDesdeBoton()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estadísticas Principales -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                <div class="stat-card primary" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #E5E7EB; padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="stat-icon" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: #17a2b8; color: white; flex-shrink: 0;">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                        <h3 id="totalMedicamentos" style="margin: 0; font-size: 1.3rem; font-weight: 900; color: #1F2937; line-height: 1;">0</h3>
+                        <p style="margin: 0; font-size: 0.75rem; color: #6B7280; font-weight: 600;">Total Medicamentos</p>
+                    </div>
+                </div>
+                <div class="stat-card success" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #E5E7EB; padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="stat-icon" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: #10B981; color: white; flex-shrink: 0;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                        <h3 id="medicamentosDisponibles" style="margin: 0; font-size: 1.3rem; font-weight: 900; color: #1F2937; line-height: 1;">0</h3>
+                        <p style="margin: 0; font-size: 0.75rem; color: #6B7280; font-weight: 600;">Disponibles</p>
+                    </div>
+                </div>
+                <div class="stat-card warning" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #E5E7EB; padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="stat-icon" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: #F59E0B; color: white; flex-shrink: 0;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                        <h3 id="medicamentosStockBajo" style="margin: 0; font-size: 1.3rem; font-weight: 900; color: #1F2937; line-height: 1;">0</h3>
+                        <p style="margin: 0; font-size: 0.75rem; color: #6B7280; font-weight: 600;">Stock Bajo</p>
+                    </div>
+                </div>
+                <div class="stat-card danger" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #E5E7EB; padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="stat-icon" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: #EF4444; color: white; flex-shrink: 0;">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                        <h3 id="medicamentosAgotados" style="margin: 0; font-size: 1.3rem; font-weight: 900; color: #1F2937; line-height: 1;">0</h3>
+                        <p style="margin: 0; font-size: 0.75rem; color: #6B7280; font-weight: 600;">Agotados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Farmacéutico -->
+            <div class="farmaceutico-card">
+                <div class="farmaceutico-avatar">
+                    <i class="fas fa-user-nurse"></i>
+                </div>
+                <div class="farmaceutico-info">
+                    <h4>Farm. María González</h4>
+                    <p>Regencia Farmacéutica • RF-67890</p>
+                    <span class="status-online">
+                        <i class="fas fa-circle"></i> En línea
+                    </span>
+                </div>
+                <div class="farmaceutico-actions">
+                    <button class="btn-small" title="Cambiar turno">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Actividad Reciente -->
+            <div class="activity-section">
+                <h3><i class="fas fa-history"></i> Actividad Reciente</h3>
+                <div class="activity-list" id="actividadReciente">
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Medicamento registrado</h4>
+                            <p>Ibuprofeno 400mg agregado al inventario</p>
+                            <small>Hace 2 horas</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Stock bajo detectado</h4>
+                            <p>Paracetamol 500mg tiene solo 8 unidades</p>
+                            <small>Hace 3 horas</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-hand-holding-medical"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Dispensación realizada</h4>
+                            <p>Amoxicilina 500mg dispensada a Juan Pérez</p>
+                            <small>Hace 4 horas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN INVENTARIO -->
+        <section class="content-section" id="inventario-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-boxes"></i> Inventario Actual</h2>
+                    <p>Gestión y visualización del inventario de medicamentos</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-secondary" onclick="exportarInventario()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                    <button class="btn-primary" onclick="mostrarSeccion('registro')">
+                        <i class="fas fa-plus"></i> Nuevo Medicamento
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros de Búsqueda -->
+            <div class="filters-panel">
+                <div class="filter-group">
+                    <label for="searchMedicamento">
+                        <i class="fas fa-search"></i>
+                        Buscar Medicamento
+                    </label>
+                    <input type="text" id="searchMedicamento" placeholder="Nombre, principio activo, laboratorio...">
+                </div>
+                <div class="filter-group">
+                    <label for="filterCategoria">Categoría</label>
+                    <select id="filterCategoria">
+                        <option value="">Todas las categorías</option>
+                        <option value="analgesico">Analgésicos</option>
+                        <option value="antibiotico">Antibióticos</option>
+                        <option value="antiinflamatorio">Antiinflamatorios</option>
+                        <option value="cardiovascular">Cardiovasculares</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterStock">Estado</label>
+                    <select id="filterStock">
+                        <option value="">Todos los estados</option>
+                        <option value="disponible">Disponible</option>
+                        <option value="bajo">Stock Bajo</option>
+                        <option value="agotado">Agotado</option>
+                    </select>
+                </div>
+                <button class="btn-filter" onclick="limpiarFiltros()">
+                    <i class="fas fa-eraser"></i> Limpiar
+                </button>
+            </div>
+
+            <!-- Tabla de Inventario -->
+            <div class="table-container">
+                <table class="medicamentos-table">
+                    <thead>
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- La tabla se llena dinámicamente desde JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECCIÓN ALERTAS -->
+        <section class="content-section" id="alertas-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-bell"></i> Alertas de Inventario</h2>
+                    <p>Monitoreo y gestión de alertas del sistema</p>
+                </div>
+
+            </div>
+
+            <!-- Estado de Alertas -->
+            <div class="alerts-status" id="alertsStatus">
+                <!-- Estado sin alertas -->
+                <div class="no-alerts-state" id="noAlertsState">
+                    <div class="no-alerts-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="no-alerts-content">
+                        <h3>Todo en Orden</h3>
+                        <p>No hay alertas activas en el inventario</p>
+                        <small>Última actualización: <span id="ultimaActualizacion">--:--</span></small>
+                    </div>
+                </div>
+
+                <!-- Lista de alertas activas -->
+                <div class="alerts-active" id="alertsActive" style="display: none;">
+                    <div class="alerts-summary">
+                        <div class="summary-stat critical">
+                            <span class="count" id="alertasCriticas">0</span>
+                            <span class="label">Críticas</span>
+                        </div>
+                        <div class="summary-stat warning">
+                            <span class="count" id="alertasAdvertencias">0</span>
+                            <span class="label">Advertencias</span>
+                        </div>
+                        <div class="summary-stat info">
+                            <span class="count" id="alertasInfo">0</span>
+                            <span class="label">Informativas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="alerts-list" id="alertsList">
+                        <!-- Se cargarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN REGISTRO DE MEDICAMENTO -->
+        <section class="content-section" id="registro-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-plus-circle"></i> Registrar Medicamento</h2>
+                    <p>Complete el formulario para agregar un nuevo medicamento al inventario.</p>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form class="medicamento-form" id="registroMedicamentoForm">
+                    <div class="form-grid">
+                        <!-- Fila 1 -->
+                        <div class="form-group">
+                            <label for="nombreMedicamento">
+                                Nombre del Medicamento
+                            </label>
+                            <input type="text" id="nombreMedicamento" name="nombreMedicamento" placeholder="Ibuprofeno 400mg" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoria">
+                                Categoría
+                            </label>
+                            <select id="categoria" name="categoria" required>
+                                <option value="">Seleccionar categoría...</option>
+                                <option value="analgesico">Analgésico</option>
+                                <option value="antibiotico">Antibiótico</option>
+                                <option value="antiinflamatorio">Antiinflamatorio</option>
+                                <option value="cardiovascular">Cardiovascular</option>
+                                <option value="respiratorio">Respiratorio</option>
+                                <option value="endocrino">Endocrino</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
+
+                        <!-- Fila 2: Descripción (full-width) -->
+                        <div class="form-group full-width">
+                            <label for="principioActivo">
+                                Descripción
+                            </label>
+                            <textarea id="principioActivo" name="principioActivo" placeholder="Detalle del medicamento..." rows="3" required></textarea>
+                        </div>
+
+                        <!-- Fila 3 -->
+                        <div class="form-group">
+                            <label for="concentracion">
+                                Dosis Recomendada
+                            </label>
+                            <input type="text" id="concentracion" name="concentracion" placeholder="1 tableta cada 8h" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="formaFarmaceutica">
+                                Tipo / Forma Farmacéutica
+                            </label>
+                            <select id="formaFarmaceutica" name="formaFarmaceutica" required>
+                                <option value="">Seleccionar forma...</option>
+                                <option value="tabletas">Tableta</option>
+                                <option value="capsulas">Cápsula</option>
+                                <option value="jarabe">Jarabe</option>
+                                <option value="inyectable">Inyectable</option>
+                                <option value="crema">Crema</option>
+                                <option value="gotas">Gotas</option>
+                            </select>
+                        </div>
+
+                        <!-- Fila 4 -->
+                        <div class="form-group full-width">
+                            <label for="efectosSecundarios">
+                                Efectos Secundarios
+                            </label>
+                            <textarea id="efectosSecundarios" name="efectosSecundarios" placeholder="Náuseas, mareos..." rows="2" required></textarea>
+                        </div>
+
+                        <!-- Fila 5 -->
+                        <div class="form-group full-width">
+                            <label for="contraindicaciones">
+                                Contraindicaciones
+                            </label>
+                            <textarea id="contraindicaciones" name="contraindicaciones" placeholder="Embarazo, alergias..." rows="2" required></textarea>
+                        </div>
+
+                        <!-- Fila 6 -->
+                        <div class="form-group">
+                            <label for="cantidad">
+                                Stock Actual
+                            </label>
+                            <input type="number" id="cantidad" name="cantidad" min="0" placeholder="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stockMinimo">
+                                Stock Mínimo
+                            </label>
+                            <input type="number" id="stockMinimo" name="stockMinimo" min="1" placeholder="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio">
+                                Precio Unitario
+                            </label>
+                            <input type="number" id="precio" name="precio" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaVencimiento">
+                                Fecha de Vencimiento
+                            </label>
+                            <input type="date" id="fechaVencimiento" name="fechaVencimiento" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estado">
+                                Estado
+                            </label>
+                            <select id="estado" name="estado" required>
+                                <option value="activo" selected>Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="descontinuado">Descontinuado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="limpiarFormulario('registroMedicamentoForm')">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Guardar Medicamento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DISPENSACIÓN -->
+        <section class="content-section" id="dispensacion-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-prescription-bottle-alt"></i> Dispensación</h2>
+                    <p>Registro de entrega de medicamentos</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="exportarDispensaciones()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs para Nueva Dispensación y Historial -->
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                <button class="btn-tab active" onclick="mostrarTabDispensacion('nueva-dispensacion')" style="padding: 10px 20px; background: none; border: none; cursor: pointer; border-bottom: 2px solid #17a2b8;">
+                    <i class="fas fa-plus"></i> Nueva Dispensación
+                </button>
+                <button class="btn-tab" onclick="mostrarTabDispensacion('historial-dispensaciones')" style="padding: 10px 20px; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+            </div>
+
+            <!-- Tab: Nueva Dispensación -->
+            <div id="nueva-dispensacion" class="tab-content" style="display: block;">
+                <div class="form-container">
+                    <form class="medicamento-form" id="dispensacionForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="pacienteDispensacion">
+                                    <i class="fas fa-user"></i>
+                                    Paciente
+                                </label>
+                                <input type="text" id="pacienteDispensacion" name="pacienteDispensacion" placeholder="Nombre del paciente" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cedulaPaciente">
+                                    <i class="fas fa-id-card"></i>
+                                    Cédula/ID
+                                </label>
+                                <input type="text" id="cedulaPaciente" name="cedulaPaciente" placeholder="Número de identificación" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="medicamentoDispensacion">
+                                    <i class="fas fa-pills"></i>
+                                    Medicamento
+                                </label>
+                                <select id="medicamentoDispensacion" name="medicamentoDispensacion" required>
+                                    <option value="">Seleccionar medicamento...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cantidadDispensacion">
+                                    <i class="fas fa-sort-numeric-up"></i>
+                                    Cantidad
+                                </label>
+                                <input type="number" id="cantidadDispensacion" name="cantidadDispensacion" min="1" placeholder="Cantidad a dispensar" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="medico">
+                                    <i class="fas fa-user-md"></i>
+                                    Médico Prescriptor
+                                </label>
+                                <input type="text" id="medico" name="medico" placeholder="Nombre del médico">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="numeroReceta">
+                                    <i class="fas fa-prescription"></i>
+                                    N° Receta
+                                </label>
+                                <input type="text" id="numeroReceta" name="numeroReceta" placeholder="Número de receta">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="indicaciones">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    Indicaciones
+                                </label>
+                                <textarea id="indicaciones" name="indicaciones" rows="3" placeholder="Indicaciones de uso y dosificación"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="limpiarFormulario('dispensacionForm')">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-hand-holding-medical"></i> Dispensar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab: Historial de Dispensaciones -->
+            <div id="historial-dispensaciones" class="tab-content" style="display: none;">
+                <div class="table-container">
+                    <table class="medicamentos-table" id="dispensacionesTable">
+                        <thead>
+                            <tr>
+                                <th>Paciente</th>
+                                <th>Cédula</th>
+                                <th>Medicamento</th>
+                                <th>Cantidad</th>
+                                <th>Médico</th>
+                                <th>N° Receta</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llena dinámicamente desde JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN MOVIMIENTOS -->
+        <section class="content-section" id="movimientos-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-exchange-alt"></i> Movimientos de Inventario</h2>
+                    <p>Registro de entradas y salidas de medicamentos</p>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form class="medicamento-form" id="movimientosForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tipoMovimiento">
+                                <i class="fas fa-arrows-alt"></i>
+                                Tipo de Movimiento
+                            </label>
+                            <select id="tipoMovimiento" name="tipoMovimiento" required>
+                                <option value="">Seleccionar tipo...</option>
+                                <option value="entrada">Entrada</option>
+                                <option value="salida">Salida</option>
+                                <option value="ajuste">Ajuste de Inventario</option>
+                                <option value="devolucion">Devolución</option>
+                                <option value="vencimiento">Por Vencimiento</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="medicamentoMovimiento">
+                                <i class="fas fa-pills"></i>
+                                Medicamento
+                            </label>
+                            <select id="medicamentoMovimiento" name="medicamentoMovimiento" required>
+                                <option value="">Seleccionar medicamento...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cantidadMovimiento">
+                                <i class="fas fa-sort-numeric-up"></i>
+                                Cantidad
+                            </label>
+                            <input type="number" id="cantidadMovimiento" name="cantidadMovimiento" min="1" placeholder="Cantidad" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaMovimiento">
+                                <i class="fas fa-calendar-alt"></i>
+                                Fecha
+                            </label>
+                            <input type="datetime-local" id="fechaMovimiento" name="fechaMovimiento" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="motivoMovimiento">
+                                <i class="fas fa-comment"></i>
+                                Motivo/Observaciones
+                            </label>
+                            <textarea id="motivoMovimiento" name="motivoMovimiento" rows="3" placeholder="Describe el motivo del movimiento"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="limpiarFormulario('movimientosForm')">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Registrar Movimiento
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECCIÓN SOLICITUDES -->
+        <section class="content-section" id="solicitudes-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-clipboard-list"></i> Solicitudes</h2>
+                    <p>Gestión de solicitudes de reabastecimiento</p>
+                </div>
+                <div class="section-actions">
+                </div>
+            </div>
+
+            <!-- Tabs para Nueva Solicitud y Historial -->
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                <button class="btn-tab active" onclick="mostrarTab('nueva-solicitud')" style="padding: 10px 20px; background: none; border: none; cursor: pointer; border-bottom: 2px solid #17a2b8;">
+                    <i class="fas fa-plus"></i> Nueva Solicitud
+                </button>
+                <button class="btn-tab" onclick="mostrarTab('historial-solicitudes')" style="padding: 10px 20px; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+            </div>
+
+            <!-- Tab: Nueva Solicitud -->
+            <div id="nueva-solicitud" class="tab-content">
+                <div class="form-container">
+                    <form class="medicamento-form" id="solicitudesForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="medicamentoSolicitud">
+                                    <i class="fas fa-pills"></i>
+                                    Medicamento
+                                </label>
+                                <input type="text" id="medicamentoSolicitud" name="medicamentoSolicitud" placeholder="Nombre del medicamento" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cantidadSolicitud">
+                                    <i class="fas fa-sort-numeric-up"></i>
+                                    Cantidad Solicitada
+                                </label>
+                                <input type="number" id="cantidadSolicitud" name="cantidadSolicitud" min="1" max="10000" placeholder="Cantidad" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="prioridadSolicitud">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Prioridad
+                                </label>
+                                <select id="prioridadSolicitud" name="prioridadSolicitud" required>
+                                    <option value="">Seleccionar prioridad...</option>
+                                    <option value="baja">Baja</option>
+                                    <option value="media">Media</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="urgente">Urgente</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="areaSolicitud">
+                                    <i class="fas fa-hospital"></i>
+                                    Área Solicitante
+                                </label>
+                                <input type="text" id="areaSolicitud" name="areaSolicitud" placeholder="Área o departamento" required>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="justificacionSolicitud">
+                                    <i class="fas fa-comment-dots"></i>
+                                    Justificación
+                                </label>
+                                <textarea id="justificacionSolicitud" name="justificacionSolicitud" rows="4" placeholder="Justificación de la solicitud (mínimo 20 caracteres)" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="limpiarFormulario('solicitudesForm')">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab: Historial de Solicitudes -->
+            <div id="historial-solicitudes" class="tab-content" style="display: none;">
+                <div class="table-container">
+                    <table class="medicamentos-table" id="solicitudesTable">
+                        <thead>
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Cantidad</th>
+                                <th>Prioridad</th>
+                                <th>Área</th>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN RECORDATORIOS -->
+        <section class="content-section" id="recordatorios-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-clock"></i> Recordatorios</h2>
+                    <p>Programación de recordatorios y alertas</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                <button class="btn-tab active" onclick="mostrarTabRecordatorios('nueva-recordatorio')" style="padding: 10px 20px; background: none; border: none; cursor: pointer; border-bottom: 2px solid #17a2b8;">
+                    <i class="fas fa-plus"></i> Nuevo Recordatorio
+                </button>
+                <button class="btn-tab" onclick="mostrarTabRecordatorios('historial-recordatorios')" style="padding: 10px 20px; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+            </div>
+
+            <!-- TAB: NUEVO RECORDATORIO -->
+            <div class="tab-content-recordatorios" id="nueva-recordatorio" style="display: block;">
+                <div class="form-container">
+                    <form class="medicamento-form" id="recordatoriosForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tituloRecordatorio">
+                                    <i class="fas fa-tag"></i>
+                                    Título
+                                </label>
+                                <input type="text" id="tituloRecordatorio" name="tituloRecordatorio" placeholder="Título del recordatorio" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tipoRecordatorio">
+                                    <i class="fas fa-bell"></i>
+                                    Tipo
+                                </label>
+                                <select id="tipoRecordatorio" name="tipoRecordatorio" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                    <option value="vencimiento">⏰ Vencimiento</option>
+                                    <option value="restock">📦 Reabastecimiento</option>
+                                    <option value="revision">👁️ Revisión</option>
+                                    <option value="mantenimiento">🔧 Mantenimiento</option>
+                                    <option value="otro">📌 Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaRecordatorio">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Fecha y Hora
+                                </label>
+                                <input type="datetime-local" id="fechaRecordatorio" name="fechaRecordatorio" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="frecuenciaRecordatorio">
+                                    <i class="fas fa-redo"></i>
+                                    Frecuencia
+                                </label>
+                                <select id="frecuenciaRecordatorio" name="frecuenciaRecordatorio">
+                                    <option value="unica">Única vez</option>
+                                    <option value="diaria">Diaria</option>
+                                    <option value="semanal">Semanal</option>
+                                    <option value="mensual">Mensual</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="descripcionRecordatorio">
+                                    <i class="fas fa-comment"></i>
+                                    Descripción
+                                </label>
+                                <textarea id="descripcionRecordatorio" name="descripcionRecordatorio" rows="3" placeholder="Descripción del recordatorio" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="limpiarFormulario('recordatoriosForm')">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-bell"></i> Programar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB: HISTORIAL RECORDATORIOS -->
+            <div class="tab-content-recordatorios" id="historial-recordatorios" style="display: none;">
+                <div class="table-container">
+                    <table id="recordatoriosTable" class="medicamentos-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Tipo</th>
+                                <th>Frecuencia</th>
+                                <th>Próximo</th>
+                                <th>Estado</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" class="text-center">Cargando recordatorios...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN USUARIOS -->
+        <section class="content-section" id="usuarios-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-users"></i> Gestión de Usuarios</h2>
+                    <p>Administración de usuarios del sistema</p>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form class="medicamento-form" id="usuariosForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombreUsuario">
+                                <i class="fas fa-user"></i>
+                                Nombre Completo
+                            </label>
+                            <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="Nombre y apellidos" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailUsuario">
+                                <i class="fas fa-envelope"></i>
+                                Email
+                            </label>
+                            <input type="email" id="emailUsuario" name="emailUsuario" placeholder="correo@ejemplo.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rolUsuario">
+                                <i class="fas fa-user-tag"></i>
+                                Rol
+                            </label>
+                            <select id="rolUsuario" name="rolUsuario" required>
+                                <option value="">Seleccionar rol...</option>
+                                <option value="farmaceutico">Farmacéutico</option>
+                                <option value="auxiliar">Auxiliar de Farmacia</option>
+                                <option value="administrador">Administrador</option>
+                                <option value="medico">Médico</option>
+                                <option value="admin">Admin</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="limpiarFormulario('usuariosForm')">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-user-plus"></i> Registrar Usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- HISTORIAL DE USUARIOS -->
+            <div class="table-container" style="margin-top: 40px;">
+                <div class="section-header">
+                    <h3><i class="fas fa-list"></i> Historial de Usuarios</h3>
+                </div>
+                <div id="tabla-usuarios">
+                    <p style="text-align: center; padding: 20px;">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando usuarios...
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            // Esperar a que el DOM esté listo
+            document.addEventListener('DOMContentLoaded', function() {
+                // Agregar event listener al formulario de registro
+                const formularioUsuarios = document.getElementById('usuariosForm');
+                if (formularioUsuarios) {
+                    formularioUsuarios.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        registrarUsuario();
+                    });
+                }
+                
+                // Cargar usuarios inicialmente
+                setTimeout(() => {
+                    cargarUsuarios();
+                }, 200);
+            });
+            
+            // Cargar usuarios cuando se hace clic en la sección
+            document.addEventListener('click', function(e) {
+                const navItem = e.target.closest('[data-form="usuarios"]');
+                if (navItem) {
+                    setTimeout(() => {
+                        cargarUsuarios();
+                    }, 100);
+                }
+            });
+        </script>
+
+        <!-- SECCIÓN REPORTES -->
+        <section class="content-section" id="reportes-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <h2><i class="fas fa-chart-bar"></i> Reportes de Medicamentos</h2>
+                    <p>Análisis y estadísticas del inventario</p>
+                </div>
+                <div class="section-actions">
+                    <a href="reporteMedicamentos.html" class="btn-primary" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Ver Reportes Completos
+                    </a>
+                </div>
+            </div>
+
+            <div class="content-info" style="background: #f0f7ff; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #667eea;">
+                <p>
+                    <i class="fas fa-info-circle" style="color: #667eea; margin-right: 10px;"></i>
+                    <strong>Módulo de Reportes:</strong> Se ha implementado un módulo completo de reportes. 
+                    Haz clic en el botón "Ver Reportes Completos" para acceder a análisis detallados del inventario.
+                </p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="reportes-total-medicamentos">--</h3>
+                        <p>Total Medicamentos</p>
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="reportes-movimientos">--</h3>
+                        <p>Movimientos Este Mes</p>
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="reportes-bajo-stock">--</h3>
+                        <p>Bajo Stock</p>
+                    </div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-icon">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="reportes-dispensaciones">--</h3>
+                        <p>Dispensaciones Hoy</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opciones de Reportes Rápidos -->
+            <div style="background: white; padding: 30px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 30px;">
+                <h3 style="margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-chart-line"></i> Reportes Disponibles
+                </h3>
+                
+                <div class="reports-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <a href="reporteMedicamentos.html" class="report-card" style="padding: 20px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; text-decoration: none; color: #333; transition: all 0.3s; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-boxes" style="font-size: 2rem; color: #667eea;"></i>
+                        <div>
+                            <strong>Stock Disponible</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">Inventario actual</p>
+                        </div>
+                    </a>
+
+                    <a href="reporteMedicamentos.html" class="report-card" style="padding: 20px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; text-decoration: none; color: #333; transition: all 0.3s; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-exchange-alt" style="font-size: 2rem; color: #764ba2;"></i>
+                        <div>
+                            <strong>Movimientos</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">Historial de cambios</p>
+                        </div>
+                    </a>
+
+                    <a href="reporteMedicamentos.html" class="report-card" style="padding: 20px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; text-decoration: none; color: #333; transition: all 0.3s; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #f59e0b;"></i>
+                        <div>
+                            <strong>Bajo Stock</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">Medicamentos en alerta</p>
+                        </div>
+                    </a>
+
+                    <a href="reporteMedicamentos.html" class="report-card" style="padding: 20px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; text-decoration: none; color: #333; transition: all 0.3s; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-file-medical" style="font-size: 2rem; color: #10b981;"></i>
+                        <div>
+                            <strong>Dispensaciones</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">Registro de salidas</p>
+                        </div>
+                    </a>
+
+                    <a href="reporteMedicamentos.html" class="report-card" style="padding: 20px; background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; text-decoration: none; color: #333; transition: all 0.3s; display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-bell" style="font-size: 2rem; color: #ef4444;"></i>
+                        <div>
+                            <strong>Alertas</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">Monitoreo del sistema</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <script>
+                // Cargar estadísticas rápidas cuando se hace clic en reportes
+                function cargarEstadisticasReportes() {
+                    const baseURL = window.location.pathname.includes('/MediDino-main/') 
+                        ? '/MediDino-main/' 
+                        : '/';
+                    
+                    // Cargar datos de medicamentos y calcular estadísticas
+                    fetch(baseURL + 'api_medicamentos.php?action=obtener')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Datos medicamentos para reportes:', data);
+                            
+                            let medicamentos = [];
+                            if (data.success && data.medicamentos) {
+                                medicamentos = data.medicamentos;
+                            } else if (Array.isArray(data)) {
+                                medicamentos = data;
+                            }
+                            
+                            // Calcular estadísticas EXACTAMENTE igual que en el dashboard
+                            const totalMeds = medicamentos.length;
+                            const agotados = medicamentos.filter(m => parseInt(m.stock) === 0).length;
+                            const stockBajo = medicamentos.filter(m => parseInt(m.stock) > 0 && parseInt(m.stock) <= parseInt(m.stockMinimo || 10)).length;
+                            
+                            document.getElementById('reportes-total-medicamentos').textContent = totalMeds;
+                            document.getElementById('reportes-bajo-stock').textContent = stockBajo;
+                            
+                            console.log('✓ Reportes actualizados - Total:', totalMeds, 'Stock Bajo:', stockBajo, 'Agotados:', agotados);
+                        })
+                        .catch(error => {
+                            console.error('Error cargando datos:', error);
+                            document.getElementById('reportes-total-medicamentos').textContent = '0';
+                            document.getElementById('reportes-bajo-stock').textContent = '0';
+                        });
+
+                    // Cargar movimientos este mes
+                    fetch(baseURL + 'api_medicamentos.php?action=reporteMovimientos')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Datos movimientos:', data);
+                            if (data.success && data.total !== undefined) {
+                                document.getElementById('reportes-movimientos').textContent = data.total;
+                            }
+                        })
+                        .catch(error => console.log('Error cargando movimientos:', error));
+
+                    // Cargar dispensaciones
+                    fetch(baseURL + 'api_medicamentos.php?action=reporteDispensaciones')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Datos dispensaciones:', data);
+                            if (data.success && data.total !== undefined) {
+                                document.getElementById('reportes-dispensaciones').textContent = data.total;
+                            }
+                        })
+                        .catch(error => console.log('Error cargando dispensaciones:', error));
+                }
+
+                // Cargar estadísticas cuando se hace clic en el nav item
+                document.addEventListener('click', function(e) {
+                    const navItem = e.target.closest('[data-form="reportes"]');
+                    if (navItem) {
+                        cargarEstadisticasReportes();
+                    }
+                });
+
+                // Cargar estadísticas cuando la sección sea visible (si está en otro lugar)
+                const reportesSection = document.getElementById('reportes-section');
+                if (reportesSection) {
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.target.style.display !== 'none' && mutation.target.offsetParent !== null) {
+                                cargarEstadisticasReportes();
+                            }
+                        });
+                    });
+                    observer.observe(reportesSection, { attributes: true, attributeFilter: ['style', 'class'] });
+                }
+
+                // Cargar automáticamente al iniciar la página si la sección es visible
+                window.addEventListener('load', function() {
+                    const reportesSection = document.getElementById('reportes-section');
+                    if (reportesSection && reportesSection.offsetParent !== null) {
+                        cargarEstadisticasReportes();
+                    }
+                });
+            </script>
+        </section>
+    </main>
+
+    <!-- MODAL: Ver Detalles -->
+    <div class="modal" id="modalDetalles">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalles del Medicamento</h2>
+                <button class="modal-close" onclick="cerrarModal('modalDetalles')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detalles-grid">
+                    <div class="detalle-item">
+                        <label>Nombre:</label>
+                        <p id="detalleNombre">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Categoría:</label>
+                        <p id="detalleCategoria">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Descripción:</label>
+                        <p id="detalleDescripcion">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Dosis Recomendada:</label>
+                        <p id="detalleDosis">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Tipo/Forma:</label>
+                        <p id="detalleTipo">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Efectos Secundarios:</label>
+                        <p id="detalleEfectos">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Contraindicaciones:</label>
+                        <p id="detalleContraindicaciones">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Stock:</label>
+                        <p id="detalleStock">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Stock Mínimo:</label>
+                        <p id="detalleStockMinimo">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Precio:</label>
+                        <p id="detallePrecio">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Vencimiento:</label>
+                        <p id="detalleVencimiento">--</p>
+                    </div>
+                    <div class="detalle-item">
+                        <label>Estado:</label>
+                        <p id="detalleEstado">--</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModal('modalDetalles')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Editar Medicamento -->
+    <div class="modal" id="modalEditar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Medicamento</h2>
+                <button class="modal-close" onclick="cerrarModal('modalEditar')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarMedicamento" novalidate>
+                    <input type="hidden" id="editarMedicamentoId">
+                    
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="editarNombre" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stock Actual</label>
+                        <input type="number" id="editarStock" min="0" value="0" novalidate>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stock Mínimo</label>
+                        <input type="number" id="editarStockMinimo" min="1" value="1" novalidate>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Precio</label>
+                        <input type="number" id="editarPrecio" step="0.01" min="0" value="0" novalidate>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Vencimiento</label>
+                        <input type="date" id="editarVencimiento" novalidate>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="editarEstado">
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                            <option value="descontinuado">Descontinuado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" class="btn-secondary" onclick="cerrarModal('modalEditar')">Cancelar</button>
+                        <button type="button" class="btn-primary" onclick="guardarEdicion()">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Confirmar Eliminación -->
+    <div class="modal" id="modalConfirmarEliminar">
+        <div class="modal-content modal-content-small">
+            <div class="modal-header">
+                <h2><i class="fas fa-trash-alt"></i> Confirmar Eliminación</h2>
+                <button class="modal-close" onclick="cerrarModal('modalConfirmarEliminar')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="textoConfirmacionEliminar">¿Está seguro de que desea eliminar este medicamento?</p>
+                <div class="aviso-eliminacion" style="margin-top: 15px; padding: 12px; background-color: #FEF3C7; border-left: 4px solid #F59E0B; border-radius: 4px; font-size: 14px; color: #92400E;">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>Advertencia:</strong> Esta acción no se puede deshacer. El medicamento será eliminado permanentemente de la base de datos.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModal('modalConfirmarEliminar')">Cancelar</button>
+                <button class="btn-danger" onclick="confirmarEliminar()" style="background-color: #EF4444; color: white; border: none;">
+                    <i class="fas fa-trash-alt"></i> Eliminar Permanentemente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay para modales -->
+    <div class="modal-overlay" id="modalOverlay" onclick="cerrarTodosLosModales()"></div>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Debug Info -->
+    <div id="debug-info" style="position: fixed; bottom: 10px; right: 10px; background: white; padding: 10px 15px; border-radius: 5px; font-size: 12px; max-width: 250px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 9999; display: none;">
+        <strong>DEBUG:</strong>
+        <div id="debug-content"></div>
+    </div>
+
+    <script src="assets/js/medicamentos.js?v=2"></script>
+    
+    <script>
+        // Script para mostrar debug info
+        window.debugMode = false;
+        
+        function showDebug(message) {
+            if (!window.debugMode) return;
+            const debugContent = document.getElementById('debug-content');
+            const debugInfo = document.getElementById('debug-info');
+            debugContent.innerHTML = message;
+            debugInfo.style.display = 'block';
+            setTimeout(() => { debugInfo.style.display = 'none'; }, 3000);
+        }
+        
+        // Activar debug con Ctrl+Shift+D
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                window.debugMode = !window.debugMode;
+                alert('Debug mode: ' + (window.debugMode ? 'ON' : 'OFF'));
+            }
+        });
+    </script>
+</body>
+</html>
