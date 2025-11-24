@@ -824,33 +824,46 @@ function formatearFechaHora(fechaHoraStr) {
 // ============================================
 // VER DETALLE DE RECETA
 // ============================================
-window.verDetalleReceta = function(id_receta) {
-    // Buscar la receta en los datos
-    let recetaEncontrada = null;
-    for (const id_paciente in recetasDB) {
-        const receta = recetasDB[id_paciente].find(r => r.id_receta === id_receta);
-        if (receta) {
-            recetaEncontrada = receta;
-            break;
-        }
-    }
-    
-    if (!recetaEncontrada) {
-        mostrarNotificacion('No se pudo cargar el detalle de la receta', 'error');
+window.verDetalleReceta = async function(id_receta) {
+    if (!id_receta) {
+        mostrarNotificacion('ID de receta inválido', 'error');
         return;
     }
     
-    // Crear modal con el detalle
-    const medicamentosHTML = recetaEncontrada.medicamentos.map((med, index) => `
+    try {
+        console.log('📋 Cargando detalle de receta ID:', id_receta);
+        
+        // Obtener datos de la receta desde la API
+        const response = await fetch(`/api/recetas/${id_receta}`);
+        if (!response.ok) {
+            throw new Error('No se pudo cargar la receta');
+        }
+        
+        const recetaEncontrada = await response.json();
+        console.log('✅ Receta obtenida:', recetaEncontrada);
+        
+        if (!recetaEncontrada) {
+            mostrarNotificacion('No se pudo cargar el detalle de la receta', 'error');
+            return;
+        }
+    } catch (error) {
+        console.error('❌ Error cargando receta:', error);
+        mostrarNotificacion('Error al cargar el detalle de la receta', 'error');
+        return;
+    }
+    
+    // Crear modal con el detalle - usar detalles de la API
+    const detalles = recetaEncontrada.detalles || [];
+    const medicamentosHTML = detalles.map((med, index) => `
         <div class="detalle-medicamento-modal">
-            <h5>${index + 1}. ${med.nombre}</h5>
+            <h5>${index + 1}. ${med.medicamento_nombre || med.nombre || 'Medicamento'}</h5>
             <div class="detalle-med-grid">
-                <div><strong>Dosis:</strong> ${med.dosis}</div>
-                <div><strong>Frecuencia:</strong> ${med.frecuencia}</div>
-                <div><strong>Duración:</strong> ${med.duracion}</div>
+                <div><strong>Dosis:</strong> ${med.dosis || 'N/A'}</div>
+                <div><strong>Frecuencia:</strong> ${med.frecuencia || 'N/A'}</div>
+                <div><strong>Duración:</strong> ${med.duracion || 'N/A'}</div>
             </div>
         </div>
-    `).join('');
+    `).join('') || '<p style="color: #666;">No hay medicamentos registrados</p>';
     
     // Crear HTML del historial de cambios
     let historialHTML = '';
@@ -923,16 +936,18 @@ window.verDetalleReceta = function(id_receta) {
                     <div class="detalle-section">
                         <h4><i class="fas fa-calendar-alt"></i> Información General</h4>
                         <div class="detalle-grid">
-                            <div><strong>Fecha de Emisión:</strong> ${formatearFecha(recetaEncontrada.fecha_emision)}</div>
-                            <div><strong>Estado:</strong> <span class="badge-${recetaEncontrada.estado.toLowerCase()}">${recetaEncontrada.estado}</span></div>
+                            <div><strong>Fecha de Emisión:</strong> ${recetaEncontrada.fecha_emision || 'N/A'}</div>
+                            <div><strong>Estado:</strong> <span class="badge-${(recetaEncontrada.estado || 'activa').toLowerCase()}">${recetaEncontrada.estado || 'Activa'}</span></div>
+                            <div><strong>Número de Receta:</strong> ${recetaEncontrada.numero_receta || 'N/A'}</div>
+                            <div><strong>Paciente:</strong> ${recetaEncontrada.paciente_nombre || 'N/A'}</div>
                         </div>
                     </div>
                     
                     <div class="detalle-section">
                         <h4><i class="fas fa-user-md"></i> Médico</h4>
                         <div class="detalle-grid">
-                            <div><strong>Nombre:</strong> ${recetaEncontrada.medico_nombre}</div>
-                            <div><strong>Especialidad:</strong> ${recetaEncontrada.medico_especialidad}</div>
+                            <div><strong>Nombre:</strong> ${recetaEncontrada.medico_nombre || 'N/A'}</div>
+                            <div><strong>Especialidad:</strong> ${recetaEncontrada.medico_especialidad || 'N/A'}</div>
                         </div>
                     </div>
                     
