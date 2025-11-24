@@ -577,10 +577,20 @@ def actualizar_receta_con_detalles(id_receta, payload, db_path=None):
                 if observaciones is not None:
                     updates.append("observaciones = ?")
                     params.append(observaciones)
+                    # Registrar cambio en historial
+                    cur.execute(
+                        "INSERT INTO HISTORIAL_CAMBIO_RECETA (id_receta, id_usuario, campo_modificado, valor_anterior, valor_nuevo, motivo) VALUES (?, ?, ?, ?, ?, ?)",
+                        (id_receta, 1, 'observaciones', receta.get('observaciones'), observaciones, 'Edición de receta')
+                    )
                 
                 if estado is not None:
                     updates.append("estado = ?")
                     params.append(estado)
+                    # Registrar cambio en historial
+                    cur.execute(
+                        "INSERT INTO HISTORIAL_CAMBIO_RECETA (id_receta, id_usuario, campo_modificado, valor_anterior, valor_nuevo, motivo) VALUES (?, ?, ?, ?, ?, ?)",
+                        (id_receta, 1, 'estado', receta.get('estado'), estado, 'Edición de receta')
+                    )
                 
                 params.append(id_receta)
                 query = f"UPDATE RECETA SET {', '.join(updates)} WHERE id_receta = ?"
@@ -589,8 +599,18 @@ def actualizar_receta_con_detalles(id_receta, payload, db_path=None):
             # Si se proporcionan nuevos detalles, eliminar los anteriores y crear los nuevos
             detalles = payload.get('detalles')
             if detalles is not None:
+                # Registrar cambio de medicamentos en historial
+                cur.execute("SELECT COUNT(*) as count FROM DETALLE_RECETA WHERE id_receta = ?", (id_receta,))
+                count_anterior = cur.fetchone()['count']
+                
                 # Eliminar detalles existentes
                 cur.execute("DELETE FROM DETALLE_RECETA WHERE id_receta = ?", (id_receta,))
+                
+                # Registrar en historial
+                cur.execute(
+                    "INSERT INTO HISTORIAL_CAMBIO_RECETA (id_receta, id_usuario, campo_modificado, valor_anterior, valor_nuevo, motivo) VALUES (?, ?, ?, ?, ?, ?)",
+                    (id_receta, 1, 'medicamentos', f'{count_anterior} medicamentos', f'{len(detalles)} medicamentos', 'Actualización de medicamentos')
+                )
                 
                 # Insertar nuevos detalles
                 for det in detalles:
