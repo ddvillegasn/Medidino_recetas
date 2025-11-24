@@ -778,12 +778,6 @@ function mostrarHistorialRecetas(recetas) {
                         <em>${receta.observaciones}</em>
                     </div>
                 ` : ''}
-                
-                <div class="receta-timeline-acciones">
-                    <button type="button" class="btn-timeline-accion btn-ver" onclick="verDetalleReceta(${receta.id_receta})">
-                        <i class="fas fa-eye"></i> Ver Detalles
-                    </button>
-                </div>
             </div>
         `;
     });
