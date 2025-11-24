@@ -14,7 +14,8 @@ MYSQL_CONFIG = {
     'host': 'localhost',
     'user': 'root',
     'password': '',
-    'database': 'farmacia.sql'
+    'database': 'farmacia',  # Base de datos sin .sql
+    'port': 3307  # Puerto personalizado de tu XAMPP
 }
 
 
