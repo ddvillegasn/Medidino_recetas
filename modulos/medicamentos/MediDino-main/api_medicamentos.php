@@ -4,17 +4,23 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Configuración de conexión
+// Configuración de conexión  
 $host = 'localhost';
 $user = 'root';
 $password = '';
-$database = 'farmacia.sql';  // Cambiado para coincidir con la BD creada en phpMyAdmin
+$database = 'farmacia';
+$port = 3307;  // Puerto personalizado de tu XAMPP
 
-// Conectar a la base de datos
-$conexion = new mysqli($host, $user, $password, $database);
+// Conectar a la base de datos con puerto correcto
+$conexion = new mysqli($host, $user, $password, $database, $port);
 
 if ($conexion->connect_error) {
-    die(json_encode(['error' => 'Conexión fallida: ' . $conexion->connect_error]));
+    http_response_code(500);
+    die(json_encode([
+        'error' => 'Conexión fallida', 
+        'message' => $conexion->connect_error,
+        'database' => $database
+    ]));
 }
 
 $conexion->set_charset("utf8");

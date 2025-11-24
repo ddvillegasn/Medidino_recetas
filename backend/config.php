@@ -8,9 +8,10 @@ $db_host = 'localhost';      // Host XAMPP
 $db_usuario = 'root';        // Usuario por defecto en XAMPP
 $db_password = '';           // Sin contraseña por defecto en XAMPP
 $db_nombre = 'medidino_medicos';  // Nombre de la base de datos
+$db_port = 3307;             // Puerto personalizado
 
-// Crear conexión
-$conexion = new mysqli($db_host, $db_usuario, $db_password, $db_nombre);
+// Crear conexión con puerto correcto
+$conexion = new mysqli($db_host, $db_usuario, $db_password, $db_nombre, $db_port);
 
 // Verificar conexión
 if ($conexion->connect_error) {
