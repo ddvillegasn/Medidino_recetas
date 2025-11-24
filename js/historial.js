@@ -462,8 +462,30 @@ function renderRecetaModal(receta) {
 // ============================================
 // MODAL DE EDICIÓN IN-PLACE
 // ============================================
-function mostrarModalEdicion(receta) {
+async function mostrarModalEdicion(receta) {
     const detalles = receta.detalles || [];
+    
+    // Cargar medicamentos disponibles desde la API
+    console.log('🔄 Cargando medicamentos desde base de datos farmacia...');
+    let medicamentosDisponibles = [];
+    try {
+        const response = await fetch('/api/medicamentos?disponibles=1');
+        if (response.ok) {
+            medicamentosDisponibles = await response.json();
+            console.log(`✅ ${medicamentosDisponibles.length} medicamentos cargados desde farmacia`);
+        } else {
+            console.error('❌ Error al cargar medicamentos');
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+    }
+    
+    // Generar opciones de medicamentos
+    const opcionesMedicamentos = medicamentosDisponibles.map(med => {
+        const presentacion = med.categoria || med.presentacion || '';
+        const unidad = med.tipo || 'unidades';
+        return `<option value="${med.id}" data-nombre="${med.nombre} ${presentacion}">${med.nombre} ${presentacion} - Stock: ${med.stock} ${unidad}</option>`;
+    }).join('');
     
     // Generar HTML de medicamentos EDITABLES
     const medicamentosEditables = detalles.map((d, i) => `
@@ -476,9 +498,11 @@ function mostrarModalEdicion(receta) {
                     <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
                         <i class="fas fa-prescription-bottle"></i> Medicamento:
                     </label>
-                    <input type="text" class="input-editable" id="med_nombre_${i}" 
-                           value="${d.medicamento_nombre || d.nombre || ''}" 
-                           style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                    <select class="input-editable" id="med_id_${i}" 
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #CED4DA; border-radius: 4px;">
+                        <option value="">Seleccione un medicamento...</option>
+                        ${opcionesMedicamentos}
+                    </select>
                 </div>
                 <div>
                     <label style="display: block; font-weight: 600; margin-bottom: 0.25rem; color: #495057;">
@@ -586,6 +610,31 @@ function mostrarModalEdicion(receta) {
     document.getElementById('btnCancelarEdicion')?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
+    // Seleccionar los medicamentos correctos en los selects
+    detalles.forEach((detalle, i) => {
+        const select = document.getElementById(`med_id_${i}`);
+        if (select && detalle.id_medicamento) {
+            select.value = detalle.id_medicamento;
+            
+            // Si no se encontró por ID, intentar por nombre
+            if (!select.value || select.value === '') {
+                const nombreBuscado = (detalle.medicamento_nombre || detalle.nombre || '').toLowerCase();
+                if (nombreBuscado) {
+                    for (let j = 0; j < select.options.length; j++) {
+                        const optionText = select.options[j].text.toLowerCase();
+                        if (optionText.includes(nombreBuscado)) {
+                            select.selectedIndex = j;
+                            console.log(`✅ Medicamento "${select.options[j].text}" seleccionado por nombre`);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                console.log(`✅ Medicamento ID ${detalle.id_medicamento} seleccionado`);
+            }
+        }
+    });
+
     // Evento de guardar
     document.getElementById('btnGuardarEdicion')?.addEventListener('click', async () => {
         await guardarEdicionReceta(receta, detalles.length, closeModal);
@@ -602,15 +651,19 @@ async function guardarEdicionReceta(receta, numMedicamentos, closeModalCallback)
         // Recopilar datos de medicamentos editados
         const detallesActualizados = [];
         for (let i = 0; i < numMedicamentos; i++) {
-            const nombre = document.getElementById(`med_nombre_${i}`)?.value || '';
+            const selectMed = document.getElementById(`med_id_${i}`);
+            const id_medicamento = selectMed?.value || null;
+            const selectedOption = selectMed?.options[selectMed.selectedIndex];
+            const nombre = selectedOption?.dataset.nombre || selectedOption?.text || '';
+            
             const dosis = document.getElementById(`med_dosis_${i}`)?.value || '';
             const frecuencia = document.getElementById(`med_frecuencia_${i}`)?.value || '';
             const duracion = document.getElementById(`med_duracion_${i}`)?.value || '';
             const cantidad = document.getElementById(`med_cantidad_${i}`)?.value || 1;
             
-            if (nombre && dosis && frecuencia && duracion) {
+            if (id_medicamento && dosis && frecuencia && duracion) {
                 detallesActualizados.push({
-                    id_medicamento: receta.detalles[i]?.id_medicamento || null,
+                    id_medicamento: parseInt(id_medicamento),
                     medicamento_nombre: nombre,
                     dosis: dosis,
                     frecuencia: frecuencia,
