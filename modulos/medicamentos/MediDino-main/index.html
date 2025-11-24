@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediDino - Sistema de Gestión Clínica</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/index-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <i class="fas fa-heartbeat logo-icon"></i>
+                <h1 class="logo-text">MediDino</h1>
+            </div>
+            <div class="clinic-info">
+                <span class="clinic-name">Clínica "Salud y Vida Bogotá"</span>
+                <span class="system-subtitle">Sistema de Gestión Integral</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2 class="hero-title">Bienvenido al Sistema MediDino</h2>
+            <p class="hero-description">Gestiona eficientemente todas las operaciones de la clínica desde un solo lugar. Selecciona el módulo que necesitas para comenzar.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Gestión de Personas -->
+            <section class="module-section">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Gestión de Personas
+                </h3>
+                <div class="modules-grid">
+                    <a href="gestionPacientes.html" class="module-card">
+                        <div class="card-icon">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                        <h4 class="card-title">Gestión de Pacientes</h4>
+                        <p class="card-description">Administra la información y expedientes de los pacientes</p>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="gestionMedicos.html" class="module-card">
+                        <div class="card-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <h4 class="card-title">Gestión de Médicos</h4>
+                        <p class="card-description">Gestiona perfiles y horarios del personal médico</p>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Operaciones Clínicas -->
+            <section class="module-section">
+                <h3 class="section-title">
+                    <i class="fas fa-stethoscope"></i>
+                    Operaciones Clínicas
+                </h3>
+                <div class="modules-grid">
+                    <a href="gestionCitas.html" class="module-card">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h4 class="card-title">Gestión de Citas</h4>
+                        <p class="card-description">Programa y administra las citas médicas</p>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="gestionHistorialMedico.html" class="module-card">
+                        <div class="card-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h4 class="card-title">Historial Médico</h4>
+                        <p class="card-description">Consulta y actualiza el historial clínico</p>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Farmacia y Medicamentos -->
+            <section class="module-section">
+                <h3 class="section-title">
+                    <i class="fas fa-pills"></i>
+                    Farmacia y Medicamentos
+                </h3>
+                <div class="modules-grid">
+                    <a href="gestionMedicamentos.html" class="module-card">
+                        <div class="card-icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <h4 class="card-title">Gestión de Medicamentos</h4>
+                        <p class="card-description">Administra el inventario de medicamentos</p>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="modulos/recetas/index.html" class="module-card featured">
+                        <div class="card-icon">
+                            <i class="fas fa-prescription"></i>
+                        </div>
+                        <h4 class="card-title">Gestión de Recetas</h4>
+                        <p class="card-description">Crea y gestiona recetas médicas digitales</p>
+                        <div class="featured-badge">
+                            <i class="fas fa-star"></i>
+                            Activo
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Administración -->
+            <section class="module-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    Administración
+                </h3>
+                <div class="modules-grid">
+                    <a href="panelAdministrativo.html" class="module-card admin">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4 class="card-title">Panel Administrativo</h4>
+                        <p class="card-description">Reportes, estadísticas y configuración del sistema</p>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>MediDino</h4>
+                <p>Sistema de Gestión Clínica Integral</p>
+            </div>
+            <div class="footer-section">
+                <h4>Clínica</h4>
+                <p>Salud y Vida Bogotá</p>
+            </div>
+            <div class="footer-section">
+                <h4>Soporte</h4>
+                <p>© 2025 - Todos los derechos reservados</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

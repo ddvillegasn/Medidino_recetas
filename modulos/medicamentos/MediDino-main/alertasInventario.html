@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alertas de Inventario - MediDino</title>
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/alertas-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="logo">
+                <i class="fas fa-notes-medical"></i>
+                <span>MediDino</span>
+            </div>
+            
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="gestionMedicamentos.html" class="nav-link">
+                    <i class="fas fa-pills"></i> Medicamentos
+                </a>
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-bell"></i> Alertas
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Panel Principal</span>
+            </a>
+            <a href="gestionPacientes.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Gestión de Pacientes</span>
+            </a>
+            <a href="gestionMedicos.html" class="nav-item">
+                <i class="fas fa-user-md"></i>
+                <span>Gestión de Médicos</span>
+            </a>
+            <a href="gestionCitas.html" class="nav-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Gestión de Citas</span>
+            </a>
+            <a href="gestionMedicamentos.html" class="nav-item">
+                <i class="fas fa-pills"></i>
+                <span>Gestión de Medicamentos</span>
+            </a>
+            <a href="modulos/recetas/index.html" class="nav-item">
+                <i class="fas fa-prescription-bottle-alt"></i>
+                <span>Gestión de Recetas</span>
+            </a>
+            <a href="gestionHistorialMedico.html" class="nav-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Historial Médico</span>
+            </a>
+            <a href="alertasInventario.html" class="nav-item active">
+                <i class="fas fa-bell"></i>
+                <span>Alertas de Inventario</span>
+            </a>
+            <a href="panelAdministrativo.html" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Panel Administrativo</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>
+                            <i class="fas fa-bell"></i>
+                            Alertas de Inventario
+                        </h1>
+                        <p>Monitor en tiempo real del estado del inventario de medicamentos</p>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-card danger">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Agotados</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Stock Bajo</div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">Por Vencer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas Críticas -->
+            <div class="alerts-section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Alertas del Sistema
+                    </h2>
+                    <div class="section-actions">
+                        <button class="btn-primary" onclick="actualizarAlertas()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn-secondary" onclick="simularSinAlertas()">
+                            <i class="fas fa-check-circle"></i> Simular Sin Alertas
+                        </button>
+                        <button class="btn-secondary" onclick="configurarAlertas()">
+                            <i class="fas fa-cog"></i> Configurar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Alertas -->
+                <div class="alerts-container" id="alertasContainer">
+                    <div class="alert-list-card">
+                        <div class="alert-list-header">
+                            <h3>Lista de Alertas</h3>
+                            <p>Alertas generadas por bajo stock o fechas de vencimiento próximas.</p>
+                            <div class="alert-counter" id="alertCounter">
+                                Hay <span id="alertCount">0</span> alertas que requieren tu atención.
+                            </div>
+                        </div>
+                        
+                        <!-- Estado: Todo en Orden -->
+                        <div class="no-alerts-state" id="noAlertsState">
+                            <div class="success-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h4>Todo en Orden</h4>
+                            <p>No hay alertas en este momento.</p>
+                        </div>
+
+                        <!-- Lista de Alertas Activas -->
+                        <div class="active-alerts-list" id="activeAlertsList" style="display: none;">
+                            <!-- Alertas se generarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Alertas Críticas Expandida (solo visible cuando hay alertas) -->
+                <div class="critical-alerts-expanded" id="criticalAlertsExpanded" style="display: none;">
+                    <!-- Medicamentos Agotados -->
+                <div class="alert-card critical">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="alert-title">
+                            <h3>Medicamentos Agotados</h3>
+                            <p>Requieren reabastecimiento inmediato</p>
+                        </div>
+                        <div class="alert-count">3</div>
+                    </div>
+                    <div class="alert-content">
+                        <div class="medication-list">
+                            <div class="medication-item">
+                                <div class="med-info">
+                                    <strong>Omeprazol 20mg</strong>
+                                    <span>Última venta: Hace 2 días</span>
+                                </div>
+                                <div class="med-actions">
+                                    <button class="btn-action" onclick="reabastecer(3)">
+                                        <i class="fas fa-plus"></i> Reabastecer
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="medication-item">
+                                <div class="med-info">
+                                    <strong>Amoxicilina 500mg</strong>
+                                    <span>Última venta: Hace 1 día</span>
+                                </div>
+                                <div class="med-actions">
+                                    <button class="btn-action" onclick="reabastecer(5)">
+                                        <i class="fas fa-plus"></i> Reabastecer
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="medication-item">
+                                <div class="med-info">
+                                    <strong>Metformina 850mg</strong>
+                                    <span>Última venta: Hace 3 horas</span>
+                                </div>
+                                <div class="med-actions">
+                                    <button class="btn-action" onclick="reabastecer(8)">
+                                        <i class="fas fa-plus"></i> Reabastecer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Bajo -->
+                <div class="alert-card warning">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="alert-title">
+                            <h3>Stock Bajo</h3>
+                            <p>Menos de 10 unidades disponibles</p>
+                        </div>
+                        <div class="alert-count">12</div>
+                    </div>
+                    <div class="alert-content">
+                        <div class="medication-grid">
+                            <div class="med-card">
+                                <div class="med-name">Ibuprofeno 400mg</div>
+                                <div class="med-stock">8 unidades</div>
+                                <button class="btn-small" onclick="verDetalles(2)">Ver</button>
+                            </div>
+                            <div class="med-card">
+                                <div class="med-name">Diclofenaco 50mg</div>
+                                <div class="med-stock">5 unidades</div>
+                                <button class="btn-small" onclick="verDetalles(9)">Ver</button>
+                            </div>
+                            <div class="med-card">
+                                <div class="med-name">Captopril 25mg</div>
+                                <div class="med-stock">7 unidades</div>
+                                <button class="btn-small" onclick="verDetalles(10)">Ver</button>
+                            </div>
+                            <div class="med-card">
+                                <div class="med-name">Losartán 50mg</div>
+                                <div class="med-stock">3 unidades</div>
+                                <button class="btn-small" onclick="verDetalles(11)">Ver</button>
+                            </div>
+                        </div>
+                        <button class="btn-expand" onclick="expandirStockBajo()">
+                            Ver todos los 12 medicamentos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Próximos a Vencer -->
+                <div class="alert-card info">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <div class="alert-title">
+                            <h3>Próximos a Vencer</h3>
+                            <p>Vencen en los próximos 30 días</p>
+                        </div>
+                        <div class="alert-count">5</div>
+                    </div>
+                    <div class="alert-content">
+                        <div class="expiry-list">
+                            <div class="expiry-item">
+                                <div class="exp-info">
+                                    <strong>Acetaminofén 500mg</strong>
+                                    <span class="exp-date">Vence: 15/02/2025 (15 días)</span>
+                                    <span class="exp-stock">Stock: 45 unidades</span>
+                                </div>
+                                <div class="exp-urgency urgent">Urgente</div>
+                            </div>
+                            <div class="expiry-item">
+                                <div class="exp-info">
+                                    <strong>Loratadina 10mg</strong>
+                                    <span class="exp-date">Vence: 28/02/2025 (28 días)</span>
+                                    <span class="exp-stock">Stock: 30 unidades</span>
+                                </div>
+                                <div class="exp-urgency moderate">Moderado</div>
+                            </div>
+                        </div>
+                        <button class="btn-expand" onclick="expandirVencimientos()">
+                            Ver todos los vencimientos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración de Alertas -->
+            <div class="config-section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-cog"></i>
+                        Configuración de Alertas
+                    </h2>
+                </div>
+
+                <div class="config-grid">
+                    <div class="config-card">
+                        <h3>
+                            <i class="fas fa-chart-line"></i>
+                            Umbrales de Stock
+                        </h3>
+                        <div class="config-item">
+                            <label>Stock crítico (agotado):</label>
+                            <input type="number" value="0" min="0" max="5" id="umbralCritico">
+                        </div>
+                        <div class="config-item">
+                            <label>Stock bajo:</label>
+                            <input type="number" value="10" min="1" max="50" id="umbralBajo">
+                        </div>
+                        <div class="config-item">
+                            <label>Stock mínimo recomendado:</label>
+                            <input type="number" value="20" min="5" max="100" id="umbralMinimo">
+                        </div>
+                    </div>
+
+                    <div class="config-card">
+                        <h3>
+                            <i class="fas fa-calendar-check"></i>
+                            Alertas de Vencimiento
+                        </h3>
+                        <div class="config-item">
+                            <label>Alerta temprana:</label>
+                            <input type="number" value="60" min="30" max="180" id="alertaTemprana">
+                            <span>días antes</span>
+                        </div>
+                        <div class="config-item">
+                            <label>Alerta urgente:</label>
+                            <input type="number" value="30" min="7" max="60" id="alertaUrgente">
+                            <span>días antes</span>
+                        </div>
+                    </div>
+
+                    <div class="config-card">
+                        <h3>
+                            <i class="fas fa-envelope"></i>
+                            Notificaciones
+                        </h3>
+                        <div class="config-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked id="emailNotificaciones">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span>Notificaciones por email</span>
+                        </div>
+                        <div class="config-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked id="alertasSonido">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span>Alertas sonoras</span>
+                        </div>
+                        <div class="config-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="reporteDiario">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span>Reporte diario automático</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-actions">
+                    <button class="btn-primary" onclick="guardarConfiguracion()">
+                        <i class="fas fa-save"></i> Guardar Configuración
+                    </button>
+                    <button class="btn-secondary" onclick="restaurarDefecto()">
+                        <i class="fas fa-undo"></i> Restaurar Predeterminado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <script src="assets/js/alertas.js"></script>
+</body>
+</html>
