@@ -412,14 +412,24 @@ async function cargarMedicamentosDisponibles() {
         // Mostrar indicador de carga
         selectMedicamento.innerHTML = '<option value="">Cargando medicamentos...</option>';
         
+        console.log('🔄 Consultando API de medicamentos...');
+        
         // Consultar API de Flask que ahora lee de MySQL (farmacia)
         const response = await fetch('/api/medicamentos?disponibles=1');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const medicamentos = await response.json();
+        
+        console.log(`📦 Recibidos ${medicamentos.length} medicamentos de la API`);
         
         // Limpiar select
         selectMedicamento.innerHTML = '<option value="">Seleccione un medicamento...</option>';
         
         // Llenar select con medicamentos disponibles
+        let medicamentosDisponibles = 0;
         medicamentos.forEach(med => {
             if (med.stock > 0) {  // Solo mostrar con stock disponible
                 const option = document.createElement('option');
@@ -429,15 +439,30 @@ async function cargarMedicamentosDisponibles() {
                 option.textContent = `${med.nombre} ${presentacion} - Disponible: ${med.stock} ${unidad}`;
                 option.dataset.nombre = `${med.nombre} ${presentacion}`;
                 selectMedicamento.appendChild(option);
+                medicamentosDisponibles++;
             }
         });
         
-        console.log(`✅ ${medicamentos.length} medicamentos cargados desde inventario MySQL`);
+        console.log(`✅ ${medicamentosDisponibles} medicamentos con stock disponible cargados`);
+        
+        if (medicamentosDisponibles === 0) {
+            selectMedicamento.innerHTML = '<option value="">No hay medicamentos disponibles</option>';
+            console.warn('⚠️ No hay medicamentos con stock > 0');
+        }
         
     } catch (error) {
         console.error('❌ Error al cargar medicamentos:', error);
         selectMedicamento.innerHTML = '<option value="">Error al cargar medicamentos</option>';
-        mostrarNotificacion('Error al cargar medicamentos del inventario', 'error');
+        
+        // Mostrar error más detallado en consola
+        console.error('Detalles del error:', {
+            message: error.message,
+            stack: error.stack
+        });
+        
+        if (window.mostrarNotificacion) {
+            mostrarNotificacion('Error al cargar medicamentos del inventario. Verifica que el servidor Flask esté corriendo.', 'error');
+        }
     }
 }
 
@@ -2060,12 +2085,17 @@ async function cargarMedicamentosDeReceta(receta) {
         return;
     }
     
+    console.log('📦 Cargando medicamentos de la receta:', detalles);
+    
     // Limpiar medicamentos existentes
     medicamentosContainer.innerHTML = '';
     medicamentoCount = 0;
     
-    // Esperar a que se carguen los medicamentos disponibles
+    // IMPORTANTE: Esperar a que se carguen los medicamentos disponibles PRIMERO
     await cargarMedicamentosDisponibles();
+    
+    // Esperar un poco más para asegurar que el DOM esté actualizado
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Agregar cada medicamento de la receta
     for (let index = 0; index < detalles.length; index++) {
@@ -2120,13 +2150,24 @@ async function cargarMedicamentosDeReceta(receta) {
         
         medicamentosContainer.insertAdjacentHTML('beforeend', medicamentoHTML);
         
-        // Seleccionar el medicamento correcto
+        // Seleccionar el medicamento correcto después de insertar el HTML
         const select = document.getElementById(`medicamento_${index}`);
         if (select && med.id_medicamento) {
-            // Esperar un poco para que se carguen las opciones
-            setTimeout(() => {
-                select.value = med.id_medicamento;
-            }, 500);
+            // Copiar las opciones del primer select si existe
+            const primeraLista = document.getElementById('medicamento_0');
+            if (primeraLista && primeraLista !== select && primeraLista.options.length > 1) {
+                select.innerHTML = primeraLista.innerHTML;
+            }
+            
+            // Seleccionar el valor correcto
+            select.value = med.id_medicamento;
+            
+            // Verificar si se seleccionó correctamente
+            if (select.value != med.id_medicamento) {
+                console.warn(`⚠️ No se pudo seleccionar medicamento ID ${med.id_medicamento} - puede que no exista en la lista`);
+            } else {
+                console.log(`✅ Medicamento ${med.id_medicamento} seleccionado en posición ${index}`);
+            }
         }
         
         medicamentoCount++;
