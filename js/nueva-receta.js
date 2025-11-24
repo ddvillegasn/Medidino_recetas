@@ -1961,23 +1961,31 @@ async function verificarYCargarRecetaDesdeHistorial() {
                 console.log('🔒 Buscador de pacientes oculto');
             }
             
-            // Pre-llenar datos del paciente
-            document.getElementById('pacienteIdHidden').value = paciente.id_paciente || paciente.id || '';
-            document.getElementById('pacienteNombre').value = paciente.nombre || '';
-            document.getElementById('pacienteIdentificacion').value = paciente.identificacion || '';
-            
-            // Buscar y mostrar información completa del paciente
-            if (paciente.identificacion) {
-                await buscarYMostrarPaciente(paciente.identificacion);
+            // Llenar campo de búsqueda y ejecutar búsqueda completa
+            const campoId = document.getElementById('buscarPacienteId');
+            if (campoId && paciente.identificacion) {
+                campoId.value = paciente.identificacion;
+                
+                // Ejecutar búsqueda completa del paciente y sus recetas
+                try {
+                    const response = await fetch(`/api/pacientes/buscar/${paciente.identificacion}`);
+                    if (response.ok) {
+                        const pacienteCompleto = await response.json();
+                        mostrarInfoPaciente(pacienteCompleto);
+                        
+                        // Cargar recetas del paciente
+                        const recetasResponse = await fetch(`/api/recetas?identificacion=${paciente.identificacion}`);
+                        if (recetasResponse.ok) {
+                            const recetas = await recetasResponse.json();
+                            mostrarHistorialRecetas(recetas);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error cargando datos del paciente:', error);
+                }
             }
             
-            // Mostrar sección de datos del paciente
-            const datosPacienteContainer = document.getElementById('datosPacienteContainer');
-            if (datosPacienteContainer) {
-                datosPacienteContainer.style.display = 'block';
-            }
-            
-            console.log('✅ Paciente cargado automáticamente:', paciente.nombre);
+            console.log('✅ Paciente y sus recetas cargados automáticamente:', paciente.nombre);
             // NO eliminar sessionStorage aquí para permitir navegación hacia atrás
             return;
         }
