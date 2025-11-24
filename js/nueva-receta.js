@@ -2133,7 +2133,19 @@ async function cargarMedicamentosDeReceta(receta) {
     medicamentoCount = 0;
     
     // IMPORTANTE: Esperar a que se carguen los medicamentos disponibles PRIMERO
+    console.log('🔄 Cargando lista de medicamentos disponibles...');
     await cargarMedicamentosDisponibles();
+    
+    // Obtener las opciones cargadas del primer select
+    const selectBase = document.getElementById('medicamento_0');
+    let opcionesHTML = '';
+    if (selectBase && selectBase.options.length > 0) {
+        opcionesHTML = selectBase.innerHTML;
+        console.log(`✅ ${selectBase.options.length} opciones de medicamentos disponibles`);
+    } else {
+        console.error('❌ No se cargaron medicamentos disponibles');
+        return;
+    }
     
     // Esperar un poco más para asegurar que el DOM esté actualizado
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -2193,21 +2205,24 @@ async function cargarMedicamentosDeReceta(receta) {
         
         // Seleccionar el medicamento correcto después de insertar el HTML
         const select = document.getElementById(`medicamento_${index}`);
-        if (select && med.id_medicamento) {
-            // Copiar las opciones del primer select si existe
-            const primeraLista = document.getElementById('medicamento_0');
-            if (primeraLista && primeraLista !== select && primeraLista.options.length > 1) {
-                select.innerHTML = primeraLista.innerHTML;
-            }
+        if (select) {
+            // Copiar las opciones HTML que guardamos antes
+            select.innerHTML = opcionesHTML;
+            console.log(`📋 Opciones copiadas al select medicamento_${index}`);
             
             // Seleccionar el valor correcto
-            select.value = med.id_medicamento;
-            
-            // Verificar si se seleccionó correctamente
-            if (select.value != med.id_medicamento) {
-                console.warn(`⚠️ No se pudo seleccionar medicamento ID ${med.id_medicamento} - puede que no exista en la lista`);
+            if (med.id_medicamento) {
+                select.value = med.id_medicamento;
+                
+                // Verificar si se seleccionó correctamente
+                if (select.value != med.id_medicamento) {
+                    console.warn(`⚠️ No se pudo seleccionar medicamento ID ${med.id_medicamento} - puede que no exista en la lista`);
+                    console.log(`Opciones disponibles:`, Array.from(select.options).map(o => `${o.value}: ${o.text}`));
+                } else {
+                    console.log(`✅ Medicamento ${med.id_medicamento} seleccionado en posición ${index}`);
+                }
             } else {
-                console.log(`✅ Medicamento ${med.id_medicamento} seleccionado en posición ${index}`);
+                console.warn(`⚠️ Medicamento en posición ${index} no tiene id_medicamento`);
             }
         }
         
