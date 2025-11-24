@@ -781,13 +781,7 @@ function mostrarHistorialRecetas(recetas) {
                 
                 <div class="receta-timeline-acciones">
                     <button type="button" class="btn-timeline-accion btn-ver" onclick="verDetalleReceta(${receta.id_receta})">
-                        <i class="fas fa-eye"></i> Ver
-                    </button>
-                    <button type="button" class="btn-timeline-accion btn-editar" onclick="editarReceta(${receta.id_receta})">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button type="button" class="btn-timeline-accion btn-eliminar" onclick="eliminarReceta(${receta.id_receta}, '${receta.numero_receta}')">
-                        <i class="fas fa-trash-alt"></i> Eliminar
+                        <i class="fas fa-eye"></i> Ver Detalles
                     </button>
                 </div>
             </div>
@@ -958,11 +952,8 @@ window.verDetalleReceta = function(id_receta) {
                 </div>
                 
                 <div class="modal-footer-detalle">
-                    <button type="button" class="btn-secondary" onclick="cerrarModalDetalle()">
+                    <button type="button" class="btn-primary" onclick="cerrarModalDetalle()">
                         <i class="fas fa-times"></i> Cerrar
-                    </button>
-                    <button type="button" class="btn-primary" onclick="cerrarModalDetalle(); editarReceta(${id_receta})">
-                        <i class="fas fa-edit"></i> Editar Receta
                     </button>
                 </div>
             </div>
